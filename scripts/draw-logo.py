@@ -5,7 +5,7 @@ from pathlib import Path
 try:
     from PIL import Image
 except ImportError:
-    print("错误: 需要安装PIL库。请运行: pip install Pillow")
+    print("Error: PIL library required. Please run: pip install Pillow")
     sys.exit(1)
 
 def create_ascii_art():
@@ -13,10 +13,10 @@ def create_ascii_art():
     logo_path = script_dir.parent / "images" / "logo.png"
     
     if not logo_path.exists():
-        print(f"错误: 找不到logo文件: {logo_path}")
+        print(f"Error: Logo file not found: {logo_path}")
         sys.exit(1)
     
-    chars = " .:-=+*#%@"  # 从亮到暗的字符表
+    chars = " .:-=+*#%@"  # Character map from light to dark
     
     try:
         img = Image.open(logo_path).convert("L")
@@ -28,7 +28,7 @@ def create_ascii_art():
         
         return ascii_img
     except Exception as e:
-        print(f"错误: 处理图片时出错: {e}")
+        print(f"Error: Failed to process image: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

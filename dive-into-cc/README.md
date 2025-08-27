@@ -1,141 +1,141 @@
-# Claude Code 高级开发者深度研究手册
+# Claude Code Advanced Developer Deep Dive Handbook
 
-> 面向高级软件开发者的 Claude Code 内部原理分析与自定义 Agent 开发指南
+> Internal mechanisms analysis and custom Agent development guide for advanced software developers
 
-## 🎯 手册定位
+## 🎯 Handbook Positioning
 
-**目标读者**: 高级软件开发者、系统架构师、AI系统开发者
+**Target Audience**: Senior software developers, system architects, AI system developers
 
-**核心价值**: 
-- 🔬 **深度原理分析** - 剖析 Claude Code 的内部工作机制  
-- 🛠️ **自定义 Agent 开发** - 基于 SDK 构建专业级 AI 应用
-- 🏗️ **架构设计洞察** - 企业级 AI 系统的设计思想
+**Core Value Propositions**: 
+- 🔬 **Deep Mechanism Analysis** - Dissect Claude Code's internal workings  
+- 🛠️ **Custom Agent Development** - Build professional-grade AI applications with the SDK
+- 🏗️ **Architectural Design Insights** - Enterprise-level AI system design patterns
 
-**不涵盖内容**: 
-- ❌ 基础使用教程 → 参考 [官方文档](https://docs.anthropic.com/en/docs/claude-code)
-- ❌ 快速入门指南 → 参考 [Getting Started](https://docs.anthropic.com/en/docs/claude-code/getting-started)  
-- ❌ 常见问题解答 → 参考 [FAQ](https://docs.anthropic.com/en/docs/claude-code/faq)
+**What This Handbook Does NOT Cover**: 
+- ❌ Basic usage tutorials → Refer to [Official Documentation](https://docs.anthropic.com/en/docs/claude-code)
+- ❌ Quick start guides → Refer to [Getting Started](https://docs.anthropic.com/en/docs/claude-code/getting-started)  
+- ❌ FAQ content → Refer to [FAQ](https://docs.anthropic.com/en/docs/claude-code/faq)
 
-## 📚 深度研究内容
+## 📚 Deep Research Content
 
-### Part I: 内部架构原理
+### Part I: Internal Architecture Principles
 ```
 01-internal-architecture/
-├── context-management.md        # 上下文管理机制深度分析
-├── prompt-orchestration.md     # 提示词组织与执行原理
-├── agent-lifecycle.md          # Agent 生命周期管理
-├── memory-and-state.md         # 内存管理与状态持久化
-└── execution-engine.md         # 执行引擎核心机制
+├── context-management.md        # Deep dive into context management mechanisms
+├── prompt-orchestration.md     # Prompt organization and execution principles
+├── agent-lifecycle.md          # Agent lifecycle management
+├── memory-and-state.md         # Memory management and state persistence
+└── execution-engine.md         # Execution engine core mechanisms
 ```
 
-### Part II: SubAgents 深度解析 🔥
+### Part II: SubAgents Deep Analysis 🔥
 ```
 02-subagents-deep-dive/
-├── subagent-architecture.md    # SubAgent 系统架构剖析
-├── coordination-protocols.md   # Agent 间协调协议
-├── task-delegation.md          # 任务委派与分解机制  
-├── communication-patterns.md   # Agent 通信模式分析
-└── performance-optimization.md # 多 Agent 性能优化
+├── subagent-architecture.md    # SubAgent system architecture analysis
+├── coordination-protocols.md   # Inter-agent coordination protocols
+├── task-delegation.md          # Task delegation and decomposition mechanisms  
+├── communication-patterns.md   # Agent communication pattern analysis
+└── performance-optimization.md # Multi-agent performance optimization
 ```
 
-### Part III: 高级 SDK 开发
+### Part III: Advanced SDK Development
 ```
 03-advanced-sdk-development/
-├── custom-agent-patterns.md    # 自定义 Agent 设计模式
-├── tool-integration-advanced.md # 高级工具集成技术
-├── streaming-and-async.md      # 流式处理与异步编程
-├── error-handling-strategies.md # 企业级错误处理策略
-└── security-implementation.md  # 安全机制实现详解
+├── custom-agent-patterns.md    # Custom agent design patterns
+├── tool-integration-advanced.md # Advanced tool integration techniques
+├── streaming-and-async.md      # Streaming and asynchronous programming
+├── error-handling-strategies.md # Enterprise-grade error handling strategies
+└── security-implementation.md  # Security mechanism implementation details
 ```
 
-### Part IV: 企业级集成方案
+### Part IV: Enterprise Integration Solutions
 ```
 04-enterprise-integration/
-├── production-deployment.md    # 生产环境部署策略
-├── monitoring-and-observability.md # 监控与可观测性
-├── scalability-patterns.md     # 可扩展性设计模式
-├── compliance-and-governance.md # 合规性与治理
-└── cost-optimization.md        # 成本优化策略
+├── production-deployment.md    # Production environment deployment strategies
+├── monitoring-and-observability.md # Monitoring and observability
+├── scalability-patterns.md     # Scalability design patterns
+├── compliance-and-governance.md # Compliance and governance
+└── cost-optimization.md        # Cost optimization strategies
 ```
 
-### Part V: 源码级分析
+### Part V: Source Code Level Analysis
 ```
 05-source-code-analysis/
-├── cli-architecture-deep-dive.md # CLI 架构深度剖析
-├── hook-system-internals.md      # Hook 系统内部机制
-├── mcp-protocol-implementation.md # MCP 协议实现分析
-├── performance-bottlenecks.md    # 性能瓶颈识别与优化
-└── security-boundaries.md        # 安全边界实现机制
+├── cli-architecture-deep-dive.md # CLI architecture deep dive
+├── hook-system-internals.md      # Hook system internal mechanisms
+├── mcp-protocol-implementation.md # MCP protocol implementation analysis
+├── performance-bottlenecks.md    # Performance bottleneck identification and optimization
+└── security-boundaries.md        # Security boundary implementation mechanisms
 ```
 
-### Part VI: 高级实践案例
+### Part VI: Advanced Practice Case Studies
 ```
 06-advanced-case-studies/
-├── complex-workflow-automation/ # 复杂工作流自动化案例
-├── multi-modal-processing/      # 多模态处理实现
-├── distributed-agent-systems/  # 分布式 Agent 系统
-└── domain-specific-agents/      # 领域特定 Agent 开发
+├── complex-workflow-automation/ # Complex workflow automation cases
+├── multi-modal-processing/      # Multi-modal processing implementation
+├── distributed-agent-systems/  # Distributed agent systems
+└── domain-specific-agents/      # Domain-specific agent development
 ```
 
-## 🔬 研究方法论
+## 🔬 Research Methodology
 
-### 逆向工程分析
-- **静态分析**: 源码结构、API 设计、配置机制
-- **动态分析**: 运行时行为、内存使用、性能特征
-- **协议分析**: 通信协议、数据格式、同步机制
+### Reverse Engineering Analysis
+- **Static Analysis**: Source code structure, API design, configuration mechanisms
+- **Dynamic Analysis**: Runtime behavior, memory usage, performance characteristics
+- **Protocol Analysis**: Communication protocols, data formats, synchronization mechanisms
 
-### 实验验证
-- **压力测试**: 极限场景下的系统表现
-- **边界测试**: 安全边界和错误处理机制
-- **性能分析**: 瓶颈识别和优化验证
+### Experimental Validation
+- **Stress Testing**: System performance under extreme scenarios
+- **Boundary Testing**: Security boundaries and error handling mechanisms
+- **Performance Analysis**: Bottleneck identification and optimization validation
 
-## 🎯 核心研究问题
+## 🎯 Core Research Questions
 
-### 架构原理类
-1. **上下文管理**: Claude Code 如何维护长对话的上下文一致性？
-2. **提示词编排**: 复杂提示词是如何组织和执行的？
-3. **状态管理**: Agent 的状态是如何在多轮交互中持久化的？
+### Architecture Principles
+1. **Context Management**: How does Claude Code maintain context consistency across long conversations?
+2. **Prompt Orchestration**: How are complex prompts organized and executed?
+3. **State Management**: How is agent state persisted across multi-turn interactions?
 
-### SubAgents 机制类  
-1. **任务分解算法**: 复杂任务是如何智能分解给不同 SubAgents 的？
-2. **协调机制**: 多个 SubAgents 如何协调避免冲突和重复工作？
-3. **通信协议**: SubAgents 间的通信协议和数据交换格式？
+### SubAgents Mechanisms  
+1. **Task Decomposition Algorithms**: How are complex tasks intelligently decomposed for different SubAgents?
+2. **Coordination Mechanisms**: How do multiple SubAgents coordinate to avoid conflicts and duplicate work?
+3. **Communication Protocols**: What are the communication protocols and data exchange formats between SubAgents?
 
-### 高级开发类
-1. **自定义扩展点**: 系统提供了哪些可扩展的接口和钩子？
-2. **性能优化策略**: 在大规模使用时如何优化响应速度和资源消耗？  
-3. **安全边界控制**: 如何实现细粒度的权限控制和安全隔离？
+### Advanced Development
+1. **Custom Extension Points**: What extensible interfaces and hooks does the system provide?
+2. **Performance Optimization Strategies**: How to optimize response speed and resource consumption at scale?  
+3. **Security Boundary Control**: How to implement fine-grained permission control and security isolation?
 
-## 🛠️ 实践输出
+## 🛠️ Practical Outputs
 
-### 深度分析文档
-- 内部机制的详细技术分析
-- 关键算法和数据结构解析  
-- 性能特征和优化建议
+### Deep Analysis Documentation
+- Detailed technical analysis of internal mechanisms
+- Key algorithm and data structure explanations  
+- Performance characteristics and optimization recommendations
 
-### 高级开发模板
-- 自定义 Agent 开发脚手架
-- 企业级集成方案模板
-- 复杂场景解决方案代码
+### Advanced Development Templates
+- Custom agent development scaffolding
+- Enterprise integration solution templates
+- Complex scenario solution code
 
-### 工具和工具链
-- 性能分析和调试工具
-- 自动化测试框架
-- 部署和运维脚本
+### Tools and Toolchains
+- Performance analysis and debugging tools
+- Automated testing frameworks
+- Deployment and operations scripts
 
-## 📋 参考资源
+## 📋 Reference Resources
 
-### 官方文档 (基础部分)
+### Official Documentation (Foundation)
 - [SDK Overview](https://docs.anthropic.com/en/docs/claude-code/sdk/sdk-overview)
 - [Sub-agents Guide](https://docs.anthropic.com/en/docs/claude-code/sub-agents)  
 - [Hooks Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
 
-### 本手册增值部分
-- 官方文档未涉及的内部机制分析
-- 复杂场景下的最佳实践
-- 企业级部署和优化策略
-- 源码级的深度技术剖析
+### This Handbook's Value-Add
+- Internal mechanism analysis not covered in official docs
+- Best practices for complex scenarios
+- Enterprise deployment and optimization strategies
+- Source-code level deep technical analysis
 
 ---
 
-> 💡 **研究理念**: 不止于使用工具，而是理解工具背后的设计思想，掌握构建下一代 AI 系统的核心技术。
+> 💡 **Research Philosophy**: Beyond using tools - understand the design thinking behind tools to master building next-generation AI systems.
