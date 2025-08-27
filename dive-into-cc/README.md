@@ -1,100 +1,141 @@
-# Claude Code 深度探索项目
+# Claude Code 高级开发者深度研究手册
 
-一个系统性的 Claude Code 架构分析和高阶应用探索项目。
+> 面向高级软件开发者的 Claude Code 内部原理分析与自定义 Agent 开发指南
 
-## 项目目标
+## 🎯 手册定位
 
-通过深度使用和分析 Claude Code，全面掌握其设计思想和实现原理，并将这些设计模式应用到其他项目中。
+**目标读者**: 高级软件开发者、系统架构师、AI系统开发者
 
-### 核心目标
-- **全面掌握** Claude Code 的使用方法和最佳实践
-- **深入理解** Claude Code 的架构设计和设计思想
-- **学习应用** 其中的设计模式到其他项目
-- **形成文档** 系统化的探索成果和知识沉淀
+**核心价值**: 
+- 🔬 **深度原理分析** - 剖析 Claude Code 的内部工作机制  
+- 🛠️ **自定义 Agent 开发** - 基于 SDK 构建专业级 AI 应用
+- 🏗️ **架构设计洞察** - 企业级 AI 系统的设计思想
 
-## 2周集中探索计划
+**不涵盖内容**: 
+- ❌ 基础使用教程 → 参考 [官方文档](https://docs.anthropic.com/en/docs/claude-code)
+- ❌ 快速入门指南 → 参考 [Getting Started](https://docs.anthropic.com/en/docs/claude-code/getting-started)  
+- ❌ 常见问题解答 → 参考 [FAQ](https://docs.anthropic.com/en/docs/claude-code/faq)
 
-### 第一周：架构理解与工具掌握
-- **Day 1-2**: 快速上手与架构分析 ✅
-- **Day 3-4**: 工具系统深度探索
-- **Day 5-7**: 插件系统与集成方案
+## 📚 深度研究内容
 
-### 第二周：安全机制与实践应用  
-- **Day 8-10**: 安全架构与权限系统
-- **Day 11-12**: 实战应用与最佳实践
-- **Day 13-14**: 设计思想总结与应用规划
-
-## 文档结构
-
+### Part I: 内部架构原理
 ```
-docs/
-├── 01-architecture/          # 架构分析
-│   ├── overview.md           # 整体架构概述 ✅
-│   ├── design-patterns.md    # 设计模式分析
-│   └── plugin-system.md     # 插件系统设计
-├── 02-tools/                 # 工具深度分析
-│   ├── file-operations.md    # 文件操作工具
-│   ├── bash-integration.md   # Bash集成
-│   └── web-capabilities.md   # Web功能
-├── 03-integration/           # 集成方案
-│   ├── ide-integration.md    # IDE集成设计
-│   ├── mcp-protocol.md       # MCP协议分析
-│   └── cross-platform.md    # 跨平台策略
-├── 04-security/              # 安全机制
-│   ├── permission-system.md  # 权限系统
-│   ├── hook-mechanism.md     # Hook机制
-│   └── security-patterns.md  # 安全设计模式
-├── 05-practices/             # 实践应用
-│   ├── best-practices.md     # 最佳实践
-│   ├── use-cases.md          # 使用场景
-│   └── troubleshooting.md    # 问题解决
-└── 06-insights/              # 设计洞察
-    ├── design-philosophy.md  # 设计哲学
-    ├── design-patterns-summary.md # 设计模式总结
-    └── application-roadmap.md # 应用实施方案
+01-internal-architecture/
+├── context-management.md        # 上下文管理机制深度分析
+├── prompt-orchestration.md     # 提示词组织与执行原理
+├── agent-lifecycle.md          # Agent 生命周期管理
+├── memory-and-state.md         # 内存管理与状态持久化
+└── execution-engine.md         # 执行引擎核心机制
 ```
 
-## 当前进展
+### Part II: SubAgents 深度解析 🔥
+```
+02-subagents-deep-dive/
+├── subagent-architecture.md    # SubAgent 系统架构剖析
+├── coordination-protocols.md   # Agent 间协调协议
+├── task-delegation.md          # 任务委派与分解机制  
+├── communication-patterns.md   # Agent 通信模式分析
+└── performance-optimization.md # 多 Agent 性能优化
+```
 
-### ✅ Day 1 已完成
-- 初始化项目结构和文档体系
-- 安装和配置 Claude Code 环境
-- 完成初步架构分析和设计模式识别
-- 建立2周集中探索计划
+### Part III: 高级 SDK 开发
+```
+03-advanced-sdk-development/
+├── custom-agent-patterns.md    # 自定义 Agent 设计模式
+├── tool-integration-advanced.md # 高级工具集成技术
+├── streaming-and-async.md      # 流式处理与异步编程
+├── error-handling-strategies.md # 企业级错误处理策略
+└── security-implementation.md  # 安全机制实现详解
+```
 
-### 🔄 Day 2-3 进行中
-- 工具系统深度分析
-- 实际使用验证和行为观察
+### Part IV: 企业级集成方案
+```
+04-enterprise-integration/
+├── production-deployment.md    # 生产环境部署策略
+├── monitoring-and-observability.md # 监控与可观测性
+├── scalability-patterns.md     # 可扩展性设计模式
+├── compliance-and-governance.md # 合规性与治理
+└── cost-optimization.md        # 成本优化策略
+```
 
-## 探索重点
+### Part V: 源码级分析
+```
+05-source-code-analysis/
+├── cli-architecture-deep-dive.md # CLI 架构深度剖析
+├── hook-system-internals.md      # Hook 系统内部机制
+├── mcp-protocol-implementation.md # MCP 协议实现分析
+├── performance-bottlenecks.md    # 性能瓶颈识别与优化
+└── security-boundaries.md        # 安全边界实现机制
+```
 
-### 架构设计亮点
-1. **分层架构**：CLI → SDK → 工具 → 传输层的清晰分层
-2. **事件驱动**：基于Hook的完整生命周期管理
-3. **插件化**：MCP协议支持的灵活插件生态
-4. **安全优先**：多层权限控制和审计机制
-5. **跨平台**：原生二进制 + WebAssembly 的混合策略
+### Part VI: 高级实践案例
+```
+06-advanced-case-studies/
+├── complex-workflow-automation/ # 复杂工作流自动化案例
+├── multi-modal-processing/      # 多模态处理实现
+├── distributed-agent-systems/  # 分布式 Agent 系统
+└── domain-specific-agents/      # 领域特定 Agent 开发
+```
 
-### 值得学习的设计模式
-- **协议优先设计**：通过MCP确保跨环境一致性
-- **可组合架构**：工具、钩子、传输都可独立组合
-- **优雅降级**：可选依赖和回退机制
-- **流式接口**：AsyncGenerator实现的实时响应
-- **多传输抽象**：统一接口下的多种通信方式
+## 🔬 研究方法论
 
-## 如何使用
+### 逆向工程分析
+- **静态分析**: 源码结构、API 设计、配置机制
+- **动态分析**: 运行时行为、内存使用、性能特征
+- **协议分析**: 通信协议、数据格式、同步机制
 
-这个项目采用渐进式的探索方法：
-1. **使用实践**：在实际项目中使用Claude Code
-2. **问题记录**：遇到的问题和解决方案
-3. **设计分析**：对实现细节的深度思考
-4. **文档完善**：将探索成果整理成系统化文档
-5. **知识应用**：在其他项目中应用学到的设计思想
+### 实验验证
+- **压力测试**: 极限场景下的系统表现
+- **边界测试**: 安全边界和错误处理机制
+- **性能分析**: 瓶颈识别和优化验证
 
-## 许可证
+## 🎯 核心研究问题
 
-MIT License - 欢迎分享和改进这些探索成果。
+### 架构原理类
+1. **上下文管理**: Claude Code 如何维护长对话的上下文一致性？
+2. **提示词编排**: 复杂提示词是如何组织和执行的？
+3. **状态管理**: Agent 的状态是如何在多轮交互中持久化的？
+
+### SubAgents 机制类  
+1. **任务分解算法**: 复杂任务是如何智能分解给不同 SubAgents 的？
+2. **协调机制**: 多个 SubAgents 如何协调避免冲突和重复工作？
+3. **通信协议**: SubAgents 间的通信协议和数据交换格式？
+
+### 高级开发类
+1. **自定义扩展点**: 系统提供了哪些可扩展的接口和钩子？
+2. **性能优化策略**: 在大规模使用时如何优化响应速度和资源消耗？  
+3. **安全边界控制**: 如何实现细粒度的权限控制和安全隔离？
+
+## 🛠️ 实践输出
+
+### 深度分析文档
+- 内部机制的详细技术分析
+- 关键算法和数据结构解析  
+- 性能特征和优化建议
+
+### 高级开发模板
+- 自定义 Agent 开发脚手架
+- 企业级集成方案模板
+- 复杂场景解决方案代码
+
+### 工具和工具链
+- 性能分析和调试工具
+- 自动化测试框架
+- 部署和运维脚本
+
+## 📋 参考资源
+
+### 官方文档 (基础部分)
+- [SDK Overview](https://docs.anthropic.com/en/docs/claude-code/sdk/sdk-overview)
+- [Sub-agents Guide](https://docs.anthropic.com/en/docs/claude-code/sub-agents)  
+- [Hooks Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
+
+### 本手册增值部分
+- 官方文档未涉及的内部机制分析
+- 复杂场景下的最佳实践
+- 企业级部署和优化策略
+- 源码级的深度技术剖析
 
 ---
 
-> 通过深度探索 Claude Code，我们不仅学会如何使用这个强大的工具，更重要的是学习其背后的设计智慧，并将这些思想应用到我们自己的项目中。
+> 💡 **研究理念**: 不止于使用工具，而是理解工具背后的设计思想，掌握构建下一代 AI 系统的核心技术。
