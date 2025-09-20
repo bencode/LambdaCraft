@@ -1,0 +1,17 @@
+{
+  "name": "LambdaCraft",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel run dev",
+    "build": "pnpm --parallel run build",
+    "test": "pnpm --parallel run test",
+    "lint": "pnpm --parallel run lint",
+    "typecheck": "pnpm --parallel run typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
