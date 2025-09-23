@@ -1,6 +1,0 @@
-{:index "notebooks/welcome.clj"
- :browse? true
- :port 7777
- :watch-paths ["notebooks" "src"]
- :show-filter-fn #(clojure.string/starts-with? % "notebooks")
- :git/sha "main"}
