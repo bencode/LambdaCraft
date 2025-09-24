@@ -4,20 +4,21 @@
 echo "Building static site..."
 clojure -X:build
 
-# Create gh-pages branch if it doesn't exist
-git checkout -B gh-pages
+# Navigate to project root
+cd ../..
 
-# Copy built files to root
-cp -r public/* .
+# Create docs directory if it doesn't exist
+mkdir -p docs
+
+# Copy built files to docs directory
+echo "Copying files to docs directory..."
+cp -r apps/web/public/* docs/
 
 # Add and commit
-git add .
-git commit -m "Deploy static site - $(date)"
+git add docs/
+git commit -m "Deploy static site to docs/ - $(date)"
 
-# Push to gh-pages branch
-git push origin gh-pages --force
+# Push to main branch
+git push origin main
 
-# Switch back to main
-git checkout main
-
-echo "Deployed to GitHub Pages!"
+echo "Deployed to docs/ directory for GitHub Pages!"

@@ -3,6 +3,7 @@ node_modules/
 .cpcache/
 *.local.json
 
-index.edn
-index.html
-notebooks/
+# Build artifacts in web project
+apps/web/public/index.edn
+apps/web/public/index.html
+apps/web/public/notebooks/
