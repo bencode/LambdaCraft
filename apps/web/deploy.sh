@@ -9,7 +9,7 @@ git checkout -B gh-pages
 mkdir -p docs
 
 echo "Copying files to docs directory..."
-cp -r apps/web/public/* docs/
+cp -rL apps/web/public/* docs/
 
 echo "Creating .nojekyll file..."
 touch docs/.nojekyll
