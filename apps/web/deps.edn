@@ -1,12 +1,11 @@
 {:paths ["src" "resources" "notebooks"]
- :deps {org.clojure/clojure {:mvn/version "1.12.2"}}
+ :deps {org.clojure/clojure {:mvn/version "1.12.2"}
+        io.github.nextjournal/clerk {:mvn/version "0.18.1150"}}
  :aliases
- {:clerk {:extra-deps {io.github.nextjournal/clerk {:mvn/version "0.18.1150"}}
-          :exec-fn nextjournal.clerk/serve!
-          :exec-args {:browse? true :port 7777 :paths ["notebooks/*"] :index "notebooks/home.clj" :show-file-paths? false :show-header? false}}
-  :dev {:extra-deps {io.github.nextjournal/clerk {:mvn/version "0.18.1150"}}}
-  :build {:extra-deps {io.github.nextjournal/clerk {:mvn/version "0.18.1150"}}
-          :exec-fn nextjournal.clerk/build!
-          :exec-args {:git/sha "main"}}
-  :test {:extra-paths ["test"]
-         :extra-deps {org.clojure/test.check {:mvn/version "1.1.1"}}}}}
+ {:dev  {}
+  :run  {:main-opts ["-m" "user"]}
+  :build {:exec-fn nextjournal.clerk/build!
+          :exec-args {:paths ["notebooks/*.clj"]
+                      :index "notebooks/home.clj"
+                      :out-path "public"
+                      :book? false}}}}

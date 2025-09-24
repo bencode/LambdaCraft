@@ -1,0 +1,18 @@
+@import url('/css/press-start-2p.css');
+
+.notebook-viewer>div:first-child {
+  display: none;
+}
+
+.my-logo {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.my-slogan {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
