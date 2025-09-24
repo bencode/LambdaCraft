@@ -9,5 +9,14 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/html
  [:div
-  [:h1 {:class "my-logo"} "LambdaCraft"]
-  [:p {:class "my-slogan"} "() => study(math) => practice(code)"]])
+  [:h1 {:class "bcd-logo"} "LambdaCraft"]
+  [:p {:class "bcd-slogan"} "() => study(math) => practice(code)"]])
+
+; ## Study
+; - [My Reading System](https://in.qijun.io)
+;
+; ## Math
+;
+; ## Practice
+;
+; ## Code
