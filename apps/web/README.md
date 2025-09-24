@@ -1,3 +1,1 @@
-# LambdaCraft
-
-**() => study(math) => practice(code)**
+# LambdaCraft Web

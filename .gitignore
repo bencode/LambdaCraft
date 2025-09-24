@@ -2,3 +2,7 @@ node_modules/
 .clerk/
 .cpcache/
 *.local.json
+
+index.edn
+index.html
+notebooks/
