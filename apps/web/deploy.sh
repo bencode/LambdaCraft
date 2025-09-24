@@ -7,6 +7,9 @@ clojure -X:build
 # Navigate to project root
 cd ../..
 
+# Create gh-pages branch if it doesn't exist, or switch to it
+git checkout -B gh-pages
+
 # Create docs directory if it doesn't exist
 mkdir -p docs
 
@@ -16,9 +19,12 @@ cp -r apps/web/public/* docs/
 
 # Add and commit
 git add docs/
-git commit -m "Deploy static site to docs/ - $(date)"
+git commit -m "Deploy static site to docs/ on gh-pages - $(date)"
 
-# Push to main branch
-git push origin main
+# Push to gh-pages branch
+git push origin gh-pages --force
 
-echo "Deployed to docs/ directory for GitHub Pages!"
+# Switch back to main
+git checkout main
+
+echo "Deployed to docs/ directory on gh-pages branch!"
