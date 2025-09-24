@@ -4,7 +4,7 @@ echo "Building static site..."
 clojure -X:build
 
 cd ../..
-git checkout -B release
+git checkout -B gh-pages
 
 mkdir -p docs
 
@@ -15,9 +15,9 @@ echo "Creating .nojekyll file..."
 touch docs/.nojekyll
 
 git add docs/
-git commit -m "Deploy static site to docs/ on release - $(date)"
-git push origin release --force
+git commit -m "Deploy static site - $(date)"
+git push origin gh-pages --force
 
 git checkout main
 
-echo "Deployed to docs/ directory on release branch"
+echo "Deployed"
