@@ -14,6 +14,9 @@ cp -rL apps/web/public/* docs/
 echo "Creating .nojekyll file..."
 touch docs/.nojekyll
 
+echo "Creating CNAME file..."
+echo "qijun.io" > docs/CNAME
+
 git add -f docs/
 git commit -m "Deploy static site - $(date)"
 git push origin gh-pages --force
