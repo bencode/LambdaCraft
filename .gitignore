@@ -7,3 +7,5 @@ node_modules/
 apps/web/public/index.edn
 apps/web/public/index.html
 apps/web/public/notebooks/
+
+docs/

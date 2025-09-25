@@ -38,4 +38,3 @@
       :target "_blank"}
      "GitHub →"]]
    [:p.text-gray-600.text-sm "一个 Logseq 插件，用于在笔记中直接运行代码块"]]])
-;
