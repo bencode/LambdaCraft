@@ -19,7 +19,7 @@
 ; ## Study
 ;
 ; - [Reading System](https://in.qijun.io)
-; - [Technical Documentation](/docs/index)
+; - [Technical Documentation](/docs/home)
 ;
 ; ## Math
 ;

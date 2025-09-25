@@ -1,5 +1,5 @@
 ^{:nextjournal.clerk/visibility {:code :hide :result :show}}
-(ns docs.index
+(ns docs.home
   (:require [nextjournal.clerk :as clerk]))
 
 ;; # Documentation
