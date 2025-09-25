@@ -1,5 +1,5 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
-(ns notebooks.home
+(ns pages.home
   (:require [nextjournal.clerk :as clerk]))
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
@@ -13,7 +13,9 @@
   [:p {:class "bcd-slogan"} "() => study(math) => practice(code)"]])
 
 ; ## Study
-; - [My Reading System](https://in.qijun.io)
+;
+; - [Reading System](https://in.qijun.io)
+; - [Documentation](/docs/index.clj)
 ;
 ; ## Math
 ;
