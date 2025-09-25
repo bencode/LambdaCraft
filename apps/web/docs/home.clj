@@ -6,5 +6,5 @@
 
 ;; ## Technical Documentation
 
-;; - [Clerk Features Demo](clerk)
-;; - [Emmy Learning Notes](emmy)
+;; - [Clerk Features Demo](/docs/clerk)
+;; - [Emmy Learning Notes](/docs/emmy)
