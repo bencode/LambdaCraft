@@ -15,10 +15,19 @@
 ; ## Study
 ;
 ; - [Reading System](https://in.qijun.io)
-; - [Documentation](/docs/index.clj)
+; - [Technical Documentation](/docs/index)
 ;
 ; ## Math
 ;
+; - [Emmy Computer Algebra System](/docs/emmy)
+; - Mathematical Computing and Symbolic Computation
+;
 ; ## Practice
 ;
+; - Interactive Notebooks with Clerk
+; - Physics and Mathematics Examples
+;
 ; ## Code
+;
+; - Clojure Development Environment
+; - Functional Programming Demonstrations
