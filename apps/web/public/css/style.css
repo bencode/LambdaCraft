@@ -5,8 +5,8 @@ html {
 }
 
 .notebook-viewer {
-  align-items: flex-start;
   >.viewer {
+    max-width: 1000px !important;
     padding: 0 1rem;
   }
 }

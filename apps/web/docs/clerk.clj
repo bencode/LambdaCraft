@@ -1,6 +1,6 @@
-;; # Clerk Notebook Complete Feature Showcase
+;; # Clerk 笔记本完整功能演示
 ;;
-;; This file demonstrates all common features and best practices of Clerk notebook
+;; 本文档演示 Clerk 笔记本的所有常用功能和最佳实践
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :show}}
 (ns docs.clerk
@@ -299,10 +299,3 @@ Code block:
     [:li "Use " [:code.bg-blue-100.px-1.rounded "^::clerk/no-cache"] " to disable caching when debugging"]
     [:li "Set " [:code.bg-blue-100.px-1.rounded "::clerk/page-size"] " for large datasets"]
     [:li "Use Tailwind CSS classes for quick styling"]]])
-
-;; ### Complete workflow example
-^{:nextjournal.clerk/visibility {:code :hide :result :show}}
-(clerk/html [:div.text-center.p-6.bg-gradient-to-r.from-green-400.to-blue-500.text-white.rounded-lg.mt-6
-             [:h3.text-2xl.font-bold "🎯 Complete!"]
-             [:p.mt-2 "You've learned the main features of Clerk Notebook"]
-             [:p "Now you can start creating your own data science and technical documentation!"]])
