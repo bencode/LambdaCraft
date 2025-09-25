@@ -18,6 +18,7 @@ git add docs/
 git commit -m "Deploy static site - $(date)"
 git push origin gh-pages --force
 
+rm -r docs
 git checkout main
 
 echo "Deployed"
