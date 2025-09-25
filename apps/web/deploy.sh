@@ -14,7 +14,7 @@ cp -rL apps/web/public/* docs/
 echo "Creating .nojekyll file..."
 touch docs/.nojekyll
 
-git add docs/
+git add -f docs/
 git commit -m "Deploy static site - $(date)"
 git push origin gh-pages --force
 
