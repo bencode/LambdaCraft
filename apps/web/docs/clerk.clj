@@ -3,7 +3,7 @@
 ;; This file demonstrates all common features and best practices of Clerk notebook
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :show}}
-(ns notebooks.example
+(ns docs.clerk
   {:nextjournal.clerk/toc true
    :nextjournal.clerk/width :wide}
   (:require [nextjournal.clerk :as clerk]

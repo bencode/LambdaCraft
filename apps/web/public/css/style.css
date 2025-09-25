@@ -6,7 +6,11 @@ html {
 
 .notebook-viewer {
   align-items: flex-start;
+  >.viewer {
+    padding: 0 1rem;
+  }
 }
+
 .notebook-viewer>div:first-child {
   display: none;
 }

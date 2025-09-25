@@ -1,11 +1,13 @@
-{:paths ["src" "resources" "notebooks"]
+{:paths ["src" "resources" "pages" "docs"]
  :deps {org.clojure/clojure {:mvn/version "1.12.2"}
-        io.github.nextjournal/clerk {:mvn/version "0.18.1150"}}
+        io.github.nextjournal/clerk {:mvn/version "0.18.1150"}
+        org.mentat/emmy {:mvn/version "0.32.0"}
+        org.mentat/emmy-viewers {:mvn/version "0.3.2"}}
  :aliases
  {:dev  {}
   :run  {:main-opts ["-m" "user"]}
   :build {:exec-fn nextjournal.clerk/build!
-          :exec-args {:paths ["notebooks/*.clj"]
-                      :index "notebooks/home.clj"
+          :exec-args {:paths ["pages/*.clj" "docs/*.clj"]
+                      :index "pages/home.clj"
                       :out-path "public"
                       :book? false}}}}
