@@ -1,6 +1,6 @@
-;; # Clerk 笔记本完整功能演示
+;; # Clerk Notebook Complete Feature Showcase
 ;;
-;; 本文档演示 Clerk 笔记本的所有常用功能和最佳实践
+;; This file demonstrates all common features and best practices of Clerk notebook
 
 ^{:nextjournal.clerk/visibility {:code :hide :result :show}}
 (ns docs.clerk

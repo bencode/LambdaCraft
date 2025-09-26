@@ -174,19 +174,19 @@ expr2
            :xaxis {:title "x"}
            :yaxis {:title "y"}}})
 
-;; ## 7. 练习题
+;; ## 7. 应用
 
-;; ### 练习 1: 计算复合函数的导数
+;; ### 1: 计算复合函数的导数
 ;; 计算 d/dx[sin(x²)]
 (def composite-fn (compose sin square))
 (simplify ((D composite-fn) 'x))
 
-;; ### 练习 2: 多项式运算
+;; ### 2: 多项式运算
 (def poly1 (+ (* 'x 'x) (* 2 'x) 3))
 (def poly2 (+ (* 'x 'x) (- 'x) 1))
 (simplify (+ poly1 poly2))
 
-;; ### 练习 3: 求解简单的物理问题
+;; ### 3: 求解简单的物理问题
 ;; 抛体运动的轨迹
 (defn projectile-motion [v0 theta g]
   (fn [t]

@@ -2,9 +2,7 @@
 (ns docs.home
   (:require [nextjournal.clerk :as clerk]))
 
-;; # Documentation
+;; # 文档
 
-;; ## Technical Documentation
-
-;; - [Clerk Features Demo](/docs/clerk)
-;; - [Emmy Learning Notes](/docs/emmy)
+;; - [Clerk Usage](/docs/clerk)
+;; - [Emmy](/docs/emmy)
