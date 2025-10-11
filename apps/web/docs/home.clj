@@ -2,7 +2,7 @@
 (ns docs.home
   (:require [nextjournal.clerk :as clerk]))
 
-;; # 文档
+;; # 我的知识库
 
 ;; - [Clerk Usage](/docs/clerk)
 ;; - [Emmy](/docs/emmy)
