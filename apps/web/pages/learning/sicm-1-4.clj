@@ -9,7 +9,8 @@
   4. 寻找使作用量最小的轨迹"
   {:nextjournal.clerk/toc true}
   (:require [nextjournal.clerk :as clerk]
-            [emmy.env :as e :refer [literal-function up velocity coordinate
+            [emmy.env :as e :refer [* + - /
+                                     literal-function up velocity coordinate
                                      D Gamma compose simplify definite-integral
                                      dot-product sqrt square ->TeX]]
             [emmy.expression.render :as render]))
@@ -124,18 +125,18 @@
 ;; ```
 
 ;; Emmy/Clojure 实现：
-(def q-symbolic
+(def q
   "符号坐标路径函数：将时间映射到三维坐标"
   (up (literal-function 'x)
       (literal-function 'y)
       (literal-function 'z)))
 
 ;; 测试：对符号时间 't 求值
-(q-symbolic 't)
+(q 't)
 ;; => (up (x t) (y t) (z t))
 
 ;; 计算路径的导数（速度）
-((D q-symbolic) 't)
+((D q) 't)
 ;; => (up ((D x) t) ((D y) t) ((D z) t))
 
 ;; ---
@@ -152,7 +153,7 @@
 ;; Γ[q](t) = (t, q(t), Dq(t), ...)
 
 ;; 在 Emmy 中，Gamma 函数已经内置
-((Gamma q-symbolic) 't)
+((Gamma q) 't)
 ;; => (up t
 ;;        (up (x t) (y t) (z t))
 ;;        (up ((D x) t) ((D y) t) ((D z) t)))
@@ -161,7 +162,7 @@
 ;; 得到沿路径的拉格朗日量函数
 (def L-on-path
   "拉格朗日量作为时间的函数"
-  (compose (L-free-particle 'm) (Gamma q-symbolic)))
+  (compose (L-free-particle 'm) (Gamma q)))
 
 ;; 求值：计算时间 t 处的拉格朗日量
 (simplify (L-on-path 't))
@@ -184,7 +185,7 @@
 ;;    - 高阶函数：接受质量，返回拉格朗日量函数
 ;;    - 从局域元组提取速度并计算动能
 
-;; ✅ **第 3 步**：创建了符号坐标路径 `q-symbolic`
+;; ✅ **第 3 步**：创建了符号坐标路径 `q`
 ;;    - 使用 `literal-function` 创建符号函数
 ;;    - 用 `up` 构造三维坐标元组
 ;;    - 可以对路径求导得到速度
