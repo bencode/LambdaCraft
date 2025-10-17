@@ -10,7 +10,11 @@ node_modules/
 *.nrepl-port
 
 # Build artifacts in web project
-apps/web/public/
+apps/web/public/index.edn
+apps/web/public/index.html
+apps/web/public/docs/
+apps/web/public/pages/
+apps/web/public/notebooks/
 
 # GitHub Pages output directory (not source docs)
 /docs/
