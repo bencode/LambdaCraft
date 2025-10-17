@@ -6,7 +6,7 @@
   {:browse? false
    :port 7777
    :watch-paths ["src" "pages" "docs"]
-   :paths ["pages/*.clj" "docs/*.clj"]
+   :paths ["pages/**/*.clj" "docs/**/*.clj"]
    :index "pages/home.clj"})
 
 (defn start!
