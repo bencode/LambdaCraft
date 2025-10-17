@@ -17,7 +17,6 @@
 ;; - [我的知识库](/docs/home)
 ;;
 ;; ## Math
-;; - [SICP](/pages/sicp)
 ;; - [SICM](/pages/sicm)
 ;;
 ;; ## Code
