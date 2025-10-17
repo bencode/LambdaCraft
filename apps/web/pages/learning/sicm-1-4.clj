@@ -249,6 +249,6 @@ action-value
 
 ;; ## 参考资料
 
-;; - [SICM 原书 1.4 节](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/9579/sicm_edition_2.zip/chapter001.html#SEC7)
+;; - [SICM 原书 1.4 节 (英文)](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/9579/sicm_edition_2.zip/chapter001.html#SEC7)
+;; - [本地中文翻译](https://github.com/bencode/LambdaCraft/blob/main/books/sicm/1.4-Computing_Actions.md) - 更详细的中文解释
 ;; - [Emmy 文档](https://emmy.mentat.org/)
-;; - 本地书籍：`books/sicm/1.4-Computing_Actions.md`

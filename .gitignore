@@ -3,6 +3,12 @@ node_modules/
 .cpcache/
 *.local.json
 
+# Clojure development files
+.clj-kondo/
+.lsp/
+.nrepl-port
+*.nrepl-port
+
 # Build artifacts in web project
 apps/web/public/index.edn
 apps/web/public/index.html
