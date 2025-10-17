@@ -16,6 +16,10 @@
 ;; - [每周阅读](https://in.qijun.io)
 ;; - [我的知识库](/docs/home)
 ;;
+;; ## Math
+;; - [SICP](/pages/sicp)
+;; - [SICM](/pages/sicm)
+;;
 ;; ## Code
 ;; - [chalkpad](https://github.com/bencode/chalkpad)
 ;; - [logseq-runit-plugin](https://github.com/bencode/logseq-runit-plugin) - 在 Logseq 笔记中直接运行代码片段，支持 JavaScript、Python、Scheme 和 Clojure

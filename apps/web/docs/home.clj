@@ -11,6 +11,3 @@
 ;; - [Emmy Viewers 可视化](/docs/emmy_viewers)
 ;; - [Cider 快捷键参考](/docs/cider-shortcuts)
 
-;; ## 📖 学习笔记
-
-;; - [SICM 1.4 - 计算作用量](/pages/learning/sicm-1-4)
