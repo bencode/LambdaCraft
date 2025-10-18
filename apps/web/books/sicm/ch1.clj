@@ -37,7 +37,7 @@
 
 ;; ---
 
-(clerk/md (read-md "1.5-1.5_The_Euler–Lagrange_Equations.md"))
+(clerk/md (read-md "1.5-The_Euler–Lagrange_Equations.md"))
 
 ;; ---
 
