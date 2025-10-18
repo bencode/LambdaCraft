@@ -1,7 +1,6 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (ns pages.fp
   "Functional Programming Practice"
-  {:nextjournal.clerk/toc true}
   (:require [nextjournal.clerk :as clerk]))
 
 ^{:nextjournal.clerk/visibility {:code :hide}}
@@ -11,12 +10,13 @@
 
 ;; ## 关于
 ;;
-;; 我使用 [JupyterLite](https://github.com/jupyterlite/jupyterlite) 来编写编程练习，主要聚焦于函数式编程技巧。
+;; 这是我的函数式编程练习空间，使用 [JupyterLite](https://github.com/jupyterlite/jupyterlite) 编写，
+;; 主要聚焦于函数式编程技巧的探索和实践。
 ;;
-;; JupyterLite 是一个完全运行在浏览器中的 Jupyter 发行版，无需服务器即可使用。
-;; 我集成了自己常用的编程语言：JavaScript、Python、Scheme 和 Clojure。
+;; JupyterLite 是一个完全运行在浏览器中的 Jupyter 发行版，无需服务器。
+;; 目前集成了 JavaScript、Python、Scheme 和 Clojure 四种语言。
 ;;
-;; 相关代码和练习内容在 [code 仓库](https://github.com/bencode/code)。
+;; 所有代码和练习内容托管在 [code 仓库](https://github.com/bencode/code)。
 
 ;; ## 文章列表
 ;;
