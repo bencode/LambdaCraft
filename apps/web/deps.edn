@@ -1,4 +1,4 @@
-{:paths ["src" "resources" "pages" "docs"]
+{:paths ["src" "resources" "pages" "docs" "books"]
  :deps {org.clojure/clojure {:mvn/version "1.12.2"}
         io.github.nextjournal/clerk {:mvn/version "0.18.1150"}
         org.mentat/emmy {:mvn/version "0.32.0"}
@@ -7,7 +7,9 @@
  {:dev  {}
   :run  {:main-opts ["-m" "user"]}
   :build {:exec-fn nextjournal.clerk/build!
-          :exec-args {:paths ["pages/*.clj" "docs/*.clj"]
+          :exec-args {:paths ["pages/*.clj" "pages/**/*.clj"
+                              "docs/*.clj" "docs/**/*.clj"
+                              "books/**/*.clj"]
                       :index "pages/home.clj"
                       :out-path "public"
                       :book? false}}}}

@@ -17,21 +17,24 @@
 ;; - 使用函数式编程表达物理定律
 ;; - 通过符号计算验证物理理论
 ;; - 用数值方法求解实际问题
-
+;;
+;;
+;;
 ;; ## 📖 学习笔记
-
+;;
+;; 我使用 [Emmy](/docs/emmy)（Clojure 版 scmutils）来学习本书。
+;; 以下是学习过程中整理的笔记：
+;;
 ;; ### 第一章：拉格朗日力学
-
 ;; - [1.4 计算作用量](/pages/learning/sicm-1-4)
-
-;; ## 🔗 相关资源
-
+;;
+;; ## 📕 中文翻译
+;; - [在线阅读](/books/sicm/contents)
+;; - [Markdown 源文件](https://github.com/bencode/LambdaCraft/tree/main/books/sicm)
+;;
 ;; ### 官方资源
-;; - [SICM 原书在线版 (英文)](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/9579/sicm_edition_2.zip/toc.html)
-;; - [原书代码（Scheme）](https://groups.csail.mit.edu/mac/users/gjs/6946/installation.html)
+;; - [SICM 原书 (英文)](https://mitp-content-server.mit.edu/books/content/sectbyfn/books_pres_0/9579/sicm_edition_2.zip/toc.html)
+;; - [原书代码（Scheme）](https://groups.csail.mit.edu/mac/users/gjs/6946)
 ;;
-;; ### 中文翻译
-;; - [本地中文翻译 - books/sicm/](https://github.com/bencode/LambdaCraft/tree/main/books/sicm)
-;;
-;; ### 工具与库
+;; ### 工具和库 
 ;; - [Emmy - Clojure 版 scmutils](https://github.com/mentat-collective/emmy)

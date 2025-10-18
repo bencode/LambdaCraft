@@ -5,9 +5,10 @@
 (def serve-opts
   {:browse? false
    :port 7777
-   :watch-paths ["src" "pages" "docs"]
+   :watch-paths ["src" "pages" "docs" "books" "../../books/sicm"]
    :paths ["pages/*.clj" "pages/**/*.clj"
-           "docs/*.clj" "docs/**/*.clj"]
+           "docs/*.clj" "docs/**/*.clj"
+           "books/**/*.clj"]
    :index "pages/home.clj"})
 
 (defn start!
