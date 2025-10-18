@@ -1,7 +1,6 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (ns pages.sicm
   "SICM - Structure and Interpretation of Classical Mechanics"
-  {:nextjournal.clerk/toc true}
   (:require [nextjournal.clerk :as clerk]))
 
 ;; # SICM - 经典力学的结构与解释
