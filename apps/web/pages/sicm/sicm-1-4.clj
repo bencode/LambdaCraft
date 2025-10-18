@@ -1,5 +1,5 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
-(ns pages.learning.sicm-1-4
+(ns pages.sicm.sicm-1-4
   "SICM 第 1.4 节：计算作用量 (Computing Actions)
 
   学习目标：
