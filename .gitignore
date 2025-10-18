@@ -15,6 +15,7 @@ apps/web/public/index.html
 apps/web/public/docs/
 apps/web/public/pages/
 apps/web/public/notebooks/
+apps/web/public/books/
 
 # GitHub Pages output directory (not source docs)
 /docs/
