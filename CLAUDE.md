@@ -60,13 +60,28 @@ apps/web/
 ├── src/user.clj           # Server configuration and entry point
 ├── pages/                 # Published content notebooks
 │   ├── home.clj          # Homepage
-│   └── treasure.clj      # Resources collection
+│   ├── treasure.clj      # Resources collection
+│   ├── sicm.clj          # SICM book navigation
+│   └── learning/         # Learning notebooks (e.g., SICM exercises)
 ├── docs/                  # Documentation notebooks
 │   ├── clerk.clj         # Clerk feature showcase
 │   ├── emmy.clj          # Emmy mathematical computing
+│   ├── cider-shortcuts.clj # CIDER shortcuts reference
 │   └── home.clj          # Documentation index
-├── public/                # Static build output
+├── books/                 # Book readers (render markdown as notebooks)
+│   └── sicm/             # SICM reader notebooks
+│       ├── contents.clj  # Table of contents
+│       ├── preface.clj   # Preface and acknowledgments
+│       └── ch1.clj       # Chapter 1
+├── public/                # Static build output (gitignored)
+├── resources/             # Static assets (CSS, etc.)
 └── deps.edn              # Clojure dependencies and aliases
+
+books/
+└── sicm/                  # SICM markdown source files
+    ├── 0.0-preface.md
+    ├── 1.0-Lagrangian_Mechanics.md
+    └── ...
 ```
 
 ### Notebook-Based Architecture
@@ -79,29 +94,41 @@ apps/web/
 
 ### Adding New Notebooks
 1. Create `.clj` file in `pages/` (for public content) or `docs/` (for documentation)
-2. Use Clerk's viewer syntax for interactive elements
-3. Follow naming convention: `kebab-case.clj`
-4. Add to appropriate navigation if needed
+2. Subdirectories are supported (e.g., `pages/learning/sicm-1-4.clj`)
+3. Use Clerk's viewer syntax for interactive elements
+4. Follow naming convention: `kebab-case.clj`
+5. Add to appropriate navigation if needed (e.g., `pages/home.clj`)
 
 ### Content Structure
 ```clojure
 (ns pages.my-notebook
   (:require [nextjournal.clerk :as clerk]))
 
-;; Your notebook content here
+;; Control code visibility with metadata
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/html [:div "This code is hidden"])
+
+;; Use markdown comments for formatted text
+;; ## Section Title
+;; Regular paragraph text
+
+;; Link to static assets
+^{:nextjournal.clerk/visibility {:code :hide}}
+(clerk/html [:link {:rel "stylesheet" :href "/css/style.css"}])
 ```
 
 ## Build System
 
 ### deps.edn Aliases
-- `:dev` - Interactive development with REPL
-- `:run` - Start notebook server
-- `:build` - Generate static site
+- `:dev` - Interactive development with REPL (empty alias, loads `user` ns)
+- `:run` - Start notebook server (main-opts: `-m user`)
+- `:build` - Generate static site (exec-fn: `nextjournal.clerk/build!`)
 
 ### Build Process
-1. Clerk processes all `.clj` files in `pages/` and `docs/`
-2. Generates static HTML/EDN files in `public/`
-3. Deployment script copies to `docs/` for GitHub Pages
+1. Clerk processes all `.clj` files matching `pages/*.clj`, `pages/**/*.clj`, `docs/*.clj`, `docs/**/*.clj`
+2. Generates static HTML/EDN files in `public/` directory
+3. Index page is set to `pages/home.clj`
+4. Deployment script copies `public/` contents to `docs/` for GitHub Pages
 
 ## Deployment
 
@@ -146,6 +173,23 @@ The project includes Emmy for symbolic computation:
 - Interactive mathematical exploration
 
 Examples available in `docs/emmy.clj`.
+
+### SICM (Structure and Interpretation of Classical Mechanics)
+The project includes study materials for SICM:
+- Navigation page at `pages/sicm.clj`
+- Exercise solutions in `pages/learning/` subdirectory
+- Markdown source files stored in `books/sicm/` (project root)
+- Clerk reader notebooks in `apps/web/books/sicm/` that render the markdown files
+- Reader notebooks use dynamic path resolution via `user.dir` to locate markdown files
+- Uses Emmy for mathematical computations related to classical mechanics
+
+#### Adding New SICM Chapters
+To add a new chapter to the SICM reader:
+1. Add markdown files to `books/sicm/` (e.g., `2.0-chapter-name.md`)
+2. Create a new reader notebook in `apps/web/books/sicm/` (e.g., `ch2.clj`)
+3. Use the same `read-md` pattern to load markdown files
+4. Update `apps/web/books/sicm/contents.clj` to add chapter link
+5. The markdown files support LaTeX math and code blocks
 
 ## Common Issues
 

@@ -47,7 +47,7 @@ clojure -X:build
 ### REPL Commands
 ```clojure
 ;; Server management
-(u/start!)           ; Start server
+(start!)           ; Start server
 (clerk/halt!)        ; Stop server
 ```
 
