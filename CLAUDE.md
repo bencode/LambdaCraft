@@ -62,7 +62,8 @@ apps/web/
 │   ├── home.clj          # Homepage
 │   ├── treasure.clj      # Resources collection
 │   ├── sicm.clj          # SICM book navigation
-│   └── learning/         # Learning notebooks (e.g., SICM exercises)
+│   └── sicm/             # SICM learning notebooks (organized by chapter)
+│       └── sicm-1-4.clj  # Chapter 1.4: Computing Actions
 ├── docs/                  # Documentation notebooks
 │   ├── clerk.clj         # Clerk feature showcase
 │   ├── emmy.clj          # Emmy mathematical computing
@@ -81,6 +82,7 @@ books/
 └── sicm/                  # SICM markdown source files
     ├── 0.0-preface.md
     ├── 1.0-Lagrangian_Mechanics.md
+    ├── 1.4-Computing_Actions.md
     └── ...
 ```
 
@@ -94,10 +96,11 @@ books/
 
 ### Adding New Notebooks
 1. Create `.clj` file in `pages/` (for public content) or `docs/` (for documentation)
-2. Subdirectories are supported (e.g., `pages/learning/sicm-1-4.clj`)
+2. Subdirectories are supported (e.g., `pages/sicm/sicm-1-4.clj`)
 3. Use Clerk's viewer syntax for interactive elements
 4. Follow naming convention: `kebab-case.clj`
 5. Add to appropriate navigation if needed (e.g., `pages/home.clj`)
+6. **Naming Convention**: Use business domain names for directories (e.g., `pages/sicm/` not `pages/learning/`)
 
 ### Content Structure
 ```clojure
@@ -175,21 +178,87 @@ The project includes Emmy for symbolic computation:
 Examples available in `docs/emmy.clj`.
 
 ### SICM (Structure and Interpretation of Classical Mechanics)
-The project includes study materials for SICM:
-- Navigation page at `pages/sicm.clj`
-- Exercise solutions in `pages/learning/` subdirectory
-- Markdown source files stored in `books/sicm/` (project root)
-- Clerk reader notebooks in `apps/web/books/sicm/` that render the markdown files
-- Reader notebooks use dynamic path resolution via `user.dir` to locate markdown files
-- Uses Emmy for mathematical computations related to classical mechanics
 
-#### Adding New SICM Chapters
-To add a new chapter to the SICM reader:
+The project includes two types of SICM content:
+
+#### 1. SICM Book Reader (`books/sicm/` and `apps/web/books/sicm/`)
+- **Purpose**: Read-only viewer for the SICM book content
+- **Source**: Markdown files in `books/sicm/` (project root)
+- **Notebooks**: Clerk reader notebooks in `apps/web/books/sicm/`
+- **Navigation**: `pages/sicm.clj` provides book navigation
+- **Implementation**: Reader notebooks use dynamic path resolution via `user.dir` to locate markdown files
+- **Features**: Supports LaTeX math and code blocks
+
+**Adding New SICM Book Chapters:**
 1. Add markdown files to `books/sicm/` (e.g., `2.0-chapter-name.md`)
 2. Create a new reader notebook in `apps/web/books/sicm/` (e.g., `ch2.clj`)
 3. Use the same `read-md` pattern to load markdown files
 4. Update `apps/web/books/sicm/contents.clj` to add chapter link
-5. The markdown files support LaTeX math and code blocks
+
+#### 2. SICM Learning Notebooks (`pages/sicm/`)
+- **Purpose**: Interactive learning notes with code examples and exercises
+- **Location**: `apps/web/pages/sicm/`
+- **Format**: Executable Clojure notebooks with Emmy computations
+- **Naming**: `sicm-X-Y.clj` where X is chapter, Y is section (e.g., `sicm-1-4.clj`)
+- **Namespace**: `pages.sicm.sicm-X-Y`
+
+**Adding New SICM Learning Notebooks:**
+1. Create notebook in `apps/web/pages/sicm/` following naming convention
+2. Use namespace format: `(ns pages.sicm.sicm-X-Y ...)`
+3. Import required Emmy functions:
+   ```clojure
+   (:require [nextjournal.clerk :as clerk]
+             [emmy.env :as e :refer [literal-function up velocity coordinate
+                                     D Gamma compose simplify definite-integral
+                                     dot-product sqrt square ->TeX]]
+             [emmy.mechanics.lagrange :as lag])
+   ```
+4. Structure content with:
+   - Core concepts explanation
+   - Function implementations
+   - Numerical examples and verification
+   - Visualizations (using Clerk viewers)
+   - Summary and references
+
+**Key Emmy Functions for SICM:**
+- **Lagrangian Mechanics**:
+  - `lag/Lagrangian-action` - Compute action integral
+  - `lag/make-path` - Lagrangian interpolation for paths
+  - `lag/find-path` - Find trajectory by minimizing action
+  - `lag/linear-interpolants` - Generate initial guesses
+- **Symbolic Math**:
+  - `literal-function` - Create symbolic functions
+  - `D` - Automatic differentiation
+  - `Gamma` - Construct local tuples (t, q, v)
+  - `compose` - Function composition
+- **Numerical**:
+  - `definite-integral` - Numerical integration
+  - `minimize` - 1D optimization
+  - `multidimensional-minimize` - Multi-dimensional optimization
+
+**Example Structure (SICM 1.4 - Computing Actions):**
+```clojure
+^{:nextjournal.clerk/visibility {:code :hide}}
+(ns pages.sicm.sicm-1-4
+  "SICM 第 1.4 节：计算作用量"
+  {:nextjournal.clerk/toc true}
+  (:require [nextjournal.clerk :as clerk]
+            [emmy.env :as e]
+            [emmy.mechanics.lagrange :as lag]))
+
+;; # SICM 1.4 - 计算作用量
+;; ## 核心概念
+;; (Define Lagrangian, action, principle of stationary action)
+
+;; ## 实现拉格朗日量
+;; (Implement L-free-particle, L-harmonic)
+
+;; ## 数值验证
+;; (Verify paths using minimize, find-path)
+
+;; ## 总结
+;; (Summarize key learnings and tools)
+```
 
 ## Common Issues
 
