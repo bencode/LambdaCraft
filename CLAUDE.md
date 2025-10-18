@@ -1,277 +1,101 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+LambdaCraft - Clojure notebook platform for mathematics and computational thinking using [Clerk](https://clerk.vision/).
 
-## Project Overview
+## Development
 
-LambdaCraft is a Clojure notebook-based platform for studying mathematics, practicing code, and exploring computational thinking using [Clerk](https://clerk.vision/). The project follows the philosophy: `() => study(math) => practice(code)`.
-
-## Development Commands
-
-### Environment Setup
 ```bash
-# Install font dependencies (run once per machine)
-pnpm install
-```
-
-### Development Workflow
-```bash
-# Start interactive development server with REPL (recommended for development)
+# Development server with REPL
 clojure -M:dev
 
-# Start notebook server without REPL
-clojure -M:run
-
-# Build static site for deployment
+# Build and deploy
 clojure -X:build
-
-# Deploy to GitHub Pages (from project root)
 ./apps/web/deploy.sh
 ```
 
-### Server Configuration
-- **Development Port**: 7777
-- **Server URL**: http://localhost:7777
-- **Watch Paths**: `["src" "pages" "docs"]`
-- **Index Page**: `pages/home.clj`
-
-### REPL Commands
+REPL commands:
 ```clojure
-;; Start/stop server
-(u/start!)           ; Start server with default options
-(clerk/halt!)        ; Stop server
-
-;; Show specific notebook
+(u/start!)              ; Start server at http://localhost:7777
+(clerk/halt!)           ; Stop server
 (clerk/show! "pages/home.clj")
 ```
 
 ## Architecture
 
-### Core Technologies
-- **Clojure** (1.12.2) - Primary language
-- **Clerk** (0.18.1150) - Interactive notebook system
-- **Emmy** (0.32.0) - Computer algebra system for mathematics
-- **Emmy Viewers** (0.3.2) - Mathematical visualizations
-- **pnpm** - Package manager for font dependencies
-
 ### Directory Structure
 ```
 apps/web/
-├── src/user.clj           # Server configuration and entry point
-├── pages/                 # Published content notebooks
-│   ├── home.clj          # Homepage
-│   ├── treasure.clj      # Resources collection
-│   ├── sicm.clj          # SICM book navigation
-│   └── sicm/             # SICM learning notebooks (organized by chapter)
-│       └── sicm-1-4.clj  # Chapter 1.4: Computing Actions
-├── docs/                  # Documentation notebooks
-│   ├── clerk.clj         # Clerk feature showcase
-│   ├── emmy.clj          # Emmy mathematical computing
-│   ├── cider-shortcuts.clj # CIDER shortcuts reference
-│   └── home.clj          # Documentation index
-├── books/                 # Book readers (render markdown as notebooks)
-│   └── sicm/             # SICM reader notebooks
-│       ├── contents.clj  # Table of contents
-│       ├── preface.clj   # Preface and acknowledgments
-│       └── ch1.clj       # Chapter 1
-├── public/                # Static build output (gitignored)
-├── resources/             # Static assets (CSS, etc.)
-└── deps.edn              # Clojure dependencies and aliases
+├── pages/              # Public notebooks
+│   ├── sicm/          # SICM learning notebooks (sicm-X-Y.clj)
+│   └── ...
+├── docs/              # Documentation notebooks
+├── books/sicm/        # SICM reader notebooks (load from books/sicm/*.md)
+└── resources/         # Static assets
 
-books/
-└── sicm/                  # SICM markdown source files
-    ├── 0.0-preface.md
-    ├── 1.0-Lagrangian_Mechanics.md
-    ├── 1.4-Computing_Actions.md
-    └── ...
+books/sicm/            # SICM markdown source files
 ```
 
-### Notebook-Based Architecture
-- **Pages**: Public content accessible from the main site
-- **Docs**: Supporting documentation and technical showcases
-- **Static Generation**: Clerk notebooks compile to static HTML/EDN files
-- **Hot Reloading**: Automatic updates during development
+### Content Types
+- **pages/**: Public content, use domain names for directories (e.g., `sicm/` not `learning/`)
+- **docs/**: Technical documentation
+- **books/sicm/**: Reader notebooks that render markdown files from `books/sicm/*.md`
 
-## Content Creation
+## SICM Content
 
-### Adding New Notebooks
-1. Create `.clj` file in `pages/` (for public content) or `docs/` (for documentation)
-2. Subdirectories are supported (e.g., `pages/sicm/sicm-1-4.clj`)
-3. Use Clerk's viewer syntax for interactive elements
-4. Follow naming convention: `kebab-case.clj`
-5. Add to appropriate navigation if needed (e.g., `pages/home.clj`)
-6. **Naming Convention**: Use business domain names for directories (e.g., `pages/sicm/` not `pages/learning/`)
+### Learning Notebooks (`pages/sicm/`)
+Interactive learning notes with Emmy code.
 
-### Content Structure
-```clojure
-(ns pages.my-notebook
-  (:require [nextjournal.clerk :as clerk]))
+Naming: `sicm-X-Y.clj` (chapter-section), namespace: `pages.sicm.sicm-X-Y`
 
-;; Control code visibility with metadata
-^{:nextjournal.clerk/visibility {:code :hide}}
-(clerk/html [:div "This code is hidden"])
-
-;; Use markdown comments for formatted text
-;; ## Section Title
-;; Regular paragraph text
-
-;; Link to static assets
-^{:nextjournal.clerk/visibility {:code :hide}}
-(clerk/html [:link {:rel "stylesheet" :href "/css/style.css"}])
-```
-
-## Build System
-
-### deps.edn Aliases
-- `:dev` - Interactive development with REPL (empty alias, loads `user` ns)
-- `:run` - Start notebook server (main-opts: `-m user`)
-- `:build` - Generate static site (exec-fn: `nextjournal.clerk/build!`)
-
-### Build Process
-1. Clerk processes all `.clj` files matching `pages/*.clj`, `pages/**/*.clj`, `docs/*.clj`, `docs/**/*.clj`
-2. Generates static HTML/EDN files in `public/` directory
-3. Index page is set to `pages/home.clj`
-4. Deployment script copies `public/` contents to `docs/` for GitHub Pages
-
-## Deployment
-
-### GitHub Pages
-- **Custom Domain**: qijun.io
-- **Branch**: gh-pages (generated by deploy script)
-- **Build Output**: `public/` directory
-
-### Deploy Script
-The `deploy.sh` script:
-1. Builds static site with `clojure -X:build`
-2. Switches to `gh-pages` branch
-3. Copies build artifacts to `docs/`
-4. Creates `.nojekyll` and `CNAME` files
-5. Commits and force pushes to origin
-
-## Development Guidelines
-
-### Code Style
-- Follow idiomatic Clojure with 2-space indentation
-- Use kebab-case for namespaces, vars, and files
-- Keep functions pure when possible
-- Use docstrings for non-obvious helpers
-
-### File Organization
-- Keep notebooks focused on single topics
-- Separate public content (`pages/`) from documentation (`docs/`)
-- Maintain clear navigation structure
-
-### Testing
-- No test framework currently configured
-- Future tests should use `clojure.test`
-- Place tests in `apps/web/test/` with `*-test.clj` naming
-
-## Mathematical Computing
-
-### Emmy Integration
-The project includes Emmy for symbolic computation:
-- Calculus and algebra operations
-- Physics simulations
-- Mathematical visualizations
-- Interactive mathematical exploration
-
-Examples available in `docs/emmy.clj`.
-
-### SICM (Structure and Interpretation of Classical Mechanics)
-
-The project includes two types of SICM content:
-
-#### 1. SICM Book Reader (`books/sicm/` and `apps/web/books/sicm/`)
-- **Purpose**: Read-only viewer for the SICM book content
-- **Source**: Markdown files in `books/sicm/` (project root)
-- **Notebooks**: Clerk reader notebooks in `apps/web/books/sicm/`
-- **Navigation**: `pages/sicm.clj` provides book navigation
-- **Implementation**: Reader notebooks use dynamic path resolution via `user.dir` to locate markdown files
-- **Features**: Supports LaTeX math and code blocks
-
-**Adding New SICM Book Chapters:**
-1. Add markdown files to `books/sicm/` (e.g., `2.0-chapter-name.md`)
-2. Create a new reader notebook in `apps/web/books/sicm/` (e.g., `ch2.clj`)
-3. Use the same `read-md` pattern to load markdown files
-4. Update `apps/web/books/sicm/contents.clj` to add chapter link
-
-#### 2. SICM Learning Notebooks (`pages/sicm/`)
-- **Purpose**: Interactive learning notes with code examples and exercises
-- **Location**: `apps/web/pages/sicm/`
-- **Format**: Executable Clojure notebooks with Emmy computations
-- **Naming**: `sicm-X-Y.clj` where X is chapter, Y is section (e.g., `sicm-1-4.clj`)
-- **Namespace**: `pages.sicm.sicm-X-Y`
-
-**Adding New SICM Learning Notebooks:**
-1. Create notebook in `apps/web/pages/sicm/` following naming convention
-2. Use namespace format: `(ns pages.sicm.sicm-X-Y ...)`
-3. Import required Emmy functions:
-   ```clojure
-   (:require [nextjournal.clerk :as clerk]
-             [emmy.env :as e :refer [literal-function up velocity coordinate
-                                     D Gamma compose simplify definite-integral
-                                     dot-product sqrt square ->TeX]]
-             [emmy.mechanics.lagrange :as lag])
-   ```
-4. Structure content with:
-   - Core concepts explanation
-   - Function implementations
-   - Numerical examples and verification
-   - Visualizations (using Clerk viewers)
-   - Summary and references
-
-**Key Emmy Functions for SICM:**
-- **Lagrangian Mechanics**:
-  - `lag/Lagrangian-action` - Compute action integral
-  - `lag/make-path` - Lagrangian interpolation for paths
-  - `lag/find-path` - Find trajectory by minimizing action
-  - `lag/linear-interpolants` - Generate initial guesses
-- **Symbolic Math**:
-  - `literal-function` - Create symbolic functions
-  - `D` - Automatic differentiation
-  - `Gamma` - Construct local tuples (t, q, v)
-  - `compose` - Function composition
-- **Numerical**:
-  - `definite-integral` - Numerical integration
-  - `minimize` - 1D optimization
-  - `multidimensional-minimize` - Multi-dimensional optimization
-
-**Example Structure (SICM 1.4 - Computing Actions):**
+Structure:
 ```clojure
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (ns pages.sicm.sicm-1-4
   "SICM 第 1.4 节：计算作用量"
   {:nextjournal.clerk/toc true}
   (:require [nextjournal.clerk :as clerk]
-            [emmy.env :as e]
+            [emmy.env :as e :refer [literal-function up D Gamma compose simplify]]
             [emmy.mechanics.lagrange :as lag]))
 
-;; # SICM 1.4 - 计算作用量
-;; ## 核心概念
-;; (Define Lagrangian, action, principle of stationary action)
-
-;; ## 实现拉格朗日量
-;; (Implement L-free-particle, L-harmonic)
-
-;; ## 数值验证
-;; (Verify paths using minimize, find-path)
-
-;; ## 总结
-;; (Summarize key learnings and tools)
+;; # Title
+;; ## Concepts
+;; ## Implementation
+;; ## Verification
+;; ## Summary
 ```
+
+Key Emmy functions:
+- `lag/Lagrangian-action`, `lag/make-path`, `lag/find-path`
+- `literal-function`, `D`, `Gamma`, `compose`
+- `definite-integral`, `minimize`, `multidimensional-minimize`
+
+### Book Reader (`apps/web/books/sicm/`)
+Reader notebooks load markdown from `books/sicm/*.md` using `user.dir` path resolution.
+
+Adding chapters:
+1. Add markdown to `books/sicm/X.Y-title.md`
+2. Create reader notebook `apps/web/books/sicm/chX.clj`
+3. Update `apps/web/books/sicm/contents.clj`
 
 ## Common Issues
 
-### Dependencies
-- Run `pnpm install` if fonts are missing
-- Clojure dependencies are handled by CLI tools
+### Markdown LaTeX Formatting
 
-### Server Issues
-- Check if port 7777 is available
-- Use `(clerk/halt!)` to stop hanging server
-- Restart with `clojure -M:dev` or `clojure -M:run`
+**1. `$$` 后缺少空行**
+```bash
+awk '{if ($0 == "$$" && NR > 1) print ""; print}' file.md > temp.md && mv temp.md file.md
+```
 
-### Build Issues
-- Ensure all notebooks have valid Clojure syntax
-- Check `deps.edn` for correct dependency versions
-- Verify file paths in build configuration
+**2. LaTeX 命令双反斜杠错误**
+应使用单反斜杠。常见：`\\dots`, `\\mathcal`, `\\vec`, `\\quad`, `\\dot`, `x\_`
+
+```bash
+sed -i '' \
+  -e 's/\\\\dots/\\dots/g' \
+  -e 's/\\\\mathcal/\\mathcal/g' \
+  -e 's/\\\\vec/\\vec/g' \
+  -e 's/\\\\quad/\\quad/g' \
+  -e 's/\\\\dot/\\dot/g' \
+  -e 's/x\\_/x_/g' \
+  file.md
+```
