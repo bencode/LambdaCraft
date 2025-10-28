@@ -1,5 +1,5 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
-(ns pages.blog.rendering-engine-evolution-ch2
+(ns pages.rendering-engine.ch1-basic-rendering
   (:require [nextjournal.clerk :as clerk]
             [clojure.java.io :as io]))
 
@@ -13,12 +13,12 @@
         md-path (io/file parent-dir "blog" filename)]
     (slurp md-path)))
 
-;; [← 上一节](/pages/blog/rendering-engine-evolution-ch1) | [返回目录](/pages/rendering-engine) | [下一节 →](/pages/blog/rendering-engine-evolution-ch3)
+;; [← 返回目录](/pages/rendering-engine) | [下一节 →](/pages/rendering-engine/ch2-dynamic-props)
 
 ;; ---
 
-(clerk/md (read-md "rendering-engine-evolution-ch2-v2.md"))
+(clerk/md (read-md "ch1-basic-rendering-v2.md"))
 
 ;; ---
 
-;; [← 上一节](/pages/blog/rendering-engine-evolution-ch1) | [返回目录](/pages/rendering-engine) | [下一节 →](/pages/blog/rendering-engine-evolution-ch3)
+;; [← 返回目录](/pages/rendering-engine) | [下一节 →](/pages/rendering-engine/ch2-dynamic-props)
