@@ -13,7 +13,7 @@
         md-path (io/file parent-dir "blog" filename)]
     (slurp md-path)))
 
-;; [← 上一节](/pages/blog/rendering-engine-evolution-ch1) | [返回文章列表](/pages/blog) | [下一节 →](/pages/blog/rendering-engine-evolution-ch3)
+;; [← 上一节](/pages/blog/rendering-engine-evolution-ch1) | [返回目录](/pages/rendering-engine) | [下一节 →](/pages/blog/rendering-engine-evolution-ch3)
 
 ;; ---
 
@@ -21,4 +21,4 @@
 
 ;; ---
 
-;; [← 上一节](/pages/blog/rendering-engine-evolution-ch1) | [返回文章列表](/pages/blog) | [下一节 →](/pages/blog/rendering-engine-evolution-ch3)
+;; [← 上一节](/pages/blog/rendering-engine-evolution-ch1) | [返回目录](/pages/rendering-engine) | [下一节 →](/pages/blog/rendering-engine-evolution-ch3)

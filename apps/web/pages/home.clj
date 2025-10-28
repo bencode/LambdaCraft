@@ -14,12 +14,12 @@
 
 ;; ## 阅读与写作
 ;; - [编程技艺周刊](https://in.qijun.io)
-;; - [技术文章](/pages/blog)
+;; - [Schema驱动的前端渲染引擎设计和实现](/pages/rendering-engine)
+;; - [函数式编程](/pages/fp)
 ;; - [我的知识库](/docs/home)
 ;;
 ;; ## 学习笔记
 ;; - [SICM - 经典力学](/pages/sicm)
-;; - [FP - 函数式编程](/pages/fp)
 ;;
 ;; ## 开源作品
 ;; - [codescope](https://github.com/bencode/codescope) - 代码结构分析工具
