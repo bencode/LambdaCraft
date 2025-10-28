@@ -1,10 +1,10 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (ns pages.blog
-  "技术博客文章索引"
+  "技术文章索引"
   {:nextjournal.clerk/toc true}
   (:require [nextjournal.clerk :as clerk]))
 
-;; # 博客
+;; # 技术文章
 
 ;; ## Schema驱动的前端渲染引擎设计和实现
 
