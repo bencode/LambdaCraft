@@ -17,7 +17,7 @@
 
 ;; ---
 
-(clerk/md (read-md "ch3-action-store.md"))
+(clerk/md (read-md "rendering-engine-evolution-ch3.md"))
 
 ;; ---
 
