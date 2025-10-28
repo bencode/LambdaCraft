@@ -14,7 +14,7 @@
 
 ;; ## 阅读与写作
 ;; - [编程技艺周刊](https://in.qijun.io)
-;; - [博客](/pages/blog)
+;; - [技术文章](/pages/blog)
 ;; - [我的知识库](/docs/home)
 ;;
 ;; ## 学习笔记
