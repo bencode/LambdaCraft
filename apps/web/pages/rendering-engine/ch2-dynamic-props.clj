@@ -10,14 +10,14 @@
 (defn read-md [filename]
   (let [project-root (System/getProperty "user.dir")
         parent-dir (-> project-root io/file .getParentFile .getParentFile)
-        md-path (io/file parent-dir "blog" filename)]
+        md-path (io/file parent-dir "blog" "rendering-engine" filename)]
     (slurp md-path)))
 
 ;; [← 上一节](/pages/rendering-engine/ch1-basic-rendering) | [返回目录](/pages/rendering-engine) | [下一节 →](/pages/rendering-engine/ch3-action-store)
 
 ;; ---
 
-(clerk/md (read-md "rendering-engine-evolution-ch2-v2.md"))
+(clerk/md (read-md "ch2-dynamic-props.md"))
 
 ;; ---
 
