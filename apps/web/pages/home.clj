@@ -15,6 +15,7 @@
 ;; ## Study
 ;; - [编程技艺周刊](https://in.qijun.io)
 ;; - [我的知识库](/docs/home)
+;; - [博客](/pages/blog)
 ;;
 ;; ## Math
 ;; - [SICM](/pages/sicm)
