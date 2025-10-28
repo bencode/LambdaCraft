@@ -6,7 +6,7 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/html [:link {:rel "stylesheet" :href "/css/style.css"}])
 
-;; # FP - 函数式编程练习场
+;; # 函数式编程练习场
 
 ;; ## 关于
 ;;
