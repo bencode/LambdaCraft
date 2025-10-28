@@ -17,7 +17,7 @@
 
 ;; ---
 
-(clerk/md (read-md "ch2-dynamic-props-v2.md"))
+(clerk/md (read-md "rendering-engine-evolution-ch2-v2.md"))
 
 ;; ---
 
