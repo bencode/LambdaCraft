@@ -1,12 +1,16 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
-(ns pages.rendering-engine
-  "Schema驱动的前端渲染引擎设计和实现"
+(ns pages.dev-notes
+  "日常开发总结"
   {:nextjournal.clerk/toc true}
   (:require [nextjournal.clerk :as clerk]))
 
-;; # Schema驱动的前端渲染引擎设计和实现
+;; # 日常开发总结
 
-;; 这个系列从最简单的功能开始，逐步展示如何构建一个完整的渲染引擎。
+;; 记录日常开发中的实践、思考和总结。
+
+;; ## Schema驱动的前端渲染引擎
+
+;; 从最简单的功能开始，逐步展示如何构建一个完整的渲染引擎。
 
 ;; - [第1节：最简单的渲染引擎](/pages/rendering-engine/ch1-basic-rendering) - Schema到组件的转换、嵌套结构、组件注册 (2025-10-28)
 ;; - [第2节：支持动态属性](/pages/rendering-engine/ch2-dynamic-props) - 表达式系统、Context注入、属性求值 (2025-10-28)

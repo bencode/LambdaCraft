@@ -14,7 +14,7 @@
 
 ;; ## 阅读与写作
 ;; - [编程技艺周刊](https://in.qijun.io)
-;; - [Schema驱动的前端渲染引擎设计和实现](/pages/rendering-engine)
+;; - [日常开发总结](/pages/dev-notes)
 ;; - [函数式编程练习场](/pages/fp)
 ;; - [我的知识库](/docs/home)
 ;;
