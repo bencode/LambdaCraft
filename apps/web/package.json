@@ -4,7 +4,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "dev": "clojure -M:run",
+    "dev:repl": "clojure -M:dev",
+    "build": "clojure -X:build"
+  },
   "dependencies": {
     "@fontsource/press-start-2p": "^5.2.7"
   }
