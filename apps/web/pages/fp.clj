@@ -6,12 +6,12 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (clerk/html [:link {:rel "stylesheet" :href "/css/style.css"}])
 
-;; # 函数式编程练习场
+;; # 编程练习场
 
 ;; ## 关于
 ;;
-;; 这是我的函数式编程练习空间，使用 [JupyterLite](https://github.com/jupyterlite/jupyterlite) 编写，
-;; 主要聚焦于函数式编程技巧的探索和实践。
+;; 这是我的编程练习空间，使用 [JupyterLite](https://github.com/jupyterlite/jupyterlite) 编写，
+;; 主要聚焦于编程技巧的探索和实践。
 ;;
 ;; JupyterLite 是一个完全运行在浏览器中的 Jupyter 发行版，无需服务器。
 ;; 目前集成了 JavaScript、Python、Scheme 和 Clojure 四种语言。
