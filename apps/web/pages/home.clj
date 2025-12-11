@@ -19,7 +19,8 @@
 ;; - [我的知识库](/docs/home)
 ;;
 ;; ## 学习笔记
-;; - [SICM - 经典力学](/pages/sicm)
+;; - [SICM](/pages/sicm)
+;; - [伽罗瓦理论](/pages/galois)
 ;;
 ;; ## 开源作品
 ;; - [codescope](https://github.com/bencode/codescope) - 代码结构分析工具
