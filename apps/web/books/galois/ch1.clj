@@ -1,6 +1,6 @@
 ^{:nextjournal.clerk/visibility {:code :hide}}
 (ns books.galois.ch1
-  {:nextjournal.clerk/toc true}
+  {:nextjournal.clerk/toc false}
   (:require [nextjournal.clerk :as clerk]
             [clojure.java.io :as io]))
 
@@ -18,6 +18,7 @@
 
 ;; ---
 
+^{:nextjournal.clerk/visibility {:code :hide :result :show}}
 (clerk/md (read-md "ch1.md"))
 
 ;; ---
