@@ -82,10 +82,11 @@
 
 <style>
   .equation-panel {
-    background: #16213e;
+    background: var(--bg-panel, #fff);
     border-radius: 8px;
     padding: 16px;
-    color: #eee;
+    color: var(--text, #333);
+    border: 1px solid var(--border, #ddd);
   }
 
   .degree-selector {
@@ -96,26 +97,27 @@
   }
 
   .label {
-    color: #888;
+    color: var(--text-muted, #666);
   }
 
   .degree-btn {
     padding: 8px 16px;
-    border: 1px solid #444;
+    border: 1px solid var(--border, #ddd);
     background: transparent;
-    color: #eee;
+    color: var(--text, #333);
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .degree-btn:hover {
-    border-color: #666;
+    border-color: var(--accent, #3498db);
   }
 
   .degree-btn.active {
-    background: #3498db;
-    border-color: #3498db;
+    background: var(--accent, #3498db);
+    border-color: var(--accent, #3498db);
+    color: white;
   }
 
   .actions {
@@ -126,7 +128,7 @@
 
   .action-btn {
     padding: 10px 20px;
-    background: #2ecc71;
+    background: var(--success, #2ecc71);
     border: none;
     border-radius: 4px;
     color: white;
@@ -136,11 +138,11 @@
   }
 
   .action-btn:hover {
-    background: #27ae60;
+    filter: brightness(0.9);
   }
 
   .equation-display {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--polygon, rgba(0, 0, 0, 0.05));
     padding: 12px;
     border-radius: 4px;
   }
@@ -153,6 +155,6 @@
 
   .roots {
     font-size: 12px;
-    color: #888;
+    color: var(--text-muted, #666);
   }
 </style>

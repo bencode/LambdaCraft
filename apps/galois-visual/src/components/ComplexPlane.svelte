@@ -60,40 +60,41 @@
 
 <style>
   .complex-plane {
-    background: #1a1a2e;
+    background: var(--plane-bg, #fafafa);
     border-radius: 8px;
+    border: 1px solid var(--border, #ddd);
   }
 
   .axis {
-    stroke: #444;
+    stroke: var(--axis, #ccc);
     stroke-width: 1;
   }
 
   .axis-label {
-    fill: #888;
+    fill: var(--text-muted, #666);
     font-size: 14px;
   }
 
   .tick {
-    stroke: #444;
+    stroke: var(--axis, #ccc);
     stroke-width: 1;
   }
 
   .tick-label {
-    fill: #666;
+    fill: var(--text-muted, #666);
     font-size: 12px;
     text-anchor: middle;
   }
 
   .polygon {
-    fill: rgba(255, 255, 255, 0.05);
-    stroke: rgba(255, 255, 255, 0.3);
+    fill: var(--polygon, rgba(0, 0, 0, 0.05));
+    stroke: var(--text-muted, #888);
     stroke-width: 2;
     stroke-dasharray: 4;
   }
 
   .root {
-    stroke: white;
+    stroke: var(--bg-panel, white);
     stroke-width: 2;
     cursor: pointer;
     transition: r 0.2s;
