@@ -44,10 +44,11 @@
 
 <style>
   .group-actions {
-    background: #16213e;
+    background: var(--bg-panel, #fff);
     border-radius: 8px;
     padding: 16px;
-    color: #eee;
+    color: var(--text, #333);
+    border: 1px solid var(--border, #ddd);
   }
 
   .header {
@@ -56,7 +57,7 @@
     align-items: center;
     margin-bottom: 16px;
     padding-bottom: 8px;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--border, #ddd);
   }
 
   .group-name {
@@ -66,7 +67,7 @@
   }
 
   .group-size {
-    color: #888;
+    color: var(--text-muted, #666);
     font-size: 14px;
   }
 
@@ -81,17 +82,17 @@
     flex-direction: column;
     align-items: center;
     padding: 12px 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #333;
+    background: var(--polygon, rgba(0, 0, 0, 0.03));
+    border: 1px solid var(--border, #ddd);
     border-radius: 4px;
-    color: #eee;
+    color: var(--text, #333);
     cursor: pointer;
     transition: all 0.2s;
   }
 
   .action-btn:hover {
-    background: rgba(52, 152, 219, 0.2);
-    border-color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+    border-color: var(--accent, #3498db);
   }
 
   .action-btn .label {
@@ -102,7 +103,7 @@
 
   .action-btn .desc {
     font-size: 11px;
-    color: #666;
+    color: var(--text-muted, #666);
     margin-top: 4px;
   }
 </style>
