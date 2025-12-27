@@ -20,90 +20,26 @@
   }
 </script>
 
-<div class="group-actions">
-  <div class="header">
-    <span class="group-name">{groupName(degree)}</span>
-    <span class="group-size">|G| = {actions.length}</span>
+<div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-gray-200 dark:border-slate-700 shadow-sm">
+  <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200 dark:border-slate-700">
+    <span class="text-2xl font-serif font-bold">{groupName(degree)}</span>
+    <span class="text-sm text-gray-500 dark:text-gray-400">|G| = {actions.length}</span>
   </div>
 
-  <div class="actions">
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
     {#each actions as action}
       <button
-        class="action-btn"
+        class="flex flex-col items-center p-3 rounded-lg border border-gray-200 dark:border-slate-600
+          bg-gray-50 dark:bg-slate-700/50 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20
+          transition-colors"
         on:click={() => handleAction(action)}
         title={action.description}
       >
-        <span class="label">{action.label}</span>
+        <span class="text-lg font-serif font-bold">{action.label}</span>
         {#if action.description}
-          <span class="desc">{action.description}</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">{action.description}</span>
         {/if}
       </button>
     {/each}
   </div>
 </div>
-
-<style>
-  .group-actions {
-    background: var(--bg-panel, #fff);
-    border-radius: 8px;
-    padding: 16px;
-    color: var(--text, #333);
-    border: 1px solid var(--border, #ddd);
-  }
-
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border, #ddd);
-  }
-
-  .group-name {
-    font-size: 24px;
-    font-weight: bold;
-    font-family: 'Times New Roman', serif;
-  }
-
-  .group-size {
-    color: var(--text-muted, #666);
-    font-size: 14px;
-  }
-
-  .actions {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 8px;
-  }
-
-  .action-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 8px;
-    background: var(--polygon, rgba(0, 0, 0, 0.03));
-    border: 1px solid var(--border, #ddd);
-    border-radius: 4px;
-    color: var(--text, #333);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .action-btn:hover {
-    background: rgba(52, 152, 219, 0.1);
-    border-color: var(--accent, #3498db);
-  }
-
-  .action-btn .label {
-    font-size: 18px;
-    font-family: 'Times New Roman', serif;
-    font-weight: bold;
-  }
-
-  .action-btn .desc {
-    font-size: 11px;
-    color: var(--text-muted, #666);
-    margin-top: 4px;
-  }
-</style>

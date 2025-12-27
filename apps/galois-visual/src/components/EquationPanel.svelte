@@ -47,13 +47,15 @@
   }
 </script>
 
-<div class="equation-panel">
-  <div class="degree-selector">
-    <span class="label">方程次数：</span>
+<div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-gray-200 dark:border-slate-700 shadow-sm">
+  <div class="flex items-center gap-3 mb-4">
+    <span class="text-gray-500 dark:text-gray-400 text-sm">方程次数</span>
     {#each degreeOptions as d}
       <button
-        class="degree-btn"
-        class:active={degree === d}
+        class="px-4 py-2 rounded-lg border transition-colors
+          {degree === d
+            ? 'bg-blue-500 border-blue-500 text-white'
+            : 'border-gray-300 dark:border-slate-600 hover:border-blue-400'}"
         on:click={() => dispatch('degreeChange', d)}
       >
         {d}次
@@ -61,100 +63,27 @@
     {/each}
   </div>
 
-  <div class="actions">
-    <button class="action-btn" on:click={handleUnitRoots}>
+  <div class="flex gap-3 mb-4">
+    <button
+      class="flex-1 py-2.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors"
+      on:click={handleUnitRoots}
+    >
       单位根 (x{superscript(degree)} = 1)
     </button>
-    <button class="action-btn" on:click={handleRandom}>
+    <button
+      class="flex-1 py-2.5 px-4 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
+      on:click={handleRandom}
+    >
       随机方程
     </button>
   </div>
 
   {#if equationStr}
-    <div class="equation-display">
-      <div class="equation">{equationStr}</div>
-      <div class="roots">
+    <div class="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-lg">
+      <div class="text-lg font-serif mb-2">{equationStr}</div>
+      <div class="text-xs text-gray-500 dark:text-gray-400">
         根：{roots.map((r, i) => `r${i + 1} = ${format(r, 2)}`).join(', ')}
       </div>
     </div>
   {/if}
 </div>
-
-<style>
-  .equation-panel {
-    background: var(--bg-panel, #fff);
-    border-radius: 8px;
-    padding: 16px;
-    color: var(--text, #333);
-    border: 1px solid var(--border, #ddd);
-  }
-
-  .degree-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .label {
-    color: var(--text-muted, #666);
-  }
-
-  .degree-btn {
-    padding: 8px 16px;
-    border: 1px solid var(--border, #ddd);
-    background: transparent;
-    color: var(--text, #333);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .degree-btn:hover {
-    border-color: var(--accent, #3498db);
-  }
-
-  .degree-btn.active {
-    background: var(--accent, #3498db);
-    border-color: var(--accent, #3498db);
-    color: white;
-  }
-
-  .actions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .action-btn {
-    padding: 10px 20px;
-    background: var(--success, #2ecc71);
-    border: none;
-    border-radius: 4px;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .action-btn:hover {
-    filter: brightness(0.9);
-  }
-
-  .equation-display {
-    background: var(--polygon, rgba(0, 0, 0, 0.05));
-    padding: 12px;
-    border-radius: 4px;
-  }
-
-  .equation {
-    font-size: 18px;
-    font-family: 'Times New Roman', serif;
-    margin-bottom: 8px;
-  }
-
-  .roots {
-    font-size: 12px;
-    color: var(--text-muted, #666);
-  }
-</style>
