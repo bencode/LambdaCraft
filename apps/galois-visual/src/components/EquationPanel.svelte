@@ -8,6 +8,7 @@
 
   const dispatch = createEventDispatcher<{
     generate: { roots: Complex[] }
+    degreeChange: 2 | 3 | 4
   }>()
 
   const degreeOptions: (2 | 3 | 4)[] = [2, 3, 4]
@@ -53,7 +54,7 @@
       <button
         class="degree-btn"
         class:active={degree === d}
-        on:click={() => (degree = d)}
+        on:click={() => dispatch('degreeChange', d)}
       >
         {d}次
       </button>

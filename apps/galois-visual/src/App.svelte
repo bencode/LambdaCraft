@@ -24,7 +24,8 @@
     return map[n] || String(n)
   }
 
-  $: if (degree) {
+  const handleDegreeChange = (newDegree: 2 | 3 | 4) => {
+    degree = newDegree
     roots = unitRoots(degree)
     labels = roots.map((_, i) => `r${subscript(i + 1)}`)
   }
@@ -42,7 +43,7 @@
     </div>
 
     <div class="right-panel">
-      <EquationPanel bind:degree {roots} on:generate={handleGenerate} />
+      <EquationPanel {degree} {roots} on:generate={handleGenerate} on:degreeChange={e => handleDegreeChange(e.detail)} />
       <GroupActions {degree} on:apply={handleApply} />
     </div>
   </div>
