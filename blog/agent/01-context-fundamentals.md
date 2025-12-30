@@ -1,6 +1,6 @@
 # 上下文基础：注意力机制与失败模式
 
-系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 1 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/00-index) | 第 1 篇
 
 ## 引言
 

@@ -18,7 +18,7 @@
 
 ;; 基于 Agent Skills for Context Engineering 项目的深度学习总结，系统化介绍如何通过上下文工程构建可靠的 AI Agent 系统。
 
-;; - [系列导读](/pages/agent/index) - 上下文工程 vs 提示工程、核心理念、系列结构 (2025-12-30)
+;; - [系列导读](/pages/agent/00-index) - 上下文工程 vs 提示工程、核心理念、系列结构 (2025-12-30)
 ;; - [01. 上下文基础：注意力机制与失败模式](/pages/agent/context-fundamentals) - RULER基准、Lost-in-Middle、4个失败模式 (2025-12-30)
 ;; - [02. 上下文压缩与优化策略](/pages/agent/context-optimization) - 锚定迭代总结、观察掩蔽、Token经济学 (2025-12-30)
 ;; - [03. 多 Agent 架构模式与 Token 经济学](/pages/agent/multi-agent-patterns) - Supervisor/P2P/Hierarchical、文件系统状态机 (2025-12-30)

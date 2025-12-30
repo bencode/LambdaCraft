@@ -1,6 +1,6 @@
 # 上下文压缩与优化策略
 
-系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 2 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/00-index) | 第 2 篇
 
 上一篇：[01. 上下文基础：注意力机制与失败模式](/pages/agent/context-fundamentals)
 

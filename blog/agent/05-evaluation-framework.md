@@ -1,6 +1,6 @@
 # 评估框架：LLM-as-Judge 实践
 
-系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 5 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/00-index) | 第 5 篇
 
 上一篇：[04. 内存系统与工具设计](/pages/agent/memory-tool-design)
 

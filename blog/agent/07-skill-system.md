@@ -1,6 +1,6 @@
 # Agent 技能系统实现
 
-系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 7 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/00-index) | 第 7 篇
 
 上一篇：[06. 实战：X-to-Book 多 Agent 系统设计](/pages/agent/x-to-book-case-study)
 
