@@ -1,8 +1,8 @@
 # Agent 技能系统实现
 
-系列：[Agent 上下文工程实践指南](00-index.md) | 第 7 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 7 篇
 
-上一篇：[06. 实战：X-to-Book 多 Agent 系统设计](06-x-to-book-case-study.md)
+上一篇：[06. 实战：X-to-Book 多 Agent 系统设计](/pages/agent/x-to-book-case-study)
 
 ## 引言
 
@@ -782,7 +782,7 @@ A: 可以使用 POST 到特殊端点，如 `POST /users/batch-delete`。
 
 通过构建技能系统，我们让上下文工程的知识变得可复用和可移植。最后一篇文章将总结整个系列，提炼8个关键洞察。
 
-下一篇：[08. 总结：8个关键洞察](08-key-insights.md)
+下一篇：[08. 总结：8个关键洞察](/pages/agent/key-insights)
 
 ## 参考资料
 

@@ -1,6 +1,6 @@
 # 上下文基础：注意力机制与失败模式
 
-系列：[Agent 上下文工程实践指南](00-index.md) | 第 1 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 1 篇
 
 ## 引言
 
@@ -450,7 +450,7 @@ database: PostgreSQL
 
 理解了上下文的基础和失败模式后，下一篇将探讨如何通过压缩和优化策略来管理有限的上下文预算。
 
-下一篇：[02. 上下文压缩与优化策略](02-context-optimization.md)
+下一篇：[02. 上下文压缩与优化策略](/pages/agent/context-optimization)
 
 ## 参考资料
 

@@ -1,8 +1,8 @@
 # 总结：8个关键洞察
 
-系列：[Agent 上下文工程实践指南](00-index.md) | 第 8 篇（完结）
+系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 8 篇（完结）
 
-上一篇：[07. Agent 技能系统实现](07-skill-system.md)
+上一篇：[07. Agent 技能系统实现](/pages/agent/skill-system)
 
 ## 引言
 
@@ -396,15 +396,15 @@ Sonnet 4.5 + 单Agent: (0.9 × 8.5) / 8 = 0.96
 
 | 篇章 | 核心主题 | 关键技术 |
 |------|---------|---------|
-| [00](00-index.md) | 系列导读 | 概览 |
-| [01](01-context-fundamentals.md) | 上下文基础 | RULER、Lost-in-Middle、4个失败模式 |
-| [02](02-context-optimization.md) | 上下文优化 | 锚定迭代总结、观察掩蔽、KV-Cache |
-| [03](03-multi-agent-patterns.md) | 多 Agent 架构 | Supervisor、Token 经济学、文件系统状态机 |
-| [04](04-memory-tool-design.md) | 内存与工具 | 5层内存、整合原则、时间知识图 |
-| [05](05-evaluation-framework.md) | 评估框架 | 多维度评分、LLM-as-Judge、链式思维 |
-| [06](06-x-to-book-case-study.md) | 完整案例 | X-to-Book 系统设计 |
-| [07](07-skill-system.md) | 技能系统 | SKILL.md、渐进式披露、语义检索 |
-| [08](08-key-insights.md) | 核心洞察 | 8个关键洞察、实践指南 |
+| [00](/pages/agent/index) | 系列导读 | 概览 |
+| [01](/pages/agent/context-fundamentals) | 上下文基础 | RULER、Lost-in-Middle、4个失败模式 |
+| [02](/pages/agent/context-optimization) | 上下文优化 | 锚定迭代总结、观察掩蔽、KV-Cache |
+| [03](/pages/agent/multi-agent-patterns) | 多 Agent 架构 | Supervisor、Token 经济学、文件系统状态机 |
+| [04](/pages/agent/memory-tool-design) | 内存与工具 | 5层内存、整合原则、时间知识图 |
+| [05](/pages/agent/evaluation-framework) | 评估框架 | 多维度评分、LLM-as-Judge、链式思维 |
+| [06](/pages/agent/x-to-book-case-study) | 完整案例 | X-to-Book 系统设计 |
+| [07](/pages/agent/skill-system) | 技能系统 | SKILL.md、渐进式披露、语义检索 |
+| [08](/pages/agent/key-insights) | 核心洞察 | 8个关键洞察、实践指南 |
 
 ## 结语
 
