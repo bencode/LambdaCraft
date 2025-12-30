@@ -1,8 +1,8 @@
 # 上下文压缩与优化策略
 
-系列：[Agent 上下文工程实践指南](00-index.md) | 第 2 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 2 篇
 
-上一篇：[01. 上下文基础：注意力机制与失败模式](01-context-fundamentals.md)
+上一篇：[01. 上下文基础：注意力机制与失败模式](/pages/agent/context-fundamentals)
 
 ## 引言
 
@@ -623,7 +623,7 @@ const sharedState = JSON.parse(
 
 掌握了上下文压缩和优化后，下一篇将探讨多 Agent 架构模式，以及如何通过上下文隔离进一步优化 Token 经济学。
 
-下一篇：[03. 多 Agent 架构模式与 Token 经济学](03-multi-agent-patterns.md)
+下一篇：[03. 多 Agent 架构模式与 Token 经济学](/pages/agent/multi-agent-patterns)
 
 ## 参考资料
 

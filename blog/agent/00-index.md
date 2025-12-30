@@ -149,4 +149,4 @@
 - [Agent Skills 开放标准](https://github.com/skills)
 - [RULER 基准测试](https://arxiv.org/abs/2404.06654)
 
-下一篇：[01. 上下文基础：注意力机制与失败模式](01-context-fundamentals.md)
+下一篇：[01. 上下文基础：注意力机制与失败模式](/pages/agent/context-fundamentals)

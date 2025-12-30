@@ -1,8 +1,8 @@
 # 内存系统与工具设计
 
-系列：[Agent 上下文工程实践指南](00-index.md) | 第 4 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 4 篇
 
-上一篇：[03. 多 Agent 架构模式与 Token 经济学](03-multi-agent-patterns.md)
+上一篇：[03. 多 Agent 架构模式与 Token 经济学](/pages/agent/multi-agent-patterns)
 
 ## 引言
 
@@ -781,7 +781,7 @@ async function executeToolWithSummary(
 
 掌握了内存系统和工具设计后，下一篇将探讨如何评估 Agent 系统的质量，包括 LLM-as-Judge 的实践技巧。
 
-下一篇：[05. 评估框架：LLM-as-Judge 实践](05-evaluation-framework.md)
+下一篇：[05. 评估框架：LLM-as-Judge 实践](/pages/agent/evaluation-framework)
 
 ## 参考资料
 

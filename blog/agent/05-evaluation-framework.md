@@ -1,8 +1,8 @@
 # 评估框架：LLM-as-Judge 实践
 
-系列：[Agent 上下文工程实践指南](00-index.md) | 第 5 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 5 篇
 
-上一篇：[04. 内存系统与工具设计](04-memory-tool-design.md)
+上一篇：[04. 内存系统与工具设计](/pages/agent/memory-tool-design)
 
 ## 引言
 
@@ -870,7 +870,7 @@ console.log(winner)
 
 理解了评估框架后，下一篇将深入分析 X-to-Book 完整案例，展示如何综合应用前面学到的所有技术。
 
-下一篇：[06. 实战：X-to-Book 多 Agent 系统设计](06-x-to-book-case-study.md)
+下一篇：[06. 实战：X-to-Book 多 Agent 系统设计](/pages/agent/x-to-book-case-study)
 
 ## 参考资料
 

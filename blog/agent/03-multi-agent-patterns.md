@@ -1,8 +1,8 @@
 # 多 Agent 架构模式与 Token 经济学
 
-系列：[Agent 上下文工程实践指南](00-index.md) | 第 3 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 3 篇
 
-上一篇：[02. 上下文压缩与优化策略](02-context-optimization.md)
+上一篇：[02. 上下文压缩与优化策略](/pages/agent/context-optimization)
 
 ## 引言
 
@@ -703,7 +703,7 @@ type Evaluation = {
 }
 ```
 
-详细的案例分析见[第6篇](06-x-to-book-case-study.md)。
+详细的案例分析见[第6篇](/pages/agent/x-to-book-case-study)。
 
 ## 实践检查清单
 
@@ -731,7 +731,7 @@ type Evaluation = {
 
 理解了多 Agent 架构后，下一篇将探讨如何设计内存系统和工具，以支持复杂的 Agent 行为。
 
-下一篇：[04. 内存系统与工具设计](04-memory-tool-design.md)
+下一篇：[04. 内存系统与工具设计](/pages/agent/memory-tool-design)
 
 ## 参考资料
 
