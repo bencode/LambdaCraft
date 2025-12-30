@@ -1,6 +1,6 @@
 # 内存系统与工具设计
 
-系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 4 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/00-index) | 第 4 篇
 
 上一篇：[03. 多 Agent 架构模式与 Token 经济学](/pages/agent/multi-agent-patterns)
 

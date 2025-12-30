@@ -1,6 +1,6 @@
 # 实战：X-to-Book 多 Agent 系统设计
 
-系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 6 篇
+系列：[Agent 上下文工程实践指南](/pages/agent/00-index) | 第 6 篇
 
 上一篇：[05. 评估框架：LLM-as-Judge 实践](/pages/agent/evaluation-framework)
 

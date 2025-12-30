@@ -1,6 +1,6 @@
 # 总结：8个关键洞察
 
-系列：[Agent 上下文工程实践指南](/pages/agent/index) | 第 8 篇（完结）
+系列：[Agent 上下文工程实践指南](/pages/agent/00-index) | 第 8 篇（完结）
 
 上一篇：[07. Agent 技能系统实现](/pages/agent/skill-system)
 
@@ -396,7 +396,7 @@ Sonnet 4.5 + 单Agent: (0.9 × 8.5) / 8 = 0.96
 
 | 篇章 | 核心主题 | 关键技术 |
 |------|---------|---------|
-| [00](/pages/agent/index) | 系列导读 | 概览 |
+| [00](/pages/agent/00-index) | 系列导读 | 概览 |
 | [01](/pages/agent/context-fundamentals) | 上下文基础 | RULER、Lost-in-Middle、4个失败模式 |
 | [02](/pages/agent/context-optimization) | 上下文优化 | 锚定迭代总结、观察掩蔽、KV-Cache |
 | [03](/pages/agent/multi-agent-patterns) | 多 Agent 架构 | Supervisor、Token 经济学、文件系统状态机 |
