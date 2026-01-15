@@ -12,8 +12,6 @@
 
 ;; 探讨 AI 编程工具的使用方式和最佳实践。
 
-;; - [为什么仅靠 VibeCoding 很难构建复杂系统](/pages/ai-programming/vibe-coding) - 系统结构、设计决策、协作方式 (2025-12-05)
-
 ;; ## Agent 上下文工程实践指南
 
 ;; 基于 Agent Skills for Context Engineering 项目的深度学习总结，系统化介绍如何通过上下文工程构建可靠的 AI Agent 系统。
