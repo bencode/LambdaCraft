@@ -19,3 +19,6 @@ apps/web/public/books/
 
 # GitHub Pages output directory (not source docs)
 /docs/
+
+# Astro build output
+apps/site/dist/
