@@ -3,5 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "scripts": {}
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=site",
+    "build": "npm run build --workspaces --if-present",
+    "preview": "npm run preview --workspace=site"
+  }
 }
