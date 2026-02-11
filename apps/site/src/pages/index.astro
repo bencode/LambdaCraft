@@ -1,10 +1,21 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro'
+import BaseLayout from '../layouts/base-layout.astro'
 ---
 
 <BaseLayout title="LambdaCraft">
-  <div class="max-w-2xl mx-auto px-3 py-4">
-    <h1 class="pixel-font text-xl">LambdaCraft</h1>
-    <p class="pixel-font text-[10px] mt-2">() =&gt; study(math) =&gt; practice(code)</p>
+  <div class="py-8">
+    <h1 class="font-pixel text-2xl">LambdaCraft</h1>
+    <p class="font-pixel text-xs mt-2">() =&gt; study(math) =&gt; practice(code)</p>
+
+    <hr class="my-6 border-gray-300" />
+
+    <div class="text-sm leading-relaxed">
+      <p class="text-gray-500">$ ls links/</p>
+      <div class="mt-2 ml-2">
+        <a href="https://in.qijun.io" class="hover:underline">in.qijun.io</a>
+        <span class="ml-4 text-gray-400">阅读系列</span>
+      </div>
+      <p class="mt-4">$ <span class="cursor-blink">█</span></p>
+    </div>
   </div>
 </BaseLayout>

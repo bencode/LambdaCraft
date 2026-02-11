@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
-.pixel-font {
-  font-family: 'Press Start 2P', cursive;
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/press-start-2p.woff2') format('woff2');
+}
+
+@theme {
+  --font-pixel: 'Press Start 2P', cursive;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
 }
