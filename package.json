@@ -1,15 +1,13 @@
 {
-  "name": "LambdaCraft",
+  "name": "lambdacraft",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
-    "dev": "npm run dev --workspace=site",
-    "build": "npm run build --workspaces --if-present",
-    "preview": "npm run preview --workspace=site"
-  }
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm -r --if-present build",
+    "preview": "pnpm --filter web preview",
+    "check": "pnpm --filter web check"
+  },
+  "packageManager": "pnpm@9.15.4"
 }
