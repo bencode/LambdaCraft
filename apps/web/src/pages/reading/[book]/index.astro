@@ -1,0 +1,65 @@
+---
+import { getCollection } from 'astro:content'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import {
+  books,
+  chapterLabel,
+  getBook,
+  readingTime,
+  slugInBook,
+  titleFromBody,
+} from '../../../lib/books'
+
+export async function getStaticPaths() {
+  return books.map((book) => ({ params: { book: book.id } }))
+}
+
+const { book: bookId } = Astro.params
+const book = getBook(bookId!)
+if (!book) throw new Error(`unknown book: ${bookId}`)
+
+const all = await getCollection('reading')
+const chapters = all
+  .filter((entry) => entry.id.startsWith(`${book.dirPrefix}/`))
+  .map((entry) => {
+    const slug = slugInBook(entry.id, book)
+    return {
+      slug,
+      label: chapterLabel(slug),
+      title: titleFromBody(entry.body, slug),
+      minutes: readingTime(entry.body),
+    }
+  })
+  .sort((a, b) => a.slug.localeCompare(b.slug))
+---
+
+<BaseLayout title={book.title} description={book.subtitle}>
+  <article>
+    <p class="breadcrumb">
+      <a href="/reading">reading</a>
+      <span class="sep">·</span>
+      {book.id}
+    </p>
+    <h1>{book.title}</h1>
+    {book.subtitle && <p class="chapter-meta">{book.subtitle}</p>}
+
+    {
+      chapters.length === 0 ? (
+        <p class="empty">nothing yet</p>
+      ) : (
+        <ul class="chapter-list">
+          {chapters.map((c) => (
+            <li class="chapter-row">
+              <span class="num">{c.label}</span>
+              <a class="title" href={`/reading/${book.id}/${c.slug}`}>
+                {c.title}
+              </a>
+              <span class="dots" aria-hidden="true" />
+              <span class="right">~{c.minutes} min</span>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </article>
+</BaseLayout>

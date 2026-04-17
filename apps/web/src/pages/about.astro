@@ -1,13 +1,17 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro'
 ---
 
 <BaseLayout title="关于" description="关于 LambdaCraft">
-  <h1>关于</h1>
-  <p>LambdaCraft 是一个用来沉淀编程技术的地方。</p>
-  <p>
-    文章（<a href="/posts">/posts</a>）用来把一个想法讲清楚，
-    forge（<a href="/forge">/forge</a>）用来把它跑起来。
-  </p>
-  <p style="color: var(--muted)">() =&gt; study(math) =&gt; practice(code)</p>
+  <article>
+    <p class="breadcrumb">about</p>
+    <h1>关于</h1>
+    <p>LambdaCraft 是一个用来沉淀编程技术的地方。</p>
+    <p>
+      文章（<a href="/posts">/posts</a>）把一个想法讲清楚，
+      读书笔记（<a href="/reading">/reading</a>）整理读过的书，
+      forge（<a href="/forge">/forge</a>）把它跑起来。
+    </p>
+    <p class="prompt">() =&gt; study(math) =&gt; practice(code)</p>
+  </article>
 </BaseLayout>

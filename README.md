@@ -1,3 +1,3 @@
 # LambdaCraft
 
-**() => study(math) => practice(code)**
+**(λ () (study math) (practice code))**

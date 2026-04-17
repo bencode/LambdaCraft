@@ -1,0 +1,66 @@
+---
+import { getCollection, render } from 'astro:content'
+import Toc from '../../../components/Toc.astro'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import {
+  books,
+  chapterLabel,
+  getBook,
+  readingTime,
+  slugInBook,
+  titleFromBody,
+} from '../../../lib/books'
+
+export async function getStaticPaths() {
+  const all = await getCollection('reading')
+  const paths: Array<{ params: { book: string; slug: string }; props: { entryId: string } }> = []
+
+  for (const book of books) {
+    for (const entry of all) {
+      if (!entry.id.startsWith(`${book.dirPrefix}/`)) continue
+      const slug = slugInBook(entry.id, book)
+      paths.push({ params: { book: book.id, slug }, props: { entryId: entry.id } })
+    }
+  }
+  return paths
+}
+
+const { book: bookId } = Astro.params
+const { entryId } = Astro.props
+
+const book = getBook(bookId!)
+if (!book) throw new Error(`unknown book: ${bookId}`)
+
+const all = await getCollection('reading')
+const entry = all.find((e) => e.id === entryId)
+if (!entry) throw new Error(`entry not found: ${entryId}`)
+
+const { Content, headings } = await render(entry)
+const slug = slugInBook(entry.id, book)
+const title = titleFromBody(entry.body, slug)
+const label = chapterLabel(slug)
+const minutes = readingTime(entry.body)
+---
+
+<BaseLayout title={title} description={book.title} hasToc={true}>
+  <article>
+    <p class="breadcrumb">
+      <a href="/reading">reading</a>
+      <span class="sep">·</span>
+      <a href={`/reading/${book.id}`}>{book.id}</a>
+      <span class="sep">·</span>
+      {label}
+    </p>
+    <h1>{title}</h1>
+    <p class="chapter-meta">
+      {book.title}
+      <span class="sep">·</span>
+      chapter {label}
+      <span class="sep">·</span>
+      ~{minutes} min
+    </p>
+    <Content />
+  </article>
+
+  <Toc slot="toc" headings={headings} />
+</BaseLayout>

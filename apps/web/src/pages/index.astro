@@ -1,37 +1,88 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { bookOfEntry, chapterLabel, slugInBook, titleFromBody } from '../lib/books'
 
 const posts = (await getCollection('posts', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .slice(0, 5);
+  .slice(0, 5)
 
-const fmt = (d: Date) => d.toISOString().slice(0, 10);
+const readingAll = await getCollection('reading')
+const readingRecent = readingAll
+  .map((entry) => {
+    const book = bookOfEntry(entry.id)
+    if (!book) return null
+    const slug = slugInBook(entry.id, book)
+    return {
+      bookId: book.id,
+      slug,
+      label: chapterLabel(slug),
+      title: titleFromBody(entry.body, slug),
+    }
+  })
+  .filter((x): x is { bookId: string; slug: string; label: string; title: string } => x !== null)
+  .sort((a, b) => b.slug.localeCompare(a.slug))
+  .slice(0, 5)
+
+const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
 <BaseLayout title="LambdaCraft" description="用最合适的媒介表达编程技术">
-  <section>
-    <p>
-      这里是实验与文字混排的地方。文章在 <a href="/posts">/posts</a>，
-      可运行的演示在 <a href="/forge">/forge</a>。
-    </p>
-  </section>
+  <article>
+    <section>
+      <p class="prompt">用最合适的媒介，表达编程的技术。</p>
+      <p>
+        文章在 <a href="/posts">/posts</a>，读书笔记在 <a href="/reading">/reading</a>，
+        可运行的演示在 <a href="/forge">/forge</a>。
+      </p>
+    </section>
 
-  <section>
-    <h2>最近的文章</h2>
-    {
-      posts.length === 0 ? (
-        <p style="color: var(--muted)">还没有文章。</p>
-      ) : (
-        <ul class="post-list">
-          {posts.map((post) => (
-            <li>
-              <time datetime={post.data.date.toISOString()}>{fmt(post.data.date)}</time>
-              <a href={`/posts/${post.id}`}>{post.data.title}</a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
-  </section>
+    <section class="section">
+      <div class="section-head">
+        <span class="label">Recent Posts</span>
+        <span class="rule" />
+        <a class="more" href="/posts">All →</a>
+      </div>
+      {
+        posts.length === 0 ? (
+          <p class="empty">nothing yet</p>
+        ) : (
+          <ul class="entry-list">
+            {posts.map((post) => (
+              <li>
+                <time class="meta" datetime={post.data.date.toISOString()}>
+                  {fmt(post.data.date)}
+                </time>
+                <a href={`/posts/${post.id}`}>{post.data.title}</a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <span class="label">Recent Reading</span>
+        <span class="rule" />
+        <a class="more" href="/reading">All →</a>
+      </div>
+      {
+        readingRecent.length === 0 ? (
+          <p class="empty">nothing yet</p>
+        ) : (
+          <ul class="entry-list">
+            {readingRecent.map((r) => (
+              <li>
+                <span class="meta">
+                  {r.bookId} <span class="sep">·</span> {r.label}
+                </span>
+                <a href={`/reading/${r.bookId}/${r.slug}`}>{r.title}</a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </section>
+  </article>
 </BaseLayout>
