@@ -3,12 +3,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import { books } from '../../lib/books'
 ---
 
-<BaseLayout title="读书笔记" description="Reading notes">
+<BaseLayout title="Reading" description="Reading notes">
   <article>
-    <p class="breadcrumb">reading</p>
-    <h1>读书笔记</h1>
-    <p class="chapter-meta">每本书一个目录，每一章一篇。正文与图示忠于原书，用自己的话重新组织论证。</p>
-
+    <h1>Reading</h1>
+    <p class="chapter-meta">读书笔记</p>
     <ul class="book-list">
       {
         books.map((book) => (

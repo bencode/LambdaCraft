@@ -9,10 +9,10 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
 const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
-<BaseLayout title="文章" description="所有文章">
+<BaseLayout title="Posts" description="All posts">
   <article>
-    <p class="breadcrumb">posts</p>
-    <h1>文章</h1>
+    <h1>Posts</h1>
+    <p class="chapter-meta">编程日志</p>
     {
       posts.length === 0 ? (
         <p class="empty">nothing yet</p>
