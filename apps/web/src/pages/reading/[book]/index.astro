@@ -5,7 +5,6 @@ import {
   books,
   chapterLabel,
   getBook,
-  readingTime,
   slugInBook,
   titleFromBody,
 } from '../../../lib/books'
@@ -18,6 +17,8 @@ const { book: bookId } = Astro.params
 const book = getBook(bookId!)
 if (!book) throw new Error(`unknown book: ${bookId}`)
 
+const fmt = (d: Date) => d.toISOString().slice(0, 10)
+
 const all = await getCollection('reading')
 const chapters = all
   .filter((entry) => entry.id.startsWith(`${book.dirPrefix}/`))
@@ -27,7 +28,7 @@ const chapters = all
       slug,
       label: chapterLabel(slug),
       title: titleFromBody(entry.body, slug),
-      minutes: readingTime(entry.body),
+      date: entry.data.date,
     }
   })
   .sort((a, b) => a.slug.localeCompare(b.slug))
@@ -55,7 +56,11 @@ const chapters = all
                 {c.title}
               </a>
               <span class="dots" aria-hidden="true" />
-              <span class="right">~{c.minutes} min</span>
+              {c.date && (
+                <time class="right" datetime={c.date.toISOString()}>
+                  {fmt(c.date)}
+                </time>
+              )}
             </li>
           ))}
         </ul>

@@ -26,4 +26,18 @@ const reading = defineCollection({
     .passthrough(),
 })
 
-export const collections = { posts, reading }
+const irRagCourse = defineCollection({
+  loader: glob({
+    pattern: '**/*.{md,mdx}',
+    base: './src/content/ir-rag-course',
+  }),
+  schema: z
+    .object({
+      title: z.string().optional(),
+      date: z.coerce.date().optional(),
+      summary: z.string().optional(),
+    })
+    .passthrough(),
+})
+
+export const collections = { posts, reading, 'ir-rag-course': irRagCourse }

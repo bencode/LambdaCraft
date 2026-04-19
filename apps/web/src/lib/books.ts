@@ -51,7 +51,3 @@ export const chapterLabel = (slug: string): string => {
   return p.sub !== null ? `${n}.${p.sub}` : n
 }
 
-export const readingTime = (body: string | undefined): number => {
-  if (!body) return 1
-  return Math.max(1, Math.round(body.length / 350))
-}

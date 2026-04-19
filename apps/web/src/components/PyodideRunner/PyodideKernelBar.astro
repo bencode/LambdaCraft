@@ -1,0 +1,96 @@
+---
+// Page-level Python kernel status & reset bar.
+// Place ONCE per page that uses <PyodideRunner>.
+// Author usage:
+//   <PyodideKernelBar />
+//   <PyodideRunner code={...} />
+//   <PyodideRunner code={...} />
+---
+
+<div class="pyrunner-kernel-bar">
+  <span class="kernel-bar-label">🐍 Python</span>
+  <span class="kernel-bar-status" data-state="idle">尚未启动</span>
+  <button
+    type="button"
+    class="kernel-bar-btn"
+    data-action="reset-kernel"
+    title="清空所有 cell 的变量，重置 Python kernel"
+    disabled
+  >
+    ↺ 重置 kernel
+  </button>
+</div>
+
+<script>
+  import { initAllKernelBars } from './runtime/kernel-bar-controller'
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllKernelBars)
+  } else {
+    initAllKernelBars()
+  }
+</script>
+
+<style is:global>
+  .pyrunner-kernel-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    margin: 1.5rem 0 1rem;
+    border: 1px solid #d6dde6;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+  }
+
+  .pyrunner-kernel-bar .kernel-bar-label {
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .pyrunner-kernel-bar .kernel-bar-status {
+    flex: 1;
+    color: #4a5568;
+    font-size: 12.5px;
+  }
+
+  .pyrunner-kernel-bar .kernel-bar-status[data-state='loading'] {
+    color: #b7791f;
+  }
+
+  .pyrunner-kernel-bar .kernel-bar-status[data-state='ready'] {
+    color: #2f855a;
+  }
+
+  .pyrunner-kernel-bar .kernel-bar-status[data-state='error'] {
+    color: #c53030;
+  }
+
+  .pyrunner-kernel-bar .kernel-bar-btn {
+    padding: 4px 10px;
+    font-size: 12.5px;
+    font-family: inherit;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #2d3748;
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
+  }
+
+  .pyrunner-kernel-bar .kernel-bar-btn:hover:not(:disabled) {
+    background: #fef5e7;
+    border-color: #ed8936;
+    color: #9c4221;
+  }
+
+  .pyrunner-kernel-bar .kernel-bar-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>

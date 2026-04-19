@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import PyodideRunner from '../../components/PyodideRunner/PyodideRunner.astro'
+import PyodideKernelBar from '../../components/PyodideRunner/PyodideKernelBar.astro'
+
+const cell1 = `# 第 1 格：定义 idf 函数
+import math
+
+def idf(N: int, df: int) -> float:
+    """Inverse document frequency: log(N / df)."""
+    return math.log(N / df)
+
+# 试一下
+print(f"idf(1000, 1)   = {idf(1000, 1):.3f}  (极稀有词，区分力强)")
+print(f"idf(1000, 100) = {idf(1000, 100):.3f}  (中等)")
+print(f"idf(1000, 950) = {idf(1000, 950):.3f}  (常见词，几乎没区分力)")`
+
+const cell2 = `# 第 2 格：复用上一格定义的 idf
+# 注意 idf 函数还在 — 这就是 shared kernel 的意思
+import math
+
+# 验证 idf 是单调递减的
+for df in [1, 10, 100, 500, 1000]:
+    print(f"df={df:>5d}  ->  idf={idf(1000, df):.4f}")`
+
+const cell3 = `# 第 3 格：画出 idf 曲线
+import matplotlib.pyplot as plt
+import numpy as np
+
+N = 1000
+dfs = np.arange(1, N + 1)
+idfs = np.log(N / dfs)
+
+plt.figure(figsize=(8, 4))
+plt.plot(dfs, idfs)
+plt.xlabel('document frequency (df)')
+plt.ylabel('idf')
+plt.title(f'IDF curve, N = {N}')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()`
+
+const cell4 = `# 第 4 格：返回值会被自动展示
+# 表达式作为最后一行 → 自动用 repr 打印
+{
+    'idf(1000, 1)': idf(1000, 1),
+    'idf(1000, 100)': idf(1000, 100),
+    'idf(1000, 950)': idf(1000, 950),
+}`
+
+const cell5 = `# 第 5 格：演示 pandas DataFrame 自动渲染
+import pandas as pd
+
+data = []
+for df in [1, 10, 50, 100, 500, 950, 1000]:
+    data.append({
+        'df': df,
+        'idf': round(idf(1000, df), 4),
+        'description': '稀有' if df < 50 else ('中等' if df < 500 else '常见'),
+    })
+
+pd.DataFrame(data)`
+
+const cell6 = `# 第 6 格：故意触发错误，看 traceback 渲染
+def will_fail():
+    return 1 / 0
+
+will_fail()`
+
+const cell7 = `# 第 7 格：top-level await（重构到 eval_code_async 后才支持）
+# 旧实现这里会 SyntaxError，新实现应该正常输出
+import asyncio
+
+await asyncio.sleep(0.5)
+print("等了 0.5 秒")
+"async ok"`
+---
+
+<BaseLayout title="PyodideRunner 测试" description="验证页内 Python 运行组件">
+  <article>
+    <h1>PyodideRunner Demo</h1>
+
+    <p>
+      这个页面验证 <code>PyodideRunner</code> 组件的核心能力：
+      <strong>页内运行 Python</strong>、<strong>多格共享 kernel</strong>、
+      <strong>可编辑代码</strong>、<strong>matplotlib / pandas 自动渲染</strong>。
+    </p>
+
+    <p>
+      第一次运行需要约 10 秒下载 Pyodide（10 MB）。之后即点即跑。
+      <strong>试着改代码再运行</strong>——所有 cell 共享同一个 Python
+      kernel，前面定义的函数后面可以直接用。
+    </p>
+
+    <PyodideKernelBar />
+
+    <h2>1. 定义函数</h2>
+    <PyodideRunner code={cell1} hint="点击右上 ▶ 运行 — 第一次会下载 Pyodide" />
+
+    <h2>2. Shared Kernel 验证</h2>
+    <p>注意：第 2 格不需要重新定义 <code>idf</code>。</p>
+    <PyodideRunner code={cell2} />
+
+    <h2>3. matplotlib 自动渲染</h2>
+    <PyodideRunner code={cell3} hint="第一次跑 matplotlib 时还要等几秒下载 numpy/matplotlib 包" />
+
+    <h2>4. 表达式返回值自动 repr</h2>
+    <PyodideRunner code={cell4} />
+
+    <h2>5. pandas DataFrame 自动渲染为表格</h2>
+    <PyodideRunner code={cell5} />
+
+    <h2>6. 错误的 traceback 渲染</h2>
+    <PyodideRunner code={cell6} />
+
+    <h2>7. Top-level await（官方 eval_code_async 支持）</h2>
+    <p>
+      旧实现里 <code>await</code> 写在顶层会 <code>SyntaxError</code>。
+      重构到 <code>pyodide.code.eval_code_async</code> 之后能直接跑。
+    </p>
+    <PyodideRunner code={cell7} />
+
+    <h2>测试要点</h2>
+    <ul>
+      <li>跑第 1 格 → 等 Pyodide 加载（约 10 秒首次）</li>
+      <li>跑第 2 格 → 应该能立刻用上一格定义的 <code>idf</code></li>
+      <li>跑第 3 格 → matplotlib 图直接展示在输出区</li>
+      <li>跑第 4 格 → 字典返回值自动 repr 打印</li>
+      <li>跑第 5 格 → DataFrame 渲染为 HTML 表格</li>
+      <li>跑第 6 格 → traceback 红框显示</li>
+      <li>跑第 7 格 → 等 0.5 秒，输出 "等了 0.5 秒" + repr <code>'async ok'</code></li>
+      <li>编辑任意 cell 代码（点编辑器内）→ 重新运行</li>
+      <li>在页面顶部 KernelBar 点 ↺ 重置 kernel → 所有变量清空，再跑第 2 格应该 NameError</li>
+      <li>Ctrl + Enter 快捷键运行（Mac / Win / Linux 一致）</li>
+      <li>触发 cell 3 时只 cell 3 显示"运行中"；KernelBar 显示包加载进度，其它 cell 状态不动</li>
+    </ul>
+  </article>
+</BaseLayout>

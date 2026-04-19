@@ -1,0 +1,226 @@
+---
+interface Props {
+  code: string
+  cellId?: string
+  hint?: string
+}
+
+const {
+  code,
+  cellId = `cell-${Math.random().toString(36).slice(2, 10)}`,
+  hint,
+} = Astro.props
+---
+
+<div
+  class="pyrunner-cell"
+  data-cell-id={cellId}
+  data-initial-code={code.replace(/^\n+|\n+$/g, '')}
+>
+  {hint && <div class="cell-hint">{hint}</div>}
+  <div class="cell-toolbar">
+    <button type="button" class="cell-btn cell-btn--run" data-action="run">
+      <span aria-hidden="true">▶</span> 运行
+    </button>
+    <span class="cell-status" data-state="idle"></span>
+    <span class="cell-hint-text">Ctrl + Enter</span>
+  </div>
+  <div class="editor-container"></div>
+  <div class="output-container hidden"></div>
+</div>
+
+<script>
+  import { initAllCells } from './runtime/cell-controller'
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllCells)
+  } else {
+    initAllCells()
+  }
+</script>
+
+<style is:global>
+  .pyrunner-cell {
+    border: 1px solid #e0e3e8;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    background: #ffffff;
+    overflow: hidden;
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .pyrunner-cell .cell-hint {
+    padding: 8px 12px;
+    background: #f7f9fc;
+    border-bottom: 1px solid #e0e3e8;
+    font-size: 13px;
+    color: #4a5568;
+  }
+
+  .pyrunner-cell .cell-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: #fafbfc;
+    border-bottom: 1px solid #e0e3e8;
+  }
+
+  .pyrunner-cell .cell-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #2d3748;
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
+  }
+
+  .pyrunner-cell .cell-btn:hover:not(:disabled) {
+    background: #f7fafc;
+    border-color: #a0aec0;
+  }
+
+  .pyrunner-cell .cell-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pyrunner-cell .cell-btn--run {
+    color: #2b6cb0;
+    border-color: #bee3f8;
+    background: #ebf8ff;
+  }
+
+  .pyrunner-cell .cell-btn--run:hover:not(:disabled) {
+    background: #bee3f8;
+  }
+
+  .pyrunner-cell .cell-status {
+    flex: 1;
+    font-size: 12px;
+    color: #718096;
+  }
+
+  .pyrunner-cell .cell-status[data-state='running'] {
+    color: #d69e2e;
+  }
+
+  .pyrunner-cell .cell-status[data-state='error'] {
+    color: #e53e3e;
+  }
+
+  .pyrunner-cell .cell-hint-text {
+    font-size: 11px;
+    color: #a0aec0;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  .pyrunner-cell .editor-container {
+    border-bottom: 1px solid #f0f3f7;
+  }
+
+  .pyrunner-cell .output-container {
+    padding: 12px;
+    background: #fcfcfd;
+    font-size: 13px;
+  }
+
+  .pyrunner-cell .output-container.hidden {
+    display: none;
+  }
+
+  .pyrunner-cell .pyrunner-stdout,
+  .pyrunner-cell .pyrunner-stderr,
+  .pyrunner-cell .pyrunner-value,
+  .pyrunner-cell .pyrunner-error {
+    margin: 0 0 8px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .pyrunner-cell .pyrunner-stdout {
+    background: #f7fafc;
+    color: #1a202c;
+  }
+
+  .pyrunner-cell .pyrunner-stderr {
+    background: #fffaf0;
+    color: #744210;
+  }
+
+  .pyrunner-cell .pyrunner-value {
+    background: #f0fff4;
+    color: #22543d;
+    border-left: 3px solid #48bb78;
+  }
+
+  .pyrunner-cell .pyrunner-error {
+    background: #fff5f5;
+    color: #742a2a;
+    border-left: 3px solid #f56565;
+  }
+
+  .pyrunner-cell .pyrunner-image {
+    margin: 0 0 8px;
+    text-align: center;
+  }
+
+  .pyrunner-cell .pyrunner-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+
+  .pyrunner-cell .pyrunner-html {
+    margin: 0 0 8px;
+    overflow-x: auto;
+  }
+
+  .pyrunner-cell table.pyrunner-df {
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .pyrunner-cell table.pyrunner-df th,
+  .pyrunner-cell table.pyrunner-df td {
+    border: 1px solid #e0e3e8;
+    padding: 4px 8px;
+  }
+
+  .pyrunner-cell table.pyrunner-df th {
+    background: #f7fafc;
+    font-weight: 600;
+  }
+
+  .pyrunner-cell .pyrunner-status {
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  .pyrunner-cell .pyrunner-status--info {
+    background: #ebf8ff;
+    color: #2b6cb0;
+  }
+
+  .pyrunner-cell .pyrunner-status--error {
+    background: #fff5f5;
+    color: #742a2a;
+  }
+</style>

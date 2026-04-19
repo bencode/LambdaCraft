@@ -1,0 +1,22 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+const all = await getCollection('ir-rag-course')
+const indexEntry = all.find((e) => e.id === '_index')
+
+if (!indexEntry) {
+  throw new Error('ir-rag-course/_index.mdx not found')
+}
+
+const { Content } = await render(indexEntry)
+---
+
+<BaseLayout
+  title={indexEntry.data.title ?? 'IR / RAG 主题式系列课程'}
+  description={indexEntry.data.summary}
+>
+  <article>
+    <Content />
+  </article>
+</BaseLayout>

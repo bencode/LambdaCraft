@@ -6,7 +6,6 @@ import {
   books,
   chapterLabel,
   getBook,
-  readingTime,
   slugInBook,
   titleFromBody,
 } from '../../../lib/books'
@@ -39,7 +38,8 @@ const { Content, headings } = await render(entry)
 const slug = slugInBook(entry.id, book)
 const title = titleFromBody(entry.body, slug)
 const label = chapterLabel(slug)
-const minutes = readingTime(entry.body)
+const date = entry.data.date
+const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
 <BaseLayout title={title} description={book.title} hasToc={true}>
@@ -56,8 +56,12 @@ const minutes = readingTime(entry.body)
       {book.title}
       <span class="sep">·</span>
       chapter {label}
-      <span class="sep">·</span>
-      ~{minutes} min
+      {date && (
+        <>
+          <span class="sep">·</span>
+          <time datetime={date.toISOString()}>{fmt(date)}</time>
+        </>
+      )}
     </p>
     <Content />
   </article>

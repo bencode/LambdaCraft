@@ -1,0 +1,32 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+export async function getStaticPaths() {
+  const all = await getCollection('ir-rag-course')
+  return all
+    .filter((entry) => entry.id !== '_index') // top-level _index handled by index.astro
+    .map((entry) => ({
+      // 'series-00/_index' → 'series-00'; 其它保留
+      params: { slug: entry.id.replace(/\/_index$/, '') },
+      props: { entryId: entry.id },
+    }))
+}
+
+const { entryId } = Astro.props
+const all = await getCollection('ir-rag-course')
+const entry = all.find((e) => e.id === entryId)
+if (!entry) throw new Error(`entry not found: ${entryId}`)
+
+const { Content, headings } = await render(entry)
+const title = entry.data.title ?? entry.id
+---
+
+<BaseLayout title={title} description={entry.data.summary}>
+  <article>
+    <p class="breadcrumb">
+      <a href="/ir-rag-course">ir-rag-course</a>
+    </p>
+    <Content />
+  </article>
+</BaseLayout>

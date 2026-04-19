@@ -1,0 +1,44 @@
+---
+title: 概率检索与 BM25
+date: 2026-04-19
+summary: BM25 公式三层结构（idf / 词频饱和 / 长度归一化）的完整推导，从 PRP 到 BIM 到 2-Poisson 到 BM25。
+---
+
+# Series 01 · 概率检索与 BM25
+
+BM25 在 2009 年的 Robertson-Zaragoza 综述发布后已经统治 IR 工业界 15 年，在 RAG 时代依然是混合检索的核心组件。但很多人把它当黑盒——只知道 `b=0.75, k1=1.2`，不知道为什么。
+
+## 学完之后你能
+
+- 解释 BM25 公式三层结构（idf / 词频饱和 / 长度归一化）各自从哪个假设来
+- 推导从 Probability Ranking Principle 到 BIM 到 2-Poisson 近似到 BM25 的完整链条
+- 说清 BM25 vs tf-idf 在哪类 query 上为什么效果不同
+- 调 `k1` 和 `b` 两个参数能解释做什么
+- 知道 BM25F 等扩展（多字段加权）的设计动机
+
+## 前置
+
+建议先读 [series-00](../00-lexical-foundation/)（或熟悉倒排索引 + tf-idf）。
+
+## 章节
+
+🚧 **待启动**（作为整个课程的样板优先做）。
+
+- [ ] 01. 从向量空间走向概率排序
+- [ ] 02. 从 BIM 到 2-Poisson：BM25 的推导链
+- [ ] 03. BM25 in practice：调参、扩展、与 tf-idf 的对照
+
+## 配套实验
+
+- BM25 from scratch
+- k1 / b 参数 sensitivity
+- BM25 vs tf-idf 对照
+- BM25F 扩展（可选）
+
+## 来源
+
+- IIR Ch 11
+- Robertson & Spärck Jones 1976
+- Robertson & Walker 1994
+- **Robertson & Zaragoza 2009**（核心源）
+- Spärck Jones et al. 2000
