@@ -50,7 +50,6 @@ const navItems: Array<{ href: string; label: string }> = [
 
       <main class="layout" data-has-toc={hasToc ? 'true' : 'false'}>
         <slot />
-        {hasToc && <slot name="toc" />}
       </main>
 
       <footer class="site">
@@ -58,5 +57,34 @@ const navItems: Array<{ href: string; label: string }> = [
         <span>© {new Date().getFullYear()} qijun.io</span>
       </footer>
     </div>
+
+    {hasToc && (
+      <>
+        <button
+          type="button"
+          class="toc-toggle"
+          data-action="toggle-toc"
+          aria-label="切换目录"
+          aria-expanded="false"
+        >
+          ☰ 目录
+        </button>
+        <aside class="toc-drawer" data-state="closed" aria-hidden="true">
+          <div class="toc-drawer-backdrop"></div>
+          <div class="toc-drawer-panel">
+            <slot name="toc" />
+          </div>
+        </aside>
+      </>
+    )}
+
+    <script>
+      import { initTocDrawer } from '../components/toc-drawer-controller'
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTocDrawer)
+      } else {
+        initTocDrawer()
+      }
+    </script>
   </body>
 </html>
