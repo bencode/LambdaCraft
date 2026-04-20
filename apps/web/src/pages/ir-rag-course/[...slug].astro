@@ -5,10 +5,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 export async function getStaticPaths() {
   const all = await getCollection('ir-rag-course')
   return all
-    .filter((entry) => entry.id !== '_index') // top-level _index handled by index.astro
+    // top-level hub / _index handled by index.astro
+    .filter((entry) => entry.id !== 'hub' && entry.id !== '_index')
     .map((entry) => ({
-      // 'series-00/_index' → 'series-00'; 其它保留
-      params: { slug: entry.id.replace(/\/_index$/, '') },
+      // 'series-01-bm25/hub' → 'series-01-bm25'；'xxx/_index' 旧路径也兼容
+      params: { slug: entry.id.replace(/\/(hub|_index)$/, '') },
       props: { entryId: entry.id },
     }))
 }

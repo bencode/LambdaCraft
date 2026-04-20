@@ -27,9 +27,11 @@ const reading = defineCollection({
 })
 
 const irRagCourse = defineCollection({
+  // 源在 brain2，这里只做 render + publish
+  // .mdx = 对外发布（hub / chapter），.md = brain2 内部（README / sources / outline / reviews）不进发布
   loader: glob({
-    pattern: '**/*.{md,mdx}',
-    base: './src/content/ir-rag-course',
+    pattern: '**/*.mdx',
+    base: '../../../../brain2/learning-paths/ir-rag-series',
   }),
   schema: z
     .object({
