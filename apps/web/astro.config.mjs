@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config'
 import mdx from '@astrojs/mdx'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
+import rehypeExternalLinks from 'rehype-external-links'
 
 const remarkStripFirstH1 = () => (tree) => {
   const first = tree.children?.[0]
@@ -15,17 +16,23 @@ const shikiConfig = {
   wrap: false,
 }
 
+// 外链（http/https 且非本站）自动开新标签页
+const externalLinksConfig = [
+  rehypeExternalLinks,
+  { target: '_blank', rel: ['noopener', 'noreferrer'] },
+]
+
 export default defineConfig({
   site: 'https://lambdacraft.dev',
   integrations: [
     mdx({
       remarkPlugins: [remarkStripFirstH1, remarkMath],
-      rehypePlugins: [rehypeKatex],
+      rehypePlugins: [rehypeKatex, externalLinksConfig],
     }),
   ],
   markdown: {
     remarkPlugins: [remarkStripFirstH1, remarkMath],
-    rehypePlugins: [rehypeKatex],
+    rehypePlugins: [rehypeKatex, externalLinksConfig],
     shikiConfig,
   },
 })
