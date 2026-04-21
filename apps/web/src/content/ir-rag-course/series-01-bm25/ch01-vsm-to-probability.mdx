@@ -1,0 +1,319 @@
+---
+title: 从向量空间走向概率排序
+date: 2026-04-20
+summary: 从 Probability Ranking Principle 推到 Binary Independence Model 再到 RSJ weight，最后看 idf 如何从概率模型自然退化出来。
+---
+
+import CodeRunner from '@components/CodeRunner/CodeRunner.astro'
+import KernelBar from '@components/CodeRunner/KernelBar.astro'
+
+export const cell1 = `from math import log
+
+# 改这 4 个数
+N, R, n, r = 1000, 20, 100, 15
+
+# 原始公式（r 靠近 0 / R 或 n 时会爆）
+try:
+    rsj_raw = log((r / (R - r)) / ((n - r) / (N - n - R + r)))
+    raw = f"{rsj_raw:.3f}"
+except (ZeroDivisionError, ValueError):
+    raw = "✗ log(0)"
+
+rsj_smooth = log(((r + 0.5) * (N - n - R + r + 0.5)) / ((R - r + 0.5) * (n - r + 0.5)))
+print(f"raw    = {raw}")
+print(f"smooth = {rsj_smooth:.3f}")`
+
+export const cell2 = `from math import log
+
+# 改这两个
+N, n = 1000, 100
+
+# R = r = 0 代入加 0.5 smoothed RSJ → 应该近似 idf = log(N/n)
+rsj = log(((0 + 0.5) * (N - n + 0.5)) / ((0 + 0.5) * (n + 0.5)))
+idf = log(N / n)
+
+print(f"RSJ (R=r=0): {rsj:.3f}")
+print(f"经典 idf:    {idf:.3f}")
+print(f"差值:        {abs(rsj - idf):.3f}  (N ≫ n 时趋于 0)")`
+
+export const cell3 = `from math import log
+
+def four_weights(N, R, n, r):
+    r_ = r + 0.5
+    Rnr = R - r + 0.5
+    nnr = n - r + 0.5
+    full = N - n - R + r + 0.5
+    f1 = log((r_ / (R + 1)) / (n / N))
+    f2 = log((r_ / (R + 1)) / (nnr / (N - R + 1)))
+    f3 = log((r_ / Rnr) / (n / (N - n + 1)))
+    f4 = log((r_ / Rnr) / (nnr / full))
+    return f1, f2, f3, f4
+
+# (name, N, R, n, r)
+terms = [
+    ("common-noise",  1000, 20, 300, 6),
+    ("rare-hit",      1000, 20,  10, 8),
+    ("rare-miss",     1000, 20,  10, 0),
+    ("mid-mid",       1000, 20,  80, 10),
+    ("common-miss",   1000, 20, 500, 4),
+]
+
+print(f"{'term':<14} {'F1':>7} {'F2':>7} {'F3':>7} {'F4':>7}")
+for name, N_, R_, n_, r_ in terms:
+    f1, f2, f3, f4 = four_weights(N_, R_, n_, r_)
+    print(f"{name:<14} {f1:>7.2f} {f2:>7.2f} {f3:>7.2f} {f4:>7.2f}")`
+
+前面的 lexical foundation 文章把倒排索引和 tf-idf + cosine 放到了一起，搜索系统已经能按"像不像"给文档排序了。但"像"不等于"相关"。这篇换一个视角：把"相关"本身变成一个随机变量，用概率论而不是几何来定义评分。
+
+这条路的终点是 BM25，过程要经过 Probability Ranking Principle 和 Binary Independence Model。这篇先走到 BM25 的门口。
+
+下面主要处理 5 个问题：
+
+1. tf-idf + cosine 哪里不够？为什么需要换成概率视角？
+2. 按"相关概率"降序排文档，凭什么是最优的？
+3. Binary Independence Model 怎么把"估整个文档的相关概率"拆成"估每个词的贡献"？
+4. RSJ weight 这个看着复杂的公式怎么读？里面的 0.5 是怎么来的？
+5. 为什么"没有 relevance 信息时 RSJ 退化为 idf"是个重要发现？
+
+<KernelBar lang="python" />
+
+---
+
+## 向量空间的未解之谜
+
+Series-00 把 query-document 匹配写成了几何问题：文档和 query 都投影成向量，算 `cosine(q, d)`，越大越"像"。这很好地抓住了一个底层直觉 —— 两段文字用到同一批词，大概率在讲同一件事。
+
+但这套视角里缺一个东西：**"相关"这个概念**。
+
+tf-idf + cosine 回答的是"哪个文档和 query 最**像**"。真正想要的是"哪个文档对用户的信息需求**最相关**"。两者不是一回事。两个用词高度重合的文档可以方向相反，一个在支持一个在反驳。反过来，两个几乎不共词的文档可以都相关，一个讲原理一个讲实现。几何视角最多能**逼近**相关，却没法**定义**它。
+
+要从"逼近"走到"有定义的估计"，得换一套理论框架。这个框架就是概率论：把"相关"当成一个随机变量 $R$，给它一个条件分布 $P(R | d, q)$，然后按概率降序排文档。看起来只是换了数学外衣，实际是把 Bayes 规则、条件独立假设、MLE 估计一整套工具都接了进来。
+
+后面二十年工业界打磨出来的 BM25，就是这条路的产物。要看懂 BM25，必须先看懂这一步"视角切换"是怎么完成的。
+
+---
+
+## Probability Ranking Principle
+
+要把相关性概率化，先要说清一件事：**按相关概率降序排文档，真的是最优排序吗？**
+
+这个问题由 Robertson 在 1977 年的论文里正式回答，称作 **Probability Ranking Principle (PRP)**：
+
+> If retrieved documents are ordered by decreasing probability of relevance on the data available, then the system's effectiveness is the best that can be obtained for the data. [RZ2009 §2.3]
+
+直觉是清楚的：如果每个文档的相关概率估得准，"高概率在前、低概率在后"就是期望损失最小的呈现顺序。形式化一点，在 1/0 loss（返回一个非相关扣一分 / 漏一个相关扣一分）下，这对应 **Bayes Optimal Decision Rule** [IIR §11.2.1]。
+
+PRP 不是万能的。它有两个前提：
+
+- **概率估得足够准** —— 现实里做不到，但这是估计的问题，不是 PRP 的问题
+- **面向的是单个用户的单个 query** —— 对"一群用户、同一个查询词"的群体场景，可以构造反例
+
+下面的讨论都在"单用户 + 单 query"这个前提下展开。
+
+把 PRP 作为公理后，后面所有推导、假设、妥协的根源都落到一件事上：**怎么估计 $P(R=1 | d, q)$**。
+
+---
+
+## Binary Independence Model：从 $P(R|d,q)$ 到可算的评分
+
+直接估 $P(R=1 | d, q)$ 不可行。一个文档里有那么多词的组合，没有足够数据给每种组合单独估一个概率。
+
+**Binary Independence Model (BIM)** 给出了一条可行的拆解：一串保序变换（不改变排序的变换），加一条关键的独立性假设，把"估整个文档的相关概率"化简为"估每个词的贡献、然后求和"。
+
+设 $\vec{x} = (x_1, \ldots, x_M)$ 是文档的二值词出现向量（词 $t$ 在文档中出现时 $x_t = 1$，否则 0），$\vec{q}$ 是 query 的同类表示。记 $\propto_q$ 为保序等价（两个函数在 query 固定下给出同一排序），推导全貌：
+
+$$
+\begin{aligned}
+P(R=1 \mid \vec{x}, \vec{q})
+&\propto_q O(R \mid \vec{x}, \vec{q})
+&& \text{(1) 取 odds} \\[4pt]
+&\propto_q \frac{P(\vec{x} \mid R=1, \vec{q})}{P(\vec{x} \mid R=0, \vec{q})}
+&& \text{(2) Bayes 展开 + 丢查询常数} \\[4pt]
+&= \prod_{t=1}^{M} \frac{P(x_t \mid R=1, \vec{q})}{P(x_t \mid R=0, \vec{q})}
+&& \text{(3) 条件独立} \\[4pt]
+&= \prod_{t:\, x_t = 1} \frac{p_t}{u_t} \cdot \prod_{t:\, x_t = 0} \frac{1-p_t}{1-u_t}
+&& \text{(4) 按 present/absent 拆} \\[4pt]
+&\propto_q \prod_{t:\, x_t = q_t = 1} \frac{p_t(1-u_t)}{u_t(1-p_t)}
+&& \text{(5) query-terms-only + 代数重排} \\[4pt]
+&\propto_q \sum_{t:\, x_t = q_t = 1} \log \frac{p_t(1-u_t)}{u_t(1-p_t)} = \text{RSV}_d
+&& \text{(6) 取 log}
+\end{aligned}
+$$
+
+下面一步步过。
+
+### 第 1 步：换成 odds
+
+直接处理 $P(R | \vec{x}, \vec{q})$ 不好办，但 $P$ 和 $\frac{P}{1-P}$ 是单调映射 —— 换成 odds 不改排序。
+
+$$O(R | \vec{x}, \vec{q}) = \frac{P(R=1 | \vec{x}, \vec{q})}{P(R=0 | \vec{x}, \vec{q})}$$
+
+### 第 2 步：Bayes 展开
+
+Bayes 规则把条件反过来：
+
+$$O(R | \vec{x}, \vec{q}) = \frac{P(R=1 | \vec{q})}{P(R=0 | \vec{q})} \cdot \frac{P(\vec{x} | R=1, \vec{q})}{P(\vec{x} | R=0, \vec{q})}$$
+
+左边的分数只和 $\vec{q}$ 有关，对所有候选文档是同一个常数 —— **排序时可以丢** [IIR §11.3.1]。剩下的是 likelihood ratio。
+
+### 第 3 步：条件独立假设
+
+Likelihood ratio $\frac{P(\vec{x} | R=1, \vec{q})}{P(\vec{x} | R=0, \vec{q})}$ 还是一个联合概率。BIM 在这里下了最关键的一条假设：**给定 relevance，各词的出现互相独立**（Naive Bayes 式假设）。
+
+$$\frac{P(\vec{x} | R=1, \vec{q})}{P(\vec{x} | R=0, \vec{q})} = \prod_{t=1}^{M} \frac{P(x_t | R=1, \vec{q})}{P(x_t | R=0, \vec{q})}$$
+
+注意，这是**条件独立**（在 $R$ 的条件下），不是无条件独立 [RZ2009 §2.4.2]。后者明显错（`neural` 和 `network` 肯定相关），前者在单 query 场景下还算勉强能接受，而且 Cooper 1995 证明用更弱的"linked dependence"假设也能得到同样形式。
+
+### 第 4 步：按 present / absent 拆
+
+每个 $x_t$ 只取 0 或 1，product 可以按词是否出现拆成两部分：
+
+$$\prod_{t: x_t = 1} \frac{P(x_t=1 | R=1)}{P(x_t=1 | R=0)} \cdot \prod_{t: x_t = 0} \frac{P(x_t=0 | R=1)}{P(x_t=0 | R=0)}$$
+
+记 $p_t = P(x_t=1 | R=1, \vec{q})$，$u_t = P(x_t=1 | R=0, \vec{q})$。这两个参数将是后面所有公式的主角。
+
+### 第 5 步：只留 query 里的词
+
+再加一条合理的先验：**不在 query 里的词与 relevance 无关**，即 $q_t = 0 \Rightarrow p_t = u_t$ [RZ2009 §2.4.2]。这些词对应的因子是 1，可以丢。
+
+剩下的只对 query 里的词求和。做一次代数重排（把"在文档里出现的 query 词"从左边 product 里抽出一份扔到右边再除回去，数值不变），得到：
+
+$$O(R | \vec{q}, \vec{x}) = O(R | \vec{q}) \cdot \prod_{t: x_t = q_t = 1} \frac{p_t(1-u_t)}{u_t(1-p_t)} \cdot \prod_{t: q_t = 1} \frac{1 - p_t}{1 - u_t}$$
+
+右边两个 product 里，**第二个只依赖 query**，对所有文档同值，是查询常数。丢。
+
+### 第 6 步：取 log，得到 RSV
+
+取对数（保序），得到 **Retrieval Status Value**：
+
+$$\text{RSV}_d = \sum_{t: x_t = q_t = 1} \log \frac{p_t(1-u_t)}{u_t(1-p_t)} = \sum_{t: x_t = q_t = 1} c_t$$
+
+其中 $c_t$ 是词 $t$ 的 **log odds ratio**。
+
+这个结果值得停下来看一眼。
+
+**文档对 query 的评分 = 文档和 query 共有的每个词的 log odds ratio 之和**。
+
+每个 $c_t$ 可以离线预计算存在倒排索引里，查询时只在倒排列表上累加 —— 和 tf-idf 用倒排列表的工程结构**完全一样** [IIR §11.3.1]。换来的东西是：每个 $c_t$ 现在有了概率语义，可以从数据里估出来。
+
+---
+
+## Contingency table + 0.5 smoothing
+
+$c_t = \log \frac{p_t(1-u_t)}{u_t(1-p_t)}$ 只有两个参数 $p_t$ 和 $u_t$，怎么从数据估？
+
+设想手头有一批 query 的 relevance judgments —— 对每个 query 标好了哪些文档相关。可以填一张 2×2 **contingency table** [RSJ1976 p130]：
+
+| | Relevant | Non-relevant | Total |
+|---|---|---|---|
+| 含词 $t$ | $r$ | $n - r$ | $n$ |
+| 不含 | $R - r$ | $(N - R) - (n - r)$ | $N - n$ |
+| Total | $R$ | $N - R$ | $N$ |
+
+- $N$：总文档数
+- $R$：query 的相关文档数
+- $n$：含词 $t$ 的文档数
+- $r$：含词 $t$ 的**相关**文档数
+
+直接 MLE：$p_t = r/R$，$u_t = (n-r)/(N-R)$，代入得 $c_t = \log \frac{r(N - n - R + r)}{(R - r)(n - r)}$。
+
+这个公式有个麻烦：当 $r = 0$ 或 $r = R$ 或 $r = n$ 时，某个分母为 0，$c_t = \pm \infty$。"学到一点就推到极限"的行为在小样本下经常发生 —— 比如 query 的相关文档只有 20 个，某词碰巧一个都没命中，就会被赋 $-\infty$ 权重，彻底排死所有含这个词的文档。
+
+**0.5 smoothing** 是 Cox 1970 提出的修正：在 4 个中心 cell 各加 0.5，边际对应调整 [RSJ1976 Appendix]：
+
+| | Relevant | Non-relevant | Total |
+|---|---|---|---|
+| 含 $t$ | $r + 0.5$ | $n - r + 0.5$ | $n + 1$ |
+| 不含 | $R - r + 0.5$ | $N - n - R + r + 0.5$ | $N - n + 1$ |
+| Total | $R + 1$ | $N - R + 1$ | $N + 2$ |
+
+代入 $c_t$ 得到 **Robertson-Spärck Jones (RSJ) weight**：
+
+$$w^{\text{RSJ}} = \log \frac{(r + 0.5)(N - n - R + r + 0.5)}{(R - r + 0.5)(n - r + 0.5)}$$
+
+这是整个 BM25 评分里 idf 部分的祖宗形式。加 0.5 不是拍脑袋 —— Cox 证明这个修正能**最小化 log-odds 估计的偏差**。
+
+<CodeRunner lang="python" code={cell1} hint="改 N, R, n, r，看原始公式爆掉时 smoothed 怎么给出合理值" />
+
+把 $r$ 改到靠近 0 或 $n$，看原始公式和加 0.5 版本的差异 —— 原始公式爆掉的时候，smoothed 版本给出合理的有限权重。
+
+---
+
+## RSJ 退化为 idf：一个值得停下来想的时刻
+
+现实里很少有现成的 relevance judgments。没有 judgment，还能用 RSJ weight 吗？
+
+能。思路是：**假设 $p_t = 0.5$**（中性先验：不知道这个词在相关文档里更常见还是更罕见），同时用整个 collection 的统计量去估非相关文档的分布 —— 在相关文档占比很小的假设下，这个近似是合理的 [IIR §11.3.3]。
+
+代入 RSJ 公式，设 $R = r = 0$：
+
+$$w^{\text{RSJ}}\big|_{R = r = 0} = \log \frac{0.5 \cdot (N - n + 0.5)}{0.5 \cdot (n + 0.5)} = \log \frac{N - n + 0.5}{n + 0.5}$$
+
+当 $N \gg n$ 时，这个表达式近似 $\log \frac{N}{n}$ —— 也就是经典的 **inverse document frequency**。
+
+<CodeRunner lang="python" code={cell2} hint="验证 R = r = 0 时 RSJ 和经典 idf 之差很小" />
+
+这是一件值得停下来想的事情。
+
+- Spärck Jones 在 1971 年从"一个词在集合里越稀有、越有鉴别力"的直觉提出了 $-\log(n/N)$ 这个 idf
+- 当时没有理论支撑，就是经验上好用
+- 二十多年后，RSJ 模型在**没有 relevance 信息**的极端假设下自动退化到同一个公式 [RZ2009 §3.1]
+
+这就给了 idf 一个从概率模型出发的**事后背书**。idf 不是随便拍的启发式 —— 它是 RSJ weight 在"我对相关文档一无所知"这一假设下的自然形式。
+
+这个视角还顺便解释了一件事：为什么 idf 的各种变种（例如 $\log \frac{N - n + 0.5}{n + 0.5}$）在不同 collection 上表现有差。每一个变种都对应着对 $p_t$ 和 $u_t$ 的不同先验假设。
+
+---
+
+## Ordering Principle：O1 vs O2，缺失信息也是信息
+
+RSJ 1976 原论文把 relevance weighting 做成了一个四选一的问题，值得单独讲一下 —— 这决定了现代 BM25 公式里一个容易被忽略的项。
+
+两个维度 [RSJ1976 §Foundations]：
+
+**Independence Assumption**
+
+- **I1**：词在相关文档中独立 + 在**全集合**中独立
+- **I2**：词在相关文档中独立 + 在**非相关文档**中独立
+
+**Ordering Principle**
+
+- **O1**：文档得分只看 query 词在文档里**出现**的情况
+- **O2**：文档得分**同时看出现和缺失**
+
+组合出四个加权函数：
+
+| | O1 | O2 |
+|---|---|---|
+| I1 | F1 | F3 |
+| I2 | F2 | **F4** |
+
+F4（I2 + O2）就是上面一路推出来的 RSJ weight。Robertson-Spärck Jones 在 Cranfield 和 Keen 数据集上跑了完整对比：
+
+- I1 vs I2 差异**很小** —— 独立性的具体假设不太关键
+- O1 vs O2 差异**显著** —— **O2 持续优于 O1**
+
+<CodeRunner lang="python" code={cell3} hint="同一组 term 在 F1-F4 四个函数下的权重差异" />
+
+跑一下就能看到：对"应该被惩罚的词"（在集合里高频但在相关文档中几乎不出现，典型如 stopword），O2 给出的负权重比 O1 更极端。因为 O2 显式地利用了"词在文档中缺失"这个信息。
+
+现代 BM25 里分子的 $N - n$ 这项，**就是 O2 的遗产**。如果历史走岔，BM25 里可能只有 $n$ 没有 $N - n$，效果会差一截。"缺失也是信息"这个朴素的洞察，在 50 年后还在为每个在线搜索结果打分。
+
+---
+
+## 这里先收一下
+
+从向量空间的 cosine 视角切到了概率视角，这一章一路推到了 RSJ weight：
+
+- **PRP** 给出排序目标：按相关概率降序
+- **BIM** 给出推导路径：Bayes → odds → 条件独立 → log-odds sum
+- **RSJ weight** 是 BIM 在有 relevance judgments 的具体评分公式
+- **idf** 是 RSJ 在"无 judgment + 中性先验"下的退化
+
+这条链有一个根本限制：**BIM 只处理 binary**。在 BIM 眼里，一个词在文档里出现 1 次和出现 20 次是一样的 —— 这明显不够。对全文搜索来说，词频有信息；对长短不一的文档集合来说，文档长度也有信息。
+
+如果继续往下整理，下一步会碰到 **eliteness** 这个 hidden variable：要用 **2-Poisson** 模型把词频和 relevance 连起来，再用一个简单的饱和函数 $tf / (k_1 + tf)$ 去逼近这个本身 intractable 的模型。BM25 就从这里长出来。
+
+---
+
+← [返回 BM25 Hub](/ir-rag-course/series-01-bm25/)

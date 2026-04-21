@@ -1,6 +1,6 @@
-// Minimal CodeMirror 6 setup for Python editing.
+// CodeMirror 6 editor, per-language syntax selected dynamically.
 
-import { EditorState } from '@codemirror/state'
+import { EditorState, type Extension } from '@codemirror/state'
 import {
   EditorView,
   keymap,
@@ -8,7 +8,6 @@ import {
   highlightActiveLine,
   drawSelection,
 } from '@codemirror/view'
-import { python } from '@codemirror/lang-python'
 import {
   defaultKeymap,
   history,
@@ -20,18 +19,32 @@ import {
   defaultHighlightStyle,
   bracketMatching,
   indentOnInput,
+  StreamLanguage,
 } from '@codemirror/language'
+import { python } from '@codemirror/lang-python'
+import { javascript } from '@codemirror/lang-javascript'
+import { scheme } from '@codemirror/legacy-modes/mode/scheme'
+import { clojure } from '@codemirror/legacy-modes/mode/clojure'
+import type { Lang } from './types'
 
-export interface EditorHandle {
+export type EditorHandle = {
   view: EditorView
   getValue(): string
   setValue(code: string): void
   focus(): void
 }
 
+const langExtensions: Record<Lang, () => Extension> = {
+  python: () => python(),
+  scheme: () => StreamLanguage.define(scheme),
+  clojure: () => StreamLanguage.define(clojure),
+  typescript: () => javascript({ typescript: true }),
+}
+
 export function createEditor(
   parent: HTMLElement,
   initialCode: string,
+  lang: Lang,
   onSubmit: () => void,
 ): EditorHandle {
   const view = new EditorView({
@@ -46,7 +59,7 @@ export function createEditor(
         bracketMatching(),
         indentOnInput(),
         syntaxHighlighting(defaultHighlightStyle),
-        python(),
+        langExtensions[lang](),
         keymap.of([
           ...defaultKeymap,
           ...historyKeymap,

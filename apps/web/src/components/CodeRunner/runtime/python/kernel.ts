@@ -1,23 +1,21 @@
-// Page-level singleton kernel manager.
-// All <PyodideRunner> cells on a page share the same Worker / Pyodide instance.
-//
-// Two distinct event streams:
-// - subscribe(fn): kernel init lifecycle (idle | initializing | ready | error)
-// - subscribePackageLoad(fn): page-level package loading events
-//
-// Per-cell run state is NOT broadcast — each cell tracks its own running flag.
+// Python kernel: Web Worker + Pyodide, wrapped via Comlink.
+// All <CodeRunner lang="python"> cells on a page share the same Worker instance.
 
 import * as Comlink from 'comlink'
-import type { WorkerApi, CellResult } from './worker'
+import type {
+  CellResult,
+  InitListener,
+  Kernel,
+  KernelInitState,
+  PackageLoadListener,
+} from '../common/types'
+import type { WorkerApi } from './worker'
 
-export type { CellResult }
+class PythonKernel implements Kernel {
+  readonly lang = 'python' as const
+  readonly label = '🐍 Python'
+  readonly supportsReset = true
 
-export type KernelInitState = 'idle' | 'initializing' | 'ready' | 'error'
-
-type InitListener = (state: KernelInitState, message?: string) => void
-type PackageLoadListener = (message: string | null) => void
-
-class Kernel {
   private worker: Worker | null = null
   private api: Comlink.Remote<WorkerApi> | null = null
   private initState: KernelInitState = 'idle'
@@ -104,24 +102,11 @@ class Kernel {
     if (!this.api) return
     await this.api.reset()
   }
-
-  async installPackage(name: string): Promise<void> {
-    const api = await this.ensureWorker()
-    await api.installPackage(name)
-  }
-
-  destroy(): void {
-    this.worker?.terminate()
-    this.worker = null
-    this.api = null
-    this.setInitState('idle')
-    this.setPackageLoad(null)
-  }
 }
 
-let _kernel: Kernel | null = null
+let _kernel: PythonKernel | null = null
 
-export function getKernel(): Kernel {
-  if (!_kernel) _kernel = new Kernel()
+export function getPythonKernel(): PythonKernel {
+  if (!_kernel) _kernel = new PythonKernel()
   return _kernel
 }

@@ -1,11 +1,15 @@
 ---
+import type { Lang } from './runtime/common/types'
+
 interface Props {
+  lang: Lang
   code: string
   cellId?: string
   hint?: string
 }
 
 const {
+  lang,
   code,
   cellId = `cell-${Math.random().toString(36).slice(2, 10)}`,
   hint,
@@ -13,8 +17,9 @@ const {
 ---
 
 <div
-  class="pyrunner-cell"
+  class="coderunner-cell"
   data-cell-id={cellId}
+  data-lang={lang}
   data-initial-code={code.replace(/^\n+|\n+$/g, '')}
 >
   {hint && <div class="cell-hint">{hint}</div>}
@@ -22,6 +27,7 @@ const {
     <button type="button" class="cell-btn cell-btn--run" data-action="run">
       <span aria-hidden="true">▶</span> 运行
     </button>
+    <span class="cell-lang">{lang}</span>
     <span class="cell-status" data-state="idle"></span>
     <span class="cell-hint-text">Ctrl + Enter</span>
   </div>
@@ -30,7 +36,7 @@ const {
 </div>
 
 <script>
-  import { initAllCells } from './runtime/cell-controller'
+  import { initAllCells } from './runtime/common/cell-controller'
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAllCells)
@@ -40,7 +46,7 @@ const {
 </script>
 
 <style is:global>
-  .pyrunner-cell {
+  .coderunner-cell {
     border: 1px solid #e0e3e8;
     border-radius: 8px;
     margin: 1.5rem 0;
@@ -50,7 +56,7 @@ const {
       -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
-  .pyrunner-cell .cell-hint {
+  .coderunner-cell .cell-hint {
     padding: 8px 12px;
     background: #f7f9fc;
     border-bottom: 1px solid #e0e3e8;
@@ -58,7 +64,7 @@ const {
     color: #4a5568;
   }
 
-  .pyrunner-cell .cell-toolbar {
+  .coderunner-cell .cell-toolbar {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -67,7 +73,7 @@ const {
     border-bottom: 1px solid #e0e3e8;
   }
 
-  .pyrunner-cell .cell-btn {
+  .coderunner-cell .cell-btn {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -84,65 +90,75 @@ const {
       border-color 0.15s;
   }
 
-  .pyrunner-cell .cell-btn:hover:not(:disabled) {
+  .coderunner-cell .cell-btn:hover:not(:disabled) {
     background: #f7fafc;
     border-color: #a0aec0;
   }
 
-  .pyrunner-cell .cell-btn:disabled {
+  .coderunner-cell .cell-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  .pyrunner-cell .cell-btn--run {
+  .coderunner-cell .cell-btn--run {
     color: #2b6cb0;
     border-color: #bee3f8;
     background: #ebf8ff;
   }
 
-  .pyrunner-cell .cell-btn--run:hover:not(:disabled) {
+  .coderunner-cell .cell-btn--run:hover:not(:disabled) {
     background: #bee3f8;
   }
 
-  .pyrunner-cell .cell-status {
+  .coderunner-cell .cell-lang {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: #edf2f7;
+    color: #4a5568;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  .coderunner-cell .cell-status {
     flex: 1;
     font-size: 12px;
     color: #718096;
   }
 
-  .pyrunner-cell .cell-status[data-state='running'] {
+  .coderunner-cell .cell-status[data-state='running'] {
     color: #d69e2e;
   }
 
-  .pyrunner-cell .cell-status[data-state='error'] {
+  .coderunner-cell .cell-status[data-state='error'] {
     color: #e53e3e;
   }
 
-  .pyrunner-cell .cell-hint-text {
+  .coderunner-cell .cell-hint-text {
     font-size: 11px;
     color: #a0aec0;
     font-family:
       ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
-  .pyrunner-cell .editor-container {
+  .coderunner-cell .editor-container {
     border-bottom: 1px solid #f0f3f7;
   }
 
-  .pyrunner-cell .output-container {
+  .coderunner-cell .output-container {
     padding: 12px;
     background: #fcfcfd;
     font-size: 13px;
   }
 
-  .pyrunner-cell .output-container.hidden {
+  .coderunner-cell .output-container.hidden {
     display: none;
   }
 
-  .pyrunner-cell .pyrunner-stdout,
-  .pyrunner-cell .pyrunner-stderr,
-  .pyrunner-cell .pyrunner-value,
-  .pyrunner-cell .pyrunner-error {
+  .coderunner-cell .coderunner-stdout,
+  .coderunner-cell .coderunner-stderr,
+  .coderunner-cell .coderunner-value,
+  .coderunner-cell .coderunner-error {
     margin: 0 0 8px;
     padding: 8px 10px;
     border-radius: 4px;
@@ -154,72 +170,72 @@ const {
     word-break: break-word;
   }
 
-  .pyrunner-cell .pyrunner-stdout {
+  .coderunner-cell .coderunner-stdout {
     background: #f7fafc;
     color: #1a202c;
   }
 
-  .pyrunner-cell .pyrunner-stderr {
+  .coderunner-cell .coderunner-stderr {
     background: #fffaf0;
     color: #744210;
   }
 
-  .pyrunner-cell .pyrunner-value {
+  .coderunner-cell .coderunner-value {
     background: #f0fff4;
     color: #22543d;
     border-left: 3px solid #48bb78;
   }
 
-  .pyrunner-cell .pyrunner-error {
+  .coderunner-cell .coderunner-error {
     background: #fff5f5;
     color: #742a2a;
     border-left: 3px solid #f56565;
   }
 
-  .pyrunner-cell .pyrunner-image {
+  .coderunner-cell .coderunner-image {
     margin: 0 0 8px;
     text-align: center;
   }
 
-  .pyrunner-cell .pyrunner-image img {
+  .coderunner-cell .coderunner-image img {
     max-width: 100%;
     height: auto;
     border-radius: 4px;
   }
 
-  .pyrunner-cell .pyrunner-html {
+  .coderunner-cell .coderunner-html {
     margin: 0 0 8px;
     overflow-x: auto;
   }
 
-  .pyrunner-cell table.pyrunner-df {
+  .coderunner-cell table.coderunner-df {
     border-collapse: collapse;
     font-size: 12px;
   }
 
-  .pyrunner-cell table.pyrunner-df th,
-  .pyrunner-cell table.pyrunner-df td {
+  .coderunner-cell table.coderunner-df th,
+  .coderunner-cell table.coderunner-df td {
     border: 1px solid #e0e3e8;
     padding: 4px 8px;
   }
 
-  .pyrunner-cell table.pyrunner-df th {
+  .coderunner-cell table.coderunner-df th {
     background: #f7fafc;
     font-weight: 600;
   }
 
-  .pyrunner-cell .pyrunner-status {
+  .coderunner-cell .coderunner-status {
     padding: 6px 10px;
     border-radius: 4px;
     font-size: 12px;
   }
 
-  .pyrunner-cell .pyrunner-status--info {
+  .coderunner-cell .coderunner-status--info {
     background: #ebf8ff;
     color: #2b6cb0;
   }
 
-  .pyrunner-cell .pyrunner-status--error {
+  .coderunner-cell .coderunner-status--error {
     background: #fff5f5;
     color: #742a2a;
   }

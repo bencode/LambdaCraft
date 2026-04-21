@@ -1,18 +1,108 @@
 ---
 title: Hello, LambdaCraft
-date: 2026-04-17
-summary: 这里从一个占位的文章开始。
+date: 2026-04-21
+summary: 这是个把想法、推导、代码放在一起的地方，每一段代码都能就地跑起来。
 tags:
   - meta
 ---
 
-这是一篇占位文章，用来验证 MDX + content collections 能跑通。
+import CodeRunner from '@components/CodeRunner/CodeRunner.astro'
+import KernelBar from '@components/CodeRunner/KernelBar.astro'
 
-## 能做什么
+export const py1 = `import sys
+greeting = f"python {sys.version_info.major}.{sys.version_info.minor}"
+print(greeting)`
 
-- 在 `src/content/posts/` 写 `.md` 或 `.mdx`，自动被主页和 `/posts` 列出
-- MDX 里可以直接用 Astro 组件或 React 组件（之后按需加 `@astrojs/react`）
+export const py2 = `# 上一个 cell 定义的 greeting 还在 —— 所有 Python cell 共享同一个 kernel
+greeting + " runs in your browser, no server."`
+
+export const sch1 = `(define (fact n)
+  (if (<= n 1) 1 (* n (fact (- n 1)))))
+(fact 10)`
+
+export const sch2 = `; 上一个 cell 定义的 fact 依然可用
+(map fact '(1 2 3 4 5))`
+
+export const clj1 = `(defn square [x] (* x x))
+(->> (range 1 11) (map square) (reduce +))`
+
+export const clj2 = `;; square 依然在 ns 里
+(map square [10 20 30])`
+
+export const ts1 = `type Pair<A, B> = readonly [A, B]
+const zip = <A, B>(xs: A[], ys: B[]): Pair<A, B>[] =>
+  xs.map((x, i) => [x, ys[i]] as const)
+
+zip([1, 2, 3], ['a', 'b', 'c'])`
+
+export const ts2 = `// TS 每个 cell 是独立闭包，const / let / type 不跨 cell。
+// 真要跨 cell 共享，挂到 globalThis 上。
+;(globalThis as any).counter ??= 0
+;(globalThis as any).counter++
+;(globalThis as any).counter`
+
+## 这是什么
+
+**LambdaCraft** = λ + craft。一个把想法、推导、代码放在一起的博客。
+
+大部分代码演示不是截图，也不是 gist 链接 —— 在这个页面里点 ▶ 就能跑。想法验证的路径短一点，脑子转得快一点。
+
+## 在写的系列
+
+### [IR/RAG Course](/ir-rag-course)
+
+从向量空间模型一路走到现代 RAG 的系统化课程。代码、数学、直觉三条线并行。
+
+当前进度：
+- Series 00 · Lexical Foundation：倒排索引、tf-idf、cosine 的工程基础
+- Series 01 · BM25：从 Probability Ranking Principle 推到 BM25
+
+未来的系列会从这里继续长出来。
+
+## 能跑什么
+
+页面里放的 `<CodeRunner lang="..." />` 是一个可编辑、可执行的代码 cell。支持 **Python / Scheme / Clojure / TypeScript** 四种语言，各自在浏览器里跑（Python 走 Web Worker + Pyodide，其他三种在主线程）。
+
+同一页内、同一种语言的多个 cell **共享一个 kernel** —— 前面 cell 定义的东西，后面 cell 直接能用。这是 Jupyter 的那个心智模型。
+
+按 ▶ 或 Ctrl + Enter 运行。改代码再按一次，就是一次新迭代。
+
+### Python（Pyodide）
+
+首次点击需要 ~10 秒下载 Pyodide（约 10 MB）。之后即点即跑。
+
+<KernelBar lang="python" />
+
+<CodeRunner lang="python" code={py1} />
+
+<CodeRunner lang="python" code={py2} hint="同一页内 Python cell 共享变量" />
+
+### Scheme（BiwaScheme）
+
+纯 JS 解释器，秒开。
+
+<CodeRunner lang="scheme" code={sch1} />
+
+<CodeRunner lang="scheme" code={sch2} hint="上面 define 的 fact 在这里仍可用" />
+
+### Clojure（Scittle / SCI）
+
+基于 [Scittle](https://babashka.org/scittle/) 的 ClojureScript 运行时，首次点 ▶ 拉一下 `scittle.js`。
+
+<CodeRunner lang="clojure" code={clj1} />
+
+<CodeRunner lang="clojure" code={clj2} hint="defn 过的 square 跨 cell 可见" />
+
+### TypeScript（sucrase）
+
+用 sucrase 转译 TS 后在浏览器直接 eval。**注意：TS cell 之间 `const / let / type` 不共享**（每次 run 是独立闭包）。要跨 cell 共享，显式挂 `globalThis`：
+
+<CodeRunner lang="typescript" code={ts1} />
+
+<CodeRunner lang="typescript" code={ts2} hint="连续点这个 cell，看 counter 累加" />
 
 ## 下一步
 
-挑一个技术点，写第一篇真正的文章；或者在 `forge/` 里放第一个可运行的演示。
+- 写文章：`apps/web/src/content/posts/` 放 `.md` / `.mdx`，`ir-rag-course/` 放课程章节
+- 写组件：`apps/web/src/components/` 下的 Astro 组件可以直接 import 到 MDX
+- CodeRunner 的实现：`apps/web/src/components/CodeRunner/`

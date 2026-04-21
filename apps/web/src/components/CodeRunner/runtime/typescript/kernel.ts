@@ -1,0 +1,157 @@
+// TypeScript kernel: sucrase transpile + main-thread eval.
+// Each run creates a fresh async IIFE — so `const`/`let`/`type` do NOT persist
+// across cells. To share state between cells, attach to `globalThis`.
+
+import { transform } from 'sucrase'
+import type {
+  CellResult,
+  InitListener,
+  Kernel,
+  PackageLoadListener,
+} from '../common/types'
+import { emptyResult } from '../common/types'
+
+const STMT_KW_RE =
+  /^(if|for|while|switch|case|break|continue|return|let|const|var|function|class|try|catch|finally|throw|import|export|do|else|interface|type|enum)\b/
+
+function isStatementLike(line: string): boolean {
+  const t = line.trim()
+  if (!t) return true
+  if (t.endsWith(';') || t.endsWith('{') || t.endsWith('}')) return true
+  if (t.startsWith('//') || t.startsWith('/*')) return true
+  if (STMT_KW_RE.test(t)) return true
+  return false
+}
+
+function splitLastExpression(code: string): { body: string; trailing: string | null } {
+  const lines = code.split('\n')
+  let lastIdx = lines.length - 1
+  while (lastIdx >= 0 && lines[lastIdx].trim() === '') lastIdx--
+  if (lastIdx < 0) return { body: code, trailing: null }
+
+  if (isStatementLike(lines[lastIdx])) return { body: code, trailing: null }
+
+  const body = lines.slice(0, lastIdx).join('\n')
+  const trailing = lines[lastIdx]
+  return { body, trailing }
+}
+
+function formatValue(v: unknown): string {
+  if (v === null) return 'null'
+  if (v === undefined) return 'undefined'
+  if (typeof v === 'bigint') return `${v}n`
+  if (typeof v === 'function') return v.toString()
+  if (typeof v === 'symbol') return v.toString()
+  if (typeof v === 'string') return JSON.stringify(v)
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v)
+  try {
+    return JSON.stringify(
+      v,
+      (_key, val) => {
+        if (typeof val === 'bigint') return `${val}n`
+        if (val instanceof Map) return Object.fromEntries(val)
+        if (val instanceof Set) return Array.from(val)
+        return val
+      },
+      2,
+    )
+  } catch {
+    return String(v)
+  }
+}
+
+function fmtArg(a: unknown): string {
+  if (typeof a === 'string') return a
+  return formatValue(a)
+}
+
+class TypeScriptKernel implements Kernel {
+  readonly lang = 'typescript' as const
+  readonly label = 'TS'
+  readonly supportsReset = false
+
+  private initListeners = new Set<InitListener>()
+  private packageLoadListeners = new Set<PackageLoadListener>()
+
+  subscribe(fn: InitListener): () => void {
+    this.initListeners.add(fn)
+    // sucrase is a pure JS module — we consider the kernel "ready" the moment
+    // someone subscribes (it'll be imported at module-eval time anyway).
+    fn('ready')
+    return () => {
+      this.initListeners.delete(fn)
+    }
+  }
+
+  subscribePackageLoad(fn: PackageLoadListener): () => void {
+    this.packageLoadListeners.add(fn)
+    fn(null)
+    return () => {
+      this.packageLoadListeners.delete(fn)
+    }
+  }
+
+  async run(code: string): Promise<CellResult> {
+    const result = emptyResult()
+    const stdoutBuf: string[] = []
+    const stderrBuf: string[] = []
+
+    const pushStdout = (...args: unknown[]): void => {
+      stdoutBuf.push(args.map(fmtArg).join(' '))
+    }
+    const pushStderr = (...args: unknown[]): void => {
+      stderrBuf.push(args.map(fmtArg).join(' '))
+    }
+
+    const fakeConsole = {
+      log: pushStdout,
+      info: pushStdout,
+      debug: pushStdout,
+      warn: pushStderr,
+      error: pushStderr,
+    }
+
+    try {
+      const { body, trailing } = splitLastExpression(code)
+      // Strip leading whitespace + semicolons from the trailing expression —
+      // users often write `;(expr)` to avoid ASI hazards, but that breaks
+      // `return (;...)`. The leading `;` is a no-op statement anyway.
+      const trailingExpr = trailing ? trailing.replace(/^[\s;]+/, '') : ''
+      const innerTs = trailingExpr
+        ? `${body}\n;return (${trailingExpr});`
+        : `${body}`
+
+      const wrappedTs = `(async () => {\n${innerTs}\n})()`
+
+      const transpiled = transform(wrappedTs, {
+        transforms: ['typescript'],
+        disableESTransforms: true,
+      }).code
+
+      const fn = new Function('console', `return ${transpiled};`)
+      const value = await fn(fakeConsole)
+
+      if (value !== undefined) {
+        result.value_repr = formatValue(value)
+      }
+    } catch (err) {
+      result.error = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+    }
+
+    result.stdout = stdoutBuf.length ? `${stdoutBuf.join('\n')}\n` : ''
+    result.stderr = stderrBuf.length ? `${stderrBuf.join('\n')}\n` : ''
+    return result
+  }
+
+  async reset(): Promise<void> {
+    // No-op: each run() is a fresh closure. State intentionally lives on
+    // `globalThis` (author's explicit opt-in).
+  }
+}
+
+let _kernel: TypeScriptKernel | null = null
+
+export function getTypeScriptKernel(): TypeScriptKernel {
+  if (!_kernel) _kernel = new TypeScriptKernel()
+  return _kernel
+}

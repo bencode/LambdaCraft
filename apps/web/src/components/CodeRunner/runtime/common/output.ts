@@ -1,6 +1,6 @@
 // Output rendering for cell results.
 
-import type { CellResult } from './worker'
+import type { CellResult } from './types'
 
 function escape(text: string): string {
   return text
@@ -18,27 +18,27 @@ export function renderResult(container: HTMLElement, result: CellResult): void {
   const parts: string[] = []
 
   if (result.stdout) {
-    parts.push(`<pre class="pyrunner-stdout">${escape(result.stdout)}</pre>`)
+    parts.push(`<pre class="coderunner-stdout">${escape(result.stdout)}</pre>`)
   }
 
   if (result.stderr) {
-    parts.push(`<pre class="pyrunner-stderr">${escape(result.stderr)}</pre>`)
+    parts.push(`<pre class="coderunner-stderr">${escape(result.stderr)}</pre>`)
   }
 
   if (result.image_png_b64) {
     parts.push(
-      `<div class="pyrunner-image"><img src="data:image/png;base64,${result.image_png_b64}" alt="output figure" /></div>`,
+      `<div class="coderunner-image"><img src="data:image/png;base64,${result.image_png_b64}" alt="output figure" /></div>`,
     )
   }
 
   if (result.value_html) {
-    parts.push(`<div class="pyrunner-html">${result.value_html}</div>`)
+    parts.push(`<div class="coderunner-html">${result.value_html}</div>`)
   } else if (result.value_repr) {
-    parts.push(`<pre class="pyrunner-value">${escape(result.value_repr)}</pre>`)
+    parts.push(`<pre class="coderunner-value">${escape(result.value_repr)}</pre>`)
   }
 
   if (result.error) {
-    parts.push(`<pre class="pyrunner-error">${escape(result.error)}</pre>`)
+    parts.push(`<pre class="coderunner-error">${escape(result.error)}</pre>`)
   }
 
   if (parts.length === 0) {
@@ -54,7 +54,7 @@ export function renderStatus(
   message: string,
   kind: 'info' | 'error' = 'info',
 ): void {
-  container.innerHTML = `<div class="pyrunner-status pyrunner-status--${kind}">${escape(message)}</div>`
+  container.innerHTML = `<div class="coderunner-status coderunner-status--${kind}">${escape(message)}</div>`
   container.classList.remove('hidden')
 }
 

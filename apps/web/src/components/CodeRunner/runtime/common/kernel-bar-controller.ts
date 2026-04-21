@@ -1,38 +1,44 @@
 // Page-level KernelBar controller.
-// Subscribes to kernel init lifecycle + package-load events, owns the reset button.
 
-import { getKernel } from './kernel'
+import { getKernel, isLang } from '../registry'
 
 type BarEls = {
   statusEl: HTMLElement
   resetBtn: HTMLButtonElement
+  labelEl: HTMLElement
 }
 
 function queryBarEls(root: HTMLElement): BarEls | null {
   const statusEl = root.querySelector<HTMLElement>('.kernel-bar-status')
   const resetBtn = root.querySelector<HTMLButtonElement>('[data-action="reset-kernel"]')
-  if (!statusEl || !resetBtn) return null
-  return { statusEl, resetBtn }
+  const labelEl = root.querySelector<HTMLElement>('.kernel-bar-label')
+  if (!statusEl || !resetBtn || !labelEl) return null
+  return { statusEl, resetBtn, labelEl }
 }
 
 export function initKernelBar(root: HTMLElement): void {
   const els = queryBarEls(root)
   if (!els) {
-    console.error('PyodideKernelBar: missing required elements', root)
+    console.error('KernelBar: missing required elements', root)
     return
   }
 
-  const kernel = getKernel()
+  const langRaw = root.dataset.lang ?? 'python'
+  if (!isLang(langRaw)) {
+    console.error('KernelBar: unknown lang', langRaw)
+    return
+  }
 
-  // Track current init/package state so we render the higher-priority message.
-  // init issues take precedence over package-load chatter.
+  const kernel = getKernel(langRaw)
+  els.labelEl.textContent = kernel.label
+
   let initLabel = ''
   let initState: 'idle' | 'initializing' | 'ready' | 'error' = 'idle'
   let packageMsg: string | null = null
 
   function render(): void {
     if (initState === 'initializing') {
-      els!.statusEl.textContent = initLabel || '正在启动 Python 环境...'
+      els!.statusEl.textContent = initLabel || '正在启动...'
       els!.statusEl.dataset.state = 'loading'
       els!.resetBtn.disabled = true
       return
@@ -52,7 +58,7 @@ export function initKernelBar(root: HTMLElement): void {
     if (initState === 'ready') {
       els!.statusEl.textContent = '就绪'
       els!.statusEl.dataset.state = 'ready'
-      els!.resetBtn.disabled = false
+      els!.resetBtn.disabled = !kernel.supportsReset
       return
     }
     els!.statusEl.textContent = '尚未启动（点任意 cell 的 ▶ 即可启动）'
@@ -91,7 +97,7 @@ export function initKernelBar(root: HTMLElement): void {
 }
 
 export function initAllKernelBars(): void {
-  document.querySelectorAll<HTMLElement>('.pyrunner-kernel-bar').forEach((el) => {
+  document.querySelectorAll<HTMLElement>('.coderunner-kernel-bar').forEach((el) => {
     if (el.dataset.hydrated === 'true') return
     el.dataset.hydrated = 'true'
     initKernelBar(el)

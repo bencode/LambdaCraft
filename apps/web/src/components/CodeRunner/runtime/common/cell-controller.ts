@@ -1,8 +1,6 @@
 // Per-cell controller: glues editor, kernel, and output rendering.
-// Cell only tracks its OWN state (idle | running | error).
-// Page-level kernel state (init / package load / reset) lives in PyodideKernelBar.
 
-import { getKernel } from './kernel'
+import { getKernel, isLang } from '../registry'
 import { createEditor, type EditorHandle } from './editor'
 import { renderResult, renderStatus, clearOutput } from './output'
 
@@ -42,16 +40,23 @@ function setCellState(
 export function initCell(root: HTMLElement): void {
   const els = queryCellEls(root)
   if (!els) {
-    console.error('PyodideRunner: missing required elements', root)
+    console.error('CodeRunner: missing required elements', root)
+    return
+  }
+
+  const langRaw = root.dataset.lang ?? 'python'
+  if (!isLang(langRaw)) {
+    console.error('CodeRunner: unknown lang', langRaw)
     return
   }
 
   const initialCode = root.dataset.initialCode ?? ''
-  const kernel = getKernel()
+  const kernel = getKernel(langRaw)
 
   const editor: EditorHandle = createEditor(
     els.editorContainer,
     initialCode,
+    langRaw,
     () => {
       void runCell()
     },
@@ -84,7 +89,7 @@ export function initCell(root: HTMLElement): void {
 }
 
 export function initAllCells(): void {
-  document.querySelectorAll<HTMLElement>('.pyrunner-cell').forEach((el) => {
+  document.querySelectorAll<HTMLElement>('.coderunner-cell').forEach((el) => {
     if (el.dataset.hydrated === 'true') return
     el.dataset.hydrated = 'true'
     initCell(el)
