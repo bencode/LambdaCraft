@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content'
 import BaseLayout from '../../layouts/BaseLayout.astro'
+import Toc from '../../components/Toc.astro'
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft)
@@ -11,11 +12,12 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props
-const { Content } = await render(post)
+const { Content, headings } = await render(post)
 const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
-<BaseLayout title={post.data.title} description={post.data.summary}>
+<BaseLayout title={post.data.title} description={post.data.summary} hasToc={true}>
+  <Toc headings={headings} slot="toc" />
   <article>
     <p class="breadcrumb">
       <a href="/posts">posts</a>
