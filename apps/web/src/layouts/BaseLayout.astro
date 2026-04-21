@@ -49,6 +49,17 @@ const navItems: Array<{ href: string; label: string }> = [
       </header>
 
       <main class="layout" data-has-toc={hasToc ? 'true' : 'false'}>
+        {hasToc && (
+          <button
+            type="button"
+            class="toc-toggle"
+            data-action="toggle-toc"
+            aria-label="切换目录"
+            aria-expanded="false"
+          >
+            ☰ 目录
+          </button>
+        )}
         <slot />
       </main>
 
@@ -59,23 +70,12 @@ const navItems: Array<{ href: string; label: string }> = [
     </div>
 
     {hasToc && (
-      <>
-        <button
-          type="button"
-          class="toc-toggle"
-          data-action="toggle-toc"
-          aria-label="切换目录"
-          aria-expanded="false"
-        >
-          ☰ 目录
-        </button>
-        <aside class="toc-drawer" data-state="closed" aria-hidden="true">
-          <div class="toc-drawer-backdrop"></div>
-          <div class="toc-drawer-panel">
-            <slot name="toc" />
-          </div>
-        </aside>
-      </>
+      <aside class="toc-drawer" data-state="closed" aria-hidden="true">
+        <div class="toc-drawer-backdrop"></div>
+        <div class="toc-drawer-panel">
+          <slot name="toc" />
+        </div>
+      </aside>
     )}
 
     <script>

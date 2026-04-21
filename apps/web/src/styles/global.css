@@ -656,10 +656,16 @@ footer.site::before {
 /* ─── toc drawer ─── */
 
 .toc-toggle {
-  position: fixed;
-  top: 26px;
-  right: 26px;
-  z-index: 100;
+  /* Anchored to the article's top-right corner; sticks to the viewport top
+     while scrolling; negative bottom margin keeps it from pushing the first
+     heading down (sits "on top of" the article content). */
+  position: sticky;
+  top: 16px;
+  z-index: 20;
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+  margin-bottom: -2.1rem;
   padding: 6px 12px;
   border: 1px solid var(--rule-mid);
   border-radius: 4px;
