@@ -34,12 +34,22 @@ function escapeBlockText(text: string): string {
   return squashed.length > 200 ? `${squashed.slice(0, 200)}…` : squashed
 }
 
+function localStamp(iso: string): string {
+  // Format createdAt as "YYYY-MM-DD HH:MM" in local time. We keep ISO in the
+  // note object for full precision; the sidecar heading is human-readable.
+  const d = new Date(iso)
+  const pad = (n: number): string => String(n).padStart(2, '0')
+  const date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+  const time = `${pad(d.getHours())}:${pad(d.getMinutes())}`
+  return `${date} ${time}`
+}
+
 export function serializeNote(note: ReviewNote): string {
-  const date = note.createdAt.slice(0, 10)
+  const stamp = localStamp(note.createdAt)
   const sectionLine =
     note.position.headingPath.length > 0 ? note.position.headingPath.join(' › ') : '(top)'
   return [
-    `## [${note.id}] ${date}`,
+    `## [${note.id}] ${stamp}`,
     '',
     `**Section:** ${sectionLine}`,
     `**Block #${note.position.blockIndex}:** ${escapeBlockText(note.position.blockText)}`,
@@ -85,7 +95,8 @@ export function slugFromPath(mdxAbsPath: string): string {
 // Reverse parser — extracts notes from an existing .review.md file.
 // Resilient to minor whitespace variations; skips malformed entries.
 
-const ENTRY_HEADER = /^## \[(n-[^\]]+)\]\s+(\d{4}-\d{2}-\d{2})\s*$/
+// Accept both legacy (date only) and current (date + HH:MM) heading formats.
+const ENTRY_HEADER = /^## \[(n-[^\]]+)\]\s+(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}:\d{2}))?\s*$/
 const SECTION_LINE = /^\*\*Section:\*\*\s*(.*)\s*$/
 const BLOCK_LINE = /^\*\*Block #(\d+):\*\*\s*(.*)\s*$/
 
@@ -102,6 +113,7 @@ export function parseNotesFromSidecar(text: string): ReviewNote[] {
     }
     const id = headerMatch[1]
     const date = headerMatch[2]
+    const time = headerMatch[3] ?? '00:00'
     i += 1
 
     // Skip blank lines between header and fields
@@ -136,9 +148,12 @@ export function parseNotesFromSidecar(text: string): ReviewNote[] {
         ? []
         : sectionRaw.split(' › ').map((s) => s.trim()).filter(Boolean)
 
+    // Heading stamp is local-time; encode back to ISO preserving the local
+    // offset so the client renders the same clock time it was written at.
+    const local = new Date(`${date}T${time}:00`)
     notes.push({
       id,
-      createdAt: `${date}T00:00:00.000Z`,
+      createdAt: Number.isNaN(local.getTime()) ? `${date}T${time}:00` : local.toISOString(),
       position: { headingPath, blockText, blockIndex },
       content,
     })

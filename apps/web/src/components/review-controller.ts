@@ -30,7 +30,10 @@ type ReviewNote = {
 }
 
 type NotesResponse = { notes: ReviewNote[] }
-type SaveResponse = { ok: boolean; note: ReviewNote; sidecar: string; error?: string }
+// Server may return { ok, note, sidecar } (current) or { ok, id, sidecar }
+// (legacy). Tolerate both so a stale dev-server middleware doesn't trap the
+// client into an infinite retry loop.
+type SaveResponse = { ok: boolean; note?: ReviewNote; id?: string; sidecar: string; error?: string }
 
 const EXCLUDE_SELECTOR = '.coderunner-cell, .coderunner-kernel-bar, pre, figure, .toc-toggle, .review-gutter, .review-marker'
 const MIN_CARD_GAP = 12 // px between stacked cards
@@ -39,6 +42,40 @@ const MIN_CARD_GAP = 12 // px between stacked cards
 
 function normalize(text: string): string {
   return text.replace(/\s+/g, ' ').trim()
+}
+
+function pad2(n: number): string {
+  return String(n).padStart(2, '0')
+}
+
+// Render a note's createdAt relative to "now":
+//   today     → "14:23"
+//   yesterday → "昨天 14:23"
+//   same year → "04-22 14:23"
+//   else      → "2025-12-31 14:23"
+function formatStamp(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  const now = new Date()
+  const hm = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
+
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  if (sameDay) return hm
+
+  const yest = new Date(now)
+  yest.setDate(yest.getDate() - 1)
+  const isYest =
+    d.getFullYear() === yest.getFullYear() &&
+    d.getMonth() === yest.getMonth() &&
+    d.getDate() === yest.getDate()
+  if (isYest) return `昨天 ${hm}`
+
+  const mmdd = `${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+  if (d.getFullYear() === now.getFullYear()) return `${mmdd} ${hm}`
+  return `${d.getFullYear()}-${mmdd} ${hm}`
 }
 
 // Get the block's text content, stripping any review UI that we may have
@@ -153,7 +190,7 @@ function createCard(note: ReviewNote | null, opts: { draft: boolean }): HTMLElem
     body.textContent = note.content
     const meta = document.createElement('div')
     meta.className = 'review-card-meta'
-    meta.textContent = note.createdAt.slice(0, 10)
+    meta.textContent = formatStamp(note.createdAt)
     card.appendChild(body)
     card.appendChild(meta)
   }
@@ -181,11 +218,18 @@ async function saveNote(
     body: JSON.stringify({ file, position, content }),
   })
   const data = (await res.json()) as SaveResponse
-  if (!res.ok || !data.note) {
+  if (!res.ok || !data.ok) {
     console.error('[review] save failed', data)
     return null
   }
-  return data.note
+  if (data.note) return data.note
+  // Legacy middleware shape — synthesize a note from what we sent plus the
+  // server-assigned id.
+  if (data.id) {
+    return { id: data.id, createdAt: new Date().toISOString(), position, content }
+  }
+  console.error('[review] save returned no note / id', data)
+  return null
 }
 
 function initForArticle(article: HTMLElement): void {
@@ -278,13 +322,21 @@ function initForArticle(article: HTMLElement): void {
     layoutCards()
     setTimeout(() => ta.focus(), 0)
 
+    // `committing` gates concurrent commit attempts. Ctrl+Enter and blur can
+    // both fire (Ctrl+Enter disables the textarea, which itself triggers
+    // blur); without this gate the second path would read an orphaned ta
+    // after the first path empties the card, and we'd end up saving twice
+    // then removing the record.
+    let committing = false
+
     const commit = async (): Promise<void> => {
+      if (committing) return
       const content = ta.value.trim()
       if (!content) {
         removeRecord(rec)
         return
       }
-      // Lock textarea during save
+      committing = true
       ta.disabled = true
       const note = await saveNote(file, {
         headingPath: block.headingPath,
@@ -292,11 +344,11 @@ function initForArticle(article: HTMLElement): void {
         blockIndex: block.index,
       }, content)
       if (!note) {
+        committing = false
         ta.disabled = false
         ta.focus()
         return
       }
-      // Replace draft card with saved card
       rec.note = note
       rec.isDraft = false
       rec.markerEl.dataset.noteId = note.id
@@ -308,13 +360,14 @@ function initForArticle(article: HTMLElement): void {
       body.textContent = note.content
       const meta = document.createElement('div')
       meta.className = 'review-card-meta'
-      meta.textContent = note.createdAt.slice(0, 10)
+      meta.textContent = formatStamp(note.createdAt)
       rec.cardEl.appendChild(body)
       rec.cardEl.appendChild(meta)
       layoutCards()
     }
 
     const cancel = (): void => {
+      if (committing) return
       removeRecord(rec)
     }
 
@@ -330,8 +383,9 @@ function initForArticle(article: HTMLElement): void {
       }
     })
     ta.addEventListener('blur', () => {
-      // Give a microtask for click events on other controls to settle
+      // Wait a tick in case focus is moving between card controls.
       setTimeout(() => {
+        if (committing) return
         if (!document.body.contains(rec.cardEl)) return
         if (rec.isDraft) void commit()
       }, 100)
