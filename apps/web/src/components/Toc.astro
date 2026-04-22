@@ -11,8 +11,8 @@ const items = headings.filter((h) => h.depth >= 2 && h.depth <= 3)
 
 {
   items.length > 0 && (
-    <nav class="toc" aria-label="目录">
-      <div class="toc-label">Contents</div>
+    <nav class="toc" aria-label="大纲">
+      <div class="toc-label">Outline</div>
       <ol>
         {items.map((h) => (
           <li data-depth={h.depth}>
