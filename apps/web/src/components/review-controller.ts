@@ -1,9 +1,13 @@
-// Client-side review controller (dev-only). Double-click any block inside
-// <article>, get a floating card to write a review note, save it to the
-// sidecar `.review.md` via POST /__review.
+// Dev-only review controller: Word-style right gutter for review notes.
 //
-// Loaded only by <ReviewLayer>, which itself is `import.meta.env.DEV`-gated
-// in BaseLayout.
+// On load: fetch existing notes from sidecar → render markers (in-article)
+// + cards (in gutter), align each card to its block's vertical position.
+// On double-click: create a draft note + empty card; save on blur (if
+// content) or cancel on Esc / blank blur.
+//
+// Visibility gated by viewport width (>= 1200px) via CSS; JS keeps running
+// but the gutter/cards are hidden, so double-click still becomes a no-op
+// visually (no card shows).
 
 type BlockMeta = {
   el: HTMLElement
@@ -12,43 +16,92 @@ type BlockMeta = {
   text: string
 }
 
-type ReviewPayload = {
-  file: string
-  position: {
-    headingPath: string[]
-    blockText: string
-    blockIndex: number
-  }
+type ReviewPosition = {
+  headingPath: string[]
+  blockText: string
+  blockIndex: number
+}
+
+type ReviewNote = {
+  id: string
+  createdAt: string
+  position: ReviewPosition
   content: string
 }
 
-const EXCLUDE_SELECTOR = '.coderunner-cell, .coderunner-kernel-bar, pre, figure, .toc-toggle'
+type NotesResponse = { notes: ReviewNote[] }
+type SaveResponse = { ok: boolean; note: ReviewNote; sidecar: string; error?: string }
+
+const EXCLUDE_SELECTOR = '.coderunner-cell, .coderunner-kernel-bar, pre, figure, .toc-toggle, .review-gutter, .review-marker'
+const MIN_CARD_GAP = 12 // px between stacked cards
+
+// ─── helpers ────────────────────────────────────────────────────────────
 
 function normalize(text: string): string {
   return text.replace(/\s+/g, ' ').trim()
 }
 
+// Get the block's text content, stripping any review UI that we may have
+// injected into it (markers) — otherwise headingPath / blockText get
+// polluted by marker glyphs on subsequent collectBlocks calls.
+function blockTextOf(el: HTMLElement): string {
+  const clone = el.cloneNode(true) as HTMLElement
+  clone.querySelectorAll('.review-marker').forEach((n) => n.remove())
+  return normalize(clone.textContent ?? '')
+}
+
+// Content blocks we care about: paragraphs, headings, lists, blockquotes,
+// tables, figures. Skip inline scripts, injected style tags, and our own
+// gutter container.
+const BLOCK_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'blockquote', 'pre', 'table', 'figure', 'div', 'hr'])
+
 function collectBlocks(article: HTMLElement): BlockMeta[] {
   const children = Array.from(article.children) as HTMLElement[]
   const stack: string[] = []
   const blocks: BlockMeta[] = []
-
-  children.forEach((el, index) => {
+  children.forEach((el) => {
     const tag = el.tagName.toLowerCase()
+    if (!BLOCK_TAGS.has(tag)) return
+    if (el.classList.contains('review-gutter')) return
     if (/^h[1-6]$/.test(tag)) {
       const level = Number.parseInt(tag.slice(1), 10)
       stack.splice(level - 1)
-      stack[level - 1] = normalize(el.textContent ?? '')
+      stack[level - 1] = blockTextOf(el)
     }
     blocks.push({
       el,
-      index,
+      index: blocks.length,
       headingPath: stack.filter(Boolean),
-      text: normalize(el.textContent ?? ''),
+      text: blockTextOf(el),
     })
   })
-
   return blocks
+}
+
+// Find the best-matching block for a stored position. Multi-level fallback
+// mirrors increa-reader's findBestMarkdownBlock.
+function findBlock(blocks: BlockMeta[], pos: ReviewPosition): BlockMeta | null {
+  const target = pos.blockText.trim()
+  const scoped = pos.headingPath.length > 0
+    ? blocks.filter((b) => arraysEqual(b.headingPath, pos.headingPath))
+    : blocks
+
+  if (target) {
+    const exact = scoped.find((b) => b.text === target)
+    if (exact) return exact
+    const partial = scoped.find((b) => b.text.includes(target) || target.includes(b.text))
+    if (partial) return partial
+    const global = blocks.find((b) => b.text === target || b.text.includes(target) || target.includes(b.text))
+    if (global) return global
+  }
+
+  if (blocks[pos.blockIndex]) return blocks[pos.blockIndex]
+  return null
+}
+
+function arraysEqual(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false
+  return a.every((v, i) => v === b[i])
 }
 
 function findBlockForTarget(blocks: BlockMeta[], target: Element): BlockMeta | null {
@@ -62,170 +115,260 @@ function sourceFileOf(article: HTMLElement): string | null {
   return article.dataset.sourceFile ?? null
 }
 
-// ─── floating card ──────────────────────────────────────────────────────
+// ─── DOM creation ───────────────────────────────────────────────────────
 
-type CardCloseReason = 'save' | 'cancel'
+type NoteRecord = {
+  note: ReviewNote | null // null = unsaved draft
+  markerEl: HTMLElement
+  cardEl: HTMLElement
+  anchorEl: HTMLElement
+  isDraft: boolean
+}
 
-function openCard(opts: {
-  x: number
-  y: number
-  sectionLabel: string
-  blockPreview: string
-  onClose: (reason: CardCloseReason, content: string) => void
-}): void {
-  const overlay = document.createElement('div')
-  overlay.className = 'review-card-overlay'
+function createMarker(noteId: string): HTMLElement {
+  const m = document.createElement('button')
+  m.type = 'button'
+  m.className = 'review-marker'
+  m.dataset.noteId = noteId
+  m.setAttribute('aria-label', '跳到批注')
+  m.textContent = '•'
+  return m
+}
 
+function createCard(note: ReviewNote | null, opts: { draft: boolean }): HTMLElement {
   const card = document.createElement('div')
   card.className = 'review-card'
-  card.style.left = `${Math.min(opts.x, window.innerWidth - 360)}px`
-  card.style.top = `${Math.min(opts.y, window.innerHeight - 260)}px`
+  if (opts.draft) card.classList.add('review-card-draft')
+  card.dataset.noteId = note?.id ?? 'draft'
 
-  const header = document.createElement('div')
-  header.className = 'review-card-header'
-  header.innerHTML = `
-    <div class="review-card-section">${escapeHtml(opts.sectionLabel)}</div>
-    <div class="review-card-block">${escapeHtml(opts.blockPreview)}</div>
-  `
-
-  const textarea = document.createElement('textarea')
-  textarea.className = 'review-card-textarea'
-  textarea.placeholder = '写批注（⌘/Ctrl+Enter 保存，Esc 取消）'
-  textarea.rows = 5
-
-  const footer = document.createElement('div')
-  footer.className = 'review-card-footer'
-
-  const cancelBtn = document.createElement('button')
-  cancelBtn.type = 'button'
-  cancelBtn.className = 'review-card-btn review-card-btn-cancel'
-  cancelBtn.textContent = '取消'
-
-  const saveBtn = document.createElement('button')
-  saveBtn.type = 'button'
-  saveBtn.className = 'review-card-btn review-card-btn-save'
-  saveBtn.textContent = '保存'
-
-  footer.appendChild(cancelBtn)
-  footer.appendChild(saveBtn)
-  card.appendChild(header)
-  card.appendChild(textarea)
-  card.appendChild(footer)
-  overlay.appendChild(card)
-  document.body.appendChild(overlay)
-
-  const close = (reason: CardCloseReason): void => {
-    overlay.remove()
-    document.removeEventListener('keydown', onKey)
-    opts.onClose(reason, textarea.value.trim())
+  if (opts.draft) {
+    const ta = document.createElement('textarea')
+    ta.className = 'review-card-textarea'
+    ta.placeholder = '写批注（⌘/Ctrl+Enter 保存，Esc 取消）'
+    ta.rows = 4
+    card.appendChild(ta)
+  } else if (note) {
+    const body = document.createElement('div')
+    body.className = 'review-card-body'
+    body.textContent = note.content
+    const meta = document.createElement('div')
+    meta.className = 'review-card-meta'
+    meta.textContent = note.createdAt.slice(0, 10)
+    card.appendChild(body)
+    card.appendChild(meta)
   }
 
-  const onKey = (e: KeyboardEvent): void => {
-    if (e.key === 'Escape') {
-      e.preventDefault()
-      close('cancel')
-      return
-    }
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-      e.preventDefault()
-      close('save')
-    }
-  }
-  document.addEventListener('keydown', onKey)
-
-  cancelBtn.addEventListener('click', () => close('cancel'))
-  saveBtn.addEventListener('click', () => close('save'))
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) close('cancel')
-  })
-
-  setTimeout(() => textarea.focus(), 0)
+  return card
 }
 
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
+// ─── main controller ────────────────────────────────────────────────────
+
+async function fetchNotes(file: string): Promise<ReviewNote[]> {
+  const res = await fetch(`/__review?file=${encodeURIComponent(file)}`)
+  if (!res.ok) return []
+  const data = (await res.json()) as NotesResponse
+  return data.notes ?? []
 }
 
-// ─── toast ──────────────────────────────────────────────────────────────
-
-function showToast(message: string, kind: 'ok' | 'error' = 'ok'): void {
-  const t = document.createElement('div')
-  t.className = `review-toast review-toast-${kind}`
-  t.textContent = message
-  document.body.appendChild(t)
-  setTimeout(() => {
-    t.classList.add('review-toast-hide')
-    setTimeout(() => t.remove(), 300)
-  }, 1800)
-}
-
-// ─── save ───────────────────────────────────────────────────────────────
-
-async function postReview(payload: ReviewPayload): Promise<string> {
+async function saveNote(
+  file: string,
+  position: ReviewPosition,
+  content: string,
+): Promise<ReviewNote | null> {
   const res = await fetch('/__review', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ file, position, content }),
   })
-  const data = (await res.json()) as { sidecar?: string; error?: string }
-  if (!res.ok || !data.sidecar) throw new Error(data.error ?? `HTTP ${res.status}`)
-  return data.sidecar
+  const data = (await res.json()) as SaveResponse
+  if (!res.ok || !data.note) {
+    console.error('[review] save failed', data)
+    return null
+  }
+  return data.note
 }
 
-// ─── bootstrap ──────────────────────────────────────────────────────────
+function initForArticle(article: HTMLElement): void {
+  const file = sourceFileOf(article)
+  if (!file) return
 
-export function initReview(): void {
-  document.addEventListener('dblclick', (event) => {
+  const gutter = document.createElement('div')
+  gutter.className = 'review-gutter'
+  document.body.appendChild(gutter)
+
+  const records: NoteRecord[] = []
+
+  const layoutCards = (): void => {
+    // Cards use fixed positioning via the gutter (.review-gutter is fixed),
+    // so top is in viewport coordinates. Sort by anchor top and stack.
+    const sorted = [...records].sort((a, b) => {
+      const ay = a.anchorEl.getBoundingClientRect().top
+      const by = b.anchorEl.getBoundingClientRect().top
+      return ay - by
+    })
+    let prevBottom = -Infinity
+    for (const rec of sorted) {
+      const r = rec.anchorEl.getBoundingClientRect()
+      const top = Math.max(r.top, prevBottom + MIN_CARD_GAP)
+      rec.cardEl.style.top = `${top}px`
+      prevBottom = top + rec.cardEl.offsetHeight
+    }
+  }
+
+  const attachLayoutWatchers = (): void => {
+    const ro = new ResizeObserver(() => layoutCards())
+    ro.observe(article)
+    window.addEventListener('resize', layoutCards, { passive: true })
+    // Cards are fixed to viewport; re-align on scroll.
+    window.addEventListener('scroll', layoutCards, { passive: true })
+  }
+
+  const setActive = (noteId: string | null): void => {
+    for (const rec of records) {
+      const active = rec.markerEl.dataset.noteId === noteId
+      rec.markerEl.classList.toggle('review-marker-active', active)
+      rec.cardEl.classList.toggle('review-card-active', active)
+    }
+  }
+
+  const removeRecord = (rec: NoteRecord): void => {
+    rec.markerEl.remove()
+    rec.cardEl.remove()
+    const idx = records.indexOf(rec)
+    if (idx !== -1) records.splice(idx, 1)
+    layoutCards()
+  }
+
+  const addRecord = (
+    note: ReviewNote | null,
+    anchorEl: HTMLElement,
+    opts: { draft: boolean },
+  ): NoteRecord => {
+    const id = note?.id ?? `draft-${Date.now()}`
+    const marker = createMarker(id)
+    const card = createCard(note, opts)
+
+    // Insert marker at end of anchor block (inline-block tiny bullet)
+    anchorEl.appendChild(marker)
+    gutter.appendChild(card)
+
+    const rec: NoteRecord = { note, markerEl: marker, cardEl: card, anchorEl, isDraft: opts.draft }
+    records.push(rec)
+
+    marker.addEventListener('click', (e) => {
+      e.stopPropagation()
+      setActive(id)
+      card.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    })
+    card.addEventListener('mouseenter', () => setActive(id))
+    card.addEventListener('mouseleave', () => setActive(null))
+
+    return rec
+  }
+
+  const createDraftAt = (block: BlockMeta): void => {
+    // One draft at a time (save / cancel previous first)
+    const existingDraft = records.find((r) => r.isDraft)
+    if (existingDraft) removeRecord(existingDraft)
+
+    const rec = addRecord(null, block.el, { draft: true })
+    const ta = rec.cardEl.querySelector<HTMLTextAreaElement>('.review-card-textarea')
+    if (!ta) return
+
+    layoutCards()
+    setTimeout(() => ta.focus(), 0)
+
+    const commit = async (): Promise<void> => {
+      const content = ta.value.trim()
+      if (!content) {
+        removeRecord(rec)
+        return
+      }
+      // Lock textarea during save
+      ta.disabled = true
+      const note = await saveNote(file, {
+        headingPath: block.headingPath,
+        blockText: block.text,
+        blockIndex: block.index,
+      }, content)
+      if (!note) {
+        ta.disabled = false
+        ta.focus()
+        return
+      }
+      // Replace draft card with saved card
+      rec.note = note
+      rec.isDraft = false
+      rec.markerEl.dataset.noteId = note.id
+      rec.cardEl.dataset.noteId = note.id
+      rec.cardEl.classList.remove('review-card-draft')
+      rec.cardEl.innerHTML = ''
+      const body = document.createElement('div')
+      body.className = 'review-card-body'
+      body.textContent = note.content
+      const meta = document.createElement('div')
+      meta.className = 'review-card-meta'
+      meta.textContent = note.createdAt.slice(0, 10)
+      rec.cardEl.appendChild(body)
+      rec.cardEl.appendChild(meta)
+      layoutCards()
+    }
+
+    const cancel = (): void => {
+      removeRecord(rec)
+    }
+
+    ta.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        cancel()
+        return
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault()
+        void commit()
+      }
+    })
+    ta.addEventListener('blur', () => {
+      // Give a microtask for click events on other controls to settle
+      setTimeout(() => {
+        if (!document.body.contains(rec.cardEl)) return
+        if (rec.isDraft) void commit()
+      }, 100)
+    })
+  }
+
+  // Load existing notes
+  void fetchNotes(file).then((notes) => {
+    if (notes.length === 0) return
+    const blocks = collectBlocks(article)
+    for (const note of notes) {
+      const block = findBlock(blocks, note.position)
+      if (!block) {
+        console.warn('[review] unresolved note', note)
+        continue
+      }
+      addRecord(note, block.el, { draft: false })
+    }
+    layoutCards()
+  })
+
+  attachLayoutWatchers()
+
+  // Double-click to create draft
+  article.addEventListener('dblclick', (event) => {
     const target = event.target as Element | null
     if (!target) return
-    // Ignore clicks inside code runners, pre, figures, toc-toggle.
     if (target.closest(EXCLUDE_SELECTOR)) return
-
-    const article = target.closest('article') as HTMLElement | null
-    if (!article) return
-
-    // Ignore dblclick that falls on the article itself (not a child block).
-    const file = sourceFileOf(article)
-    if (!file) return
 
     const blocks = collectBlocks(article)
     const block = findBlockForTarget(blocks, target)
     if (!block) return
-
-    const sectionLabel =
-      block.headingPath.length > 0 ? block.headingPath.join(' › ') : '(top)'
-    const blockPreview =
-      block.text.length > 120 ? `#${block.index} ${block.text.slice(0, 120)}…` : `#${block.index} ${block.text}`
-
-    openCard({
-      x: event.clientX + 8,
-      y: event.clientY + 8,
-      sectionLabel,
-      blockPreview,
-      onClose: async (reason, content) => {
-        if (reason !== 'save' || !content) return
-        try {
-          const sidecar = await postReview({
-            file,
-            position: {
-              headingPath: block.headingPath,
-              blockText: block.text,
-              blockIndex: block.index,
-            },
-            content,
-          })
-          const base = sidecar.split('/').pop() ?? 'review.md'
-          showToast(`已保存到 ${base}`)
-        } catch (err) {
-          console.error('[review] save failed', err)
-          showToast(`保存失败: ${String(err)}`, 'error')
-        }
-      },
-    })
+    createDraftAt(block)
   })
+}
+
+export function initReview(): void {
+  const articles = document.querySelectorAll<HTMLElement>('article[data-source-file]')
+  articles.forEach((article) => initForArticle(article))
 }

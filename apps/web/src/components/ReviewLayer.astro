@@ -14,66 +14,111 @@
 </script>
 
 <style is:global>
-  /* Double-click floating card */
-  .review-card-overlay {
+  /* Gutter: fixed to viewport right edge. Cards are positioned in viewport
+     coordinates (top = block's on-screen top) and tracked on scroll/resize. */
+  .review-gutter {
     position: fixed;
-    inset: 0;
-    z-index: 500;
-    pointer-events: auto;
+    top: 0;
+    right: 16px;
+    bottom: 0;
+    width: 260px;
+    pointer-events: none;
+    z-index: 10;
   }
 
-  .review-card {
-    position: fixed;
-    width: 360px;
-    background: #fff9c3;
+  /* Only show the gutter when there's enough viewport width for shell +
+     gutter + breathing room. Below this, the UI degrades gracefully —
+     notes are still saved via dblclick, they're just not rendered. */
+  @media (max-width: 1499px) {
+    .review-gutter,
+    .review-marker {
+      display: none !important;
+    }
+  }
+
+  /* Small round marker inserted at the end of each annotated block. */
+  .review-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-left: 6px;
+    padding: 0;
     border: 1px solid #ca8a04;
-    border-radius: 6px;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
-    padding: 12px;
+    border-radius: 50%;
+    background: #fef9c3;
+    color: #a16207;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background 120ms ease-out, transform 120ms ease-out;
+  }
+
+  .review-marker:hover,
+  .review-marker-active {
+    background: #ca8a04;
+    color: #fff;
+    transform: scale(1.15);
+  }
+
+  /* A single review card sitting in the gutter. */
+  .review-card {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 10px 12px;
+    background: #fff9c3;
+    border: 1px solid #e5c94a;
+    border-left: 3px solid #ca8a04;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     font-family:
       -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 13px;
+    font-size: 12.5px;
+    line-height: 1.55;
     color: #422006;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    pointer-events: auto;
+    transition: box-shadow 120ms ease-out, border-color 120ms ease-out;
   }
 
-  .review-card-header {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    padding-bottom: 8px;
-    border-bottom: 1px dashed #d97706;
+  .review-card-active,
+  .review-card:hover {
+    border-left-color: #a16207;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   }
 
-  .review-card-section {
+  .review-card-body {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .review-card-meta {
+    margin-top: 6px;
     font-size: 11px;
-    font-weight: 600;
     color: #78350f;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .review-card-block {
-    font-size: 12px;
-    color: #713f12;
-    line-height: 1.4;
     font-family:
       ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    word-break: break-word;
+  }
+
+  /* Draft card: textarea in place of body. */
+  .review-card-draft {
+    padding: 8px;
+    border-left-color: #d97706;
+    background: #fefce8;
   }
 
   .review-card-textarea {
     width: 100%;
+    min-height: 80px;
     resize: vertical;
-    min-height: 90px;
-    padding: 8px;
+    padding: 6px 8px;
     border: 1px solid #d97706;
-    border-radius: 4px;
-    background: #fefce8;
+    border-radius: 3px;
+    background: #fff9c3;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 12.5px;
     line-height: 1.5;
     color: #422006;
     box-sizing: border-box;
@@ -84,68 +129,8 @@
     outline-offset: -1px;
   }
 
-  .review-card-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 6px;
-  }
-
-  .review-card-btn {
-    padding: 4px 12px;
-    font-size: 12px;
-    border: 1px solid #ca8a04;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: inherit;
-  }
-
-  .review-card-btn-cancel {
-    background: transparent;
-    color: #78350f;
-  }
-
-  .review-card-btn-cancel:hover {
-    background: rgba(202, 138, 4, 0.1);
-  }
-
-  .review-card-btn-save {
-    background: #ca8a04;
-    color: #fff;
-    border-color: #a16207;
-  }
-
-  .review-card-btn-save:hover {
-    background: #a16207;
-  }
-
-  /* Toast */
-  .review-toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 600;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 13px;
-    font-family:
-      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    opacity: 1;
-    transition: opacity 250ms ease-out;
-  }
-
-  .review-toast-ok {
-    background: #166534;
-    color: #ecfdf5;
-  }
-
-  .review-toast-error {
-    background: #991b1b;
-    color: #fef2f2;
-  }
-
-  .review-toast-hide {
-    opacity: 0;
+  .review-card-textarea:disabled {
+    opacity: 0.6;
+    cursor: wait;
   }
 </style>
