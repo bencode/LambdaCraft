@@ -15,7 +15,7 @@ const posts = defineCollection({
 const reading = defineCollection({
   loader: glob({
     pattern: '**/chapters/*.md',
-    base: '../../../../brain2/curriculum',
+    base: './src/content/reading',
   }),
   schema: z
     .object({
@@ -26,20 +26,22 @@ const reading = defineCollection({
     .passthrough(),
 })
 
-const irRagCourse = defineCollection({
-  // 源在 brain2，这里只做 render + publish
-  // .mdx = 对外发布（hub / chapter），.md = brain2 内部（README / sources / outline / reviews）不进发布
+// URL 稳定性约定（convention over configuration）：
+// 源文件路径即 URL 片段。<dir>/index.mdx → /<dir>；其余文件直接按路径映射。
+// 发布后不要 rename 源文件；列表排序用 frontmatter `order`（可选）。
+const irRag = defineCollection({
   loader: glob({
     pattern: '**/*.mdx',
-    base: '../../../../brain2/learning-paths/ir-rag-series',
+    base: './src/content/ir-rag',
   }),
   schema: z
     .object({
       title: z.string().optional(),
       date: z.coerce.date().optional(),
       summary: z.string().optional(),
+      order: z.number().int().nonnegative().optional(),
     })
     .passthrough(),
 })
 
-export const collections = { posts, reading, 'ir-rag-course': irRagCourse }
+export const collections = { posts, reading, 'ir-rag': irRag }

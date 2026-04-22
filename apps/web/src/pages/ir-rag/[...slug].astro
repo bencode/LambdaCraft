@@ -1,0 +1,36 @@
+---
+import { getCollection, render } from 'astro:content'
+import Toc from '../../components/Toc.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { isTopHub } from '../../lib/ir-rag'
+
+// URL 约定：entry.id 即 URL 片段，`<dir>/index` 映射到 `<dir>` (tail stripped)。
+export async function getStaticPaths() {
+  const all = await getCollection('ir-rag')
+  return all
+    .filter((entry) => !isTopHub(entry.id))
+    .map((entry) => ({
+      params: { slug: entry.id.replace(/\/index$/, '') },
+      props: { entryId: entry.id },
+    }))
+}
+
+const { entryId } = Astro.props
+const all = await getCollection('ir-rag')
+const entry = all.find((item) => item.id === entryId)
+if (!entry) throw new Error(`entry not found: ${entryId}`)
+
+const { Content, headings } = await render(entry)
+const hasToc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3).length >= 3
+const title = entry.data.title ?? entry.id
+---
+
+<BaseLayout title={title} description={entry.data.summary} hasToc={hasToc}>
+  <Toc headings={headings} slot="toc" />
+  <article data-source-file={entry.filePath}>
+    <p class="breadcrumb">
+      <a href="/ir-rag">ir-rag</a>
+    </p>
+    <Content />
+  </article>
+</BaseLayout>

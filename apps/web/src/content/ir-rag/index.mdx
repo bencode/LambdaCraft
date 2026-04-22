@@ -1,0 +1,47 @@
+---
+title: IR / RAG 主题系列
+date: 2026-04-19
+summary: 围绕 IR / RAG 若干主题展开的一组系列文章与实验。
+---
+
+这里是一组围绕 IR / RAG 展开的系列文章。不按教材顺序展开，而是按一个个问题来组织：每个 series 把同一主题下的文章、论文线索和实验放在一起。
+
+每篇文章配**页内可运行 Python 代码**：你不需要装环境，点击运行就能看到结果。涉及 GPU 或大模型的部分，外链到 Colab 或自建 JupyterLab。
+
+## 7 个主题系列
+
+| # | Series | 主题 | 状态 |
+|---|--------|------|------|
+| 00 | [词搜索基础](/ir-rag/lexical-foundation) | Boolean retrieval、倒排索引、tf-idf、向量空间模型 | 🟡 进行中 |
+| 01 | [概率检索与 BM25](/ir-rag/bm25) | PRP / BIM / 2-Poisson / BM25 推导与实战 | 🟡 Hub + Ch 01 上线 |
+| 02 | 语言模型方法 | Ponte-Croft 1998 / 平滑策略 | 🔴 待启动 |
+| 03 | Learning to Rank | RankNet / LambdaRank / ListNet | 🔴 待启动 |
+| 04 | 稠密检索 | DSSM / DPR / ANCE / Condenser | 🔴 待启动 |
+| 05 | 重排序 | BERT cross-encoder / ColBERT | 🔴 待启动 |
+| 06 | 混合检索与 RAG | Lewis 2020 / Hybrid / HyDE | 🔴 待启动 |
+
+## 阅读建议
+
+如果是从 RAG 系统的检索侧往回补，00 → 01 → 04 → 05 → 06 这条线最顺。02 和 03 更像支线，按需要穿插即可。
+
+按需要：
+
+- 想搞清 BM25 调参的依据 → BM25 这组
+- 想做 RAG 工程 → 词搜索基础 + 稠密检索 + 重排序 + 混合检索与 RAG
+- 想理解 LTR 在工业搜索的位置 → Learning to Rank
+- 想理解 dense retrieval 的理论根源 → 语言模型方法 + 稠密检索
+
+## 怎么跑代码
+
+文章里的代码块**直接点"运行"按钮**就能跑——这是用 [Pyodide](https://pyodide.org)（Python 在浏览器里）实现的。第一次加载需要约 10 秒下载 Python 环境，之后即点即跑。
+
+涉及 PyTorch / GPU 的章节（series 04-06），文章里会给两个按钮：
+
+- **在 Colab 打开**——免费 GPU，需要 Google 账号
+- **在 JupyterLab 打开**——如果你自建了 JupyterLab 服务器
+
+## 这些整理怎么来的
+
+主题划分来自 [IR 知识图谱](https://blog-test.qijun.io/ir-knowledge-map)。每个 series 的具体来源（书章节 + 论文）在该 series 自己的 hub 里列出。
+
+站点说明参考 [关于 LambdaCraft](/posts/lambdacraft)。

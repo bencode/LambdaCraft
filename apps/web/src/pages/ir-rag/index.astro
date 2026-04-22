@@ -1,0 +1,22 @@
+---
+import { getCollection, render } from 'astro:content'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+
+const all = await getCollection('ir-rag')
+const indexEntry = all.find((entry) => entry.id === 'index')
+
+if (!indexEntry) {
+  throw new Error('ir-rag top-level hub not found (expected src/content/ir-rag/index.mdx)')
+}
+
+const { Content } = await render(indexEntry)
+---
+
+<BaseLayout
+  title={indexEntry.data.title ?? 'IR / RAG 主题系列'}
+  description={indexEntry.data.summary}
+>
+  <article>
+    <Content />
+  </article>
+</BaseLayout>
