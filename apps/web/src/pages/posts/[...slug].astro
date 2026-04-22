@@ -19,7 +19,7 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10)
 
 <BaseLayout title={post.data.title} description={post.data.summary} hasToc={hasToc}>
   <Toc headings={headings} slot="toc" />
-  <article>
+  <article data-source-file={post.filePath}>
     <p class="breadcrumb">
       <a href="/posts">posts</a>
       <span class="sep">·</span>

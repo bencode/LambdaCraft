@@ -1,6 +1,7 @@
 ---
 import 'katex/dist/katex.min.css'
 import '../styles/global.css'
+import ReviewLayer from '../components/ReviewLayer.astro'
 
 type Props = {
   title: string
@@ -9,6 +10,7 @@ type Props = {
 }
 
 const { title, description, hasToc = false } = Astro.props
+const isDev = import.meta.env.DEV
 const siteName = 'LambdaCraft'
 const fullTitle = title === siteName ? title : `${title} · ${siteName}`
 
@@ -21,7 +23,6 @@ const navItems: Array<{ href: string; label: string }> = [
   { href: '/posts', label: 'posts' },
   { href: '/reading', label: 'reading' },
   { href: '/forge', label: 'forge' },
-  { href: '/about', label: 'about' },
 ]
 ---
 
@@ -86,5 +87,7 @@ const navItems: Array<{ href: string; label: string }> = [
         initTocDrawer()
       }
     </script>
+
+    {isDev && <ReviewLayer />}
   </body>
 </html>

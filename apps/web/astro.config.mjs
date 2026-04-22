@@ -3,6 +3,7 @@ import mdx from '@astrojs/mdx'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import rehypeExternalLinks from 'rehype-external-links'
+import { reviewSidecar } from './src/integrations/review-sidecar'
 
 const remarkStripFirstH1 = () => (tree) => {
   const first = tree.children?.[0]
@@ -29,6 +30,7 @@ export default defineConfig({
       remarkPlugins: [remarkStripFirstH1, remarkMath],
       rehypePlugins: [rehypeKatex, externalLinksConfig],
     }),
+    reviewSidecar(),
   ],
   markdown: {
     remarkPlugins: [remarkStripFirstH1, remarkMath],
