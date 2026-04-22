@@ -13,10 +13,11 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props
 const { Content, headings } = await render(post)
+const hasToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3
 const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
-<BaseLayout title={post.data.title} description={post.data.summary} hasToc={true}>
+<BaseLayout title={post.data.title} description={post.data.summary} hasToc={hasToc}>
   <Toc headings={headings} slot="toc" />
   <article>
     <p class="breadcrumb">

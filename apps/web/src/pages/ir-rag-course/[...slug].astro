@@ -21,10 +21,11 @@ const entry = all.find((e) => e.id === entryId)
 if (!entry) throw new Error(`entry not found: ${entryId}`)
 
 const { Content, headings } = await render(entry)
+const hasToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3
 const title = entry.data.title ?? entry.id
 ---
 
-<BaseLayout title={title} description={entry.data.summary} hasToc={true}>
+<BaseLayout title={title} description={entry.data.summary} hasToc={hasToc}>
   <Toc headings={headings} slot="toc" />
   <article>
     <p class="breadcrumb">
