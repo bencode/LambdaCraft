@@ -1,24 +1,51 @@
 ---
+import { getCollection } from 'astro:content'
 import BaseLayout from '../../layouts/BaseLayout.astro'
-import { books } from '../../lib/books'
+import { extractFormalSeries } from '../../lib/formal-reading'
+
+const formalAll = await getCollection('ir-rag')
+const seriesList = extractFormalSeries(formalAll)
+const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
-<BaseLayout title="Reading" description="Reading notes">
+<BaseLayout title="Reading" description="Formal articles">
   <article>
     <h1>Reading</h1>
-    <p class="chapter-meta">读书笔记</p>
-    <ul class="book-list">
-      {
-        books.map((book) => (
-          <li>
-            <div class="book-id">{book.id}</div>
-            <a class="book-title" href={`/reading/${book.id}`}>
-              {book.title}
-            </a>
-            {book.subtitle && <div class="book-subtitle">{book.subtitle}</div>}
-          </li>
-        ))
-      }
-    </ul>
+    <p class="chapter-meta">正式文章</p>
+    {
+      seriesList.length === 0 ? (
+        <p class="empty">nothing yet</p>
+      ) : (
+          <ul class="book-list">
+            {seriesList.map((series) => (
+              <li>
+              {series.label && <div class="book-id">{series.label}</div>}
+              <a class="book-title" href={series.href}>
+                {series.title}
+              </a>
+              {series.summary && <div class="book-subtitle">{series.summary}</div>}
+              {series.articles.length > 0 && (
+                <ul class="chapter-list">
+                  {series.articles.map((article) => (
+                    <li class="chapter-row">
+                      <span class="num">{article.label}</span>
+                      <a class="title" href={article.href}>
+                        {article.title}
+                      </a>
+                      <span class="dots" aria-hidden="true" />
+                      {article.date && (
+                        <time class="right" datetime={article.date.toISOString()}>
+                          {fmt(article.date)}
+                        </time>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      )
+    }
   </article>
 </BaseLayout>

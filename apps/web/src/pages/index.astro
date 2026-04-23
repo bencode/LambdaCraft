@@ -1,28 +1,14 @@
 ---
 import { getCollection } from 'astro:content'
 import BaseLayout from '../layouts/BaseLayout.astro'
-import { bookOfEntry, chapterLabel, slugInBook, titleFromBody } from '../lib/books'
+import { extractRecentFormalArticles } from '../lib/formal-reading'
 
 const posts = (await getCollection('posts', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0, 5)
 
-const readingAll = await getCollection('reading')
-const readingRecent = readingAll
-  .map((entry) => {
-    const book = bookOfEntry(entry.id)
-    if (!book) return null
-    const slug = slugInBook(entry.id, book)
-    return {
-      bookId: book.id,
-      slug,
-      label: chapterLabel(slug),
-      title: titleFromBody(entry.body, slug),
-    }
-  })
-  .filter((x): x is { bookId: string; slug: string; label: string; title: string } => x !== null)
-  .sort((a, b) => b.slug.localeCompare(a.slug))
-  .slice(0, 5)
+const formalAll = await getCollection('ir-rag')
+const readingRecent = extractRecentFormalArticles(formalAll, 5)
 
 const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
@@ -66,10 +52,8 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10)
           <ul class="entry-list">
             {readingRecent.map((r) => (
               <li>
-                <span class="meta">
-                  {r.bookId} <span class="sep">·</span> {r.label}
-                </span>
-                <a href={`/reading/${r.bookId}/${r.slug}`}>{r.title}</a>
+                <span class="meta">{r.date ? fmt(r.date) : 'formal'}</span>
+                <a href={r.href}>{r.title}</a>
               </li>
             ))}
           </ul>

@@ -1,6 +1,6 @@
 # ir-rag-labs/
 
-可运行的 IR / RAG 实验集合，按 series 组织。配套站点上 `/ir-rag-course/` 各章节。
+可运行的 IR / RAG 实验集合，按 series 组织。配套站点上 `/ir-rag/` 各章节。
 
 ## 结构
 

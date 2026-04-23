@@ -43,7 +43,7 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
 <BaseLayout title={title} description={book.title} hasToc={true}>
-  <article>
+  <article data-source-file={entry.filePath}>
     <p class="breadcrumb">
       <a href="/reading">reading</a>
       <span class="sep">·</span>
