@@ -45,7 +45,20 @@ query = ["bm25", "parameters"]
 for doc, s in zip(corpus, bm25(corpus, query)):
     print(f"{s:.4f}  {' '.join(doc)}")`
 
-export const cell_idf = `# 延用上面 cell 里的 corpus / N / df（同一个 kernel）
+export const cell_idf = `from math import log
+from collections import Counter
+
+corpus = [
+    "bm25 parameters guide".split(),
+    "bm25 bm25 bm25 tutorial".split(),
+    "okapi k1 b tuning explained bm25".split(),
+]
+N = len(corpus)
+df = Counter()
+for doc in corpus:
+    for term in set(doc):
+        df[term] += 1
+
 for term in ["bm25", "parameters", "tutorial", "k1", "okapi"]:
     n = df.get(term, 0)
     if n == 0:
