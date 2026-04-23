@@ -1,0 +1,10 @@
+---
+title: 参数调优与 BM25F
+date: 2026-04-23
+summary: BM25 的 k₁、b 默认值是 TREC 数据跑出来的经验值，专业领域通常要重调。BM25F 把文档拆成 title / body / anchor 多字段打分。
+order: 3
+---
+
+（写中。）
+
+BM25 的 $k_1$、$b$ 默认值（1.2 / 0.75）不是公理，是 1994 年 TREC 数据上 grid search 的结果；换到医学、法律、代码搜索这类专业 collection，往往要重调。Robertson–Zaragoza 2009 年提出的 BM25F 再把文档拆成 title / body / anchor 多字段，各字段一组 $k_1 / b$、再加字段权重。本章给出调优流程 + BM25F 推导。
