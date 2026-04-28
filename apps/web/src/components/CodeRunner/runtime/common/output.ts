@@ -2,7 +2,7 @@
 
 import type { CellResult } from './types'
 
-function escape(text: string): string {
+function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -18,11 +18,11 @@ export function renderResult(container: HTMLElement, result: CellResult): void {
   const parts: string[] = []
 
   if (result.stdout) {
-    parts.push(`<pre class="coderunner-stdout">${escape(result.stdout)}</pre>`)
+    parts.push(`<pre class="coderunner-stdout">${escapeHtml(result.stdout)}</pre>`)
   }
 
   if (result.stderr) {
-    parts.push(`<pre class="coderunner-stderr">${escape(result.stderr)}</pre>`)
+    parts.push(`<pre class="coderunner-stderr">${escapeHtml(result.stderr)}</pre>`)
   }
 
   if (result.image_png_b64) {
@@ -34,11 +34,11 @@ export function renderResult(container: HTMLElement, result: CellResult): void {
   if (result.value_html) {
     parts.push(`<div class="coderunner-html">${result.value_html}</div>`)
   } else if (result.value_repr) {
-    parts.push(`<pre class="coderunner-value">${escape(result.value_repr)}</pre>`)
+    parts.push(`<pre class="coderunner-value">${escapeHtml(result.value_repr)}</pre>`)
   }
 
   if (result.error) {
-    parts.push(`<pre class="coderunner-error">${escape(result.error)}</pre>`)
+    parts.push(`<pre class="coderunner-error">${escapeHtml(result.error)}</pre>`)
   }
 
   if (parts.length === 0) {
@@ -54,7 +54,7 @@ export function renderStatus(
   message: string,
   kind: 'info' | 'error' = 'info',
 ): void {
-  container.innerHTML = `<div class="coderunner-status coderunner-status--${kind}">${escape(message)}</div>`
+  container.innerHTML = `<div class="coderunner-status coderunner-status--${kind}">${escapeHtml(message)}</div>`
   container.classList.remove('hidden')
 }
 
