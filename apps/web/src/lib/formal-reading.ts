@@ -10,6 +10,7 @@ import {
 
 export type FormalArticle = {
   date?: Date
+  draft: boolean
   href: string
   id: string
   label: string
@@ -59,8 +60,6 @@ export const extractFormalSeries = (entries: IrRagEntry[]): FormalSeries[] => {
       continue
     }
 
-    if (entry.data.draft) continue
-
     const current = grouped.get(seriesId) ?? []
     current.push(entry)
     grouped.set(seriesId, current)
@@ -80,6 +79,7 @@ export const extractFormalSeries = (entries: IrRagEntry[]): FormalSeries[] => {
     const hub = hubs.get(seriesId)
     const articles = (grouped.get(seriesId) ?? []).sort(compareByOrder).map((entry) => ({
       date: entry.data.date,
+      draft: entry.data.draft ?? false,
       href: hrefOf(entry),
       id: entry.id,
       label: formatOrderLabel(entry.data.order) ?? '·',
@@ -104,13 +104,15 @@ export const extractRecentFormalArticles = (
 ): RecentFormalArticle[] =>
   extractFormalSeries(entries)
     .flatMap((series) =>
-      series.articles.map((article) => ({
-        date: article.date,
-        href: article.href,
-        seriesId: series.id,
-        seriesTitle: series.title,
-        title: article.title,
-      })),
+      series.articles
+        .filter((article) => !article.draft)
+        .map((article) => ({
+          date: article.date,
+          href: article.href,
+          seriesId: series.id,
+          seriesTitle: series.title,
+          title: article.title,
+        })),
     )
     .sort(recentSort)
     .slice(0, limit)

@@ -5,7 +5,6 @@ import { extractFormalSeries } from '../../lib/formal-reading'
 
 const formalAll = await getCollection('ir-rag')
 const seriesList = extractFormalSeries(formalAll)
-const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
 <BaseLayout title="Reading" description="Formal articles">
@@ -16,28 +15,21 @@ const fmt = (d: Date) => d.toISOString().slice(0, 10)
       seriesList.length === 0 ? (
         <p class="empty">nothing yet</p>
       ) : (
-          <ul class="book-list">
-            {seriesList.map((series) => (
-              <li>
-              {series.label && <div class="book-id">{series.label}</div>}
-              <a class="book-title" href={series.href}>
+        <ul class="series-tree">
+          {seriesList.map((series) => (
+            <li class="series-tree-group">
+              <a class="series-tree-hub" href={series.href}>
                 {series.title}
               </a>
-              {series.summary && <div class="book-subtitle">{series.summary}</div>}
               {series.articles.length > 0 && (
-                <ul class="chapter-list">
+                <ul class="series-tree-children">
                   {series.articles.map((article) => (
-                    <li class="chapter-row">
-                      <span class="num">{article.label}</span>
+                    <li class="series-tree-row">
+                      <span class="connector" aria-hidden="true">└─</span>
                       <a class="title" href={article.href}>
                         {article.title}
                       </a>
-                      <span class="dots" aria-hidden="true" />
-                      {article.date && (
-                        <time class="right" datetime={article.date.toISOString()}>
-                          {fmt(article.date)}
-                        </time>
-                      )}
+                      {article.draft && <span class="draft-tag">写中</span>}
                     </li>
                   ))}
                 </ul>

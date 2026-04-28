@@ -1,5 +1,5 @@
 ---
-title: BM25 · 从"相关"到一个能算的分数
+title: BM25 总览
 date: 2026-04-20
 summary: 围绕 BM25 的一组系列文章：先把历史和 mental model 放到一起，再把推导、实验和后续阅读分开。
 order: 1
@@ -93,7 +93,7 @@ $$
 \text{score}(d, q) = \sum_{t \in q} \underbrace{\text{idf}(t)}_{\text{稀有度}} \cdot \underbrace{\frac{\text{tf}(t, d) \cdot (k_1 + 1)}{\text{tf}(t, d) + k_1 \cdot \left(1 - b + b \cdot \frac{|d|}{\text{avgdl}}\right)}}_{\text{饱和词频，内含长度归一化}}
 $$
 
-注意第三层的**长度归一化不是独立乘进来的，而是嵌在第二层的分母里** —— 这个结构让参数更少、行为更稳。完整推导见 [BM25 拆解 · 从 5 行代码到三篇论文](/ir-rag/bm25/from-vsm-to-probability)。
+注意第三层的**长度归一化不是独立乘进来的，而是嵌在第二层的分母里** —— 这个结构让参数更少、行为更稳。完整推导见 [BM25 公式拆解](/ir-rag/bm25/from-vsm-to-probability)。
 
 这个骨架从 1994 年定型以来基本没变，所有工业实现都是这一套。不同的只是：默认参数、是否支持多字段（BM25F）、是否融合非文本信号（PageRank 等）。
 
@@ -101,7 +101,7 @@ $$
 
 ## 系列导览
 
-- **[为什么 tf-idf 之后还需要概率排序](/ir-rag/bm25/from-vsm-to-probability)** —— 先用工程师视角解释为什么“像不像”还不等于“相关不相关”，再把 PRP、BIM、RSJ 与 idf 的关系更严格地补完整；含可运行代码
+- **[BM25 公式拆解](/ir-rag/bm25/from-vsm-to-probability)** —— 先用工程师视角解释为什么”像不像”还不等于”相关不相关”，再把 PRP、BIM、RSJ 与 idf 的关系更严格地补完整；含可运行代码
 - **[2-Poisson 近似与 BM25 定型](/ir-rag/bm25/from-two-poisson-to-saturation)**（写中）—— 饱和项 $\text{tf}/(k_1+\text{tf})$ 的形状从何而来
 - **[参数调优与 BM25F](/ir-rag/bm25/tuning-and-bm25f)**（写中）—— $k_1/b$ 在专业 collection 上怎么调；title / body / anchor 多字段打分
 - **页内 AI 助手**（规划中）—— 对 `k_3` 默认值、BM25F 细节这类一次性问题做即答

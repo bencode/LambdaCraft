@@ -556,43 +556,68 @@ footer.site::before {
   font-variant-numeric: tabular-nums;
 }
 
-/* ─── book list (/reading) ─── */
+/* ─── series tree (/reading) ─── */
 
-.book-list {
+.series-tree {
   list-style: none;
   padding: 0;
   margin: 26px 0;
 }
 
-.book-list li {
-  padding: 13px 0;
-  border-bottom: 1px solid var(--hairline);
+.series-tree-group {
+  margin-bottom: 22px;
 }
 
-.book-list .book-id {
-  color: var(--muted);
-  font-size: 0.78rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 2px;
-}
-
-.book-list .book-title {
+.series-tree-hub {
   text-decoration: none;
   color: var(--fg);
   font-weight: 700;
 }
 
-.book-list .book-title:hover {
+.series-tree-hub:hover {
   background: transparent;
   color: var(--fg);
   text-decoration: underline;
 }
 
-.book-list .book-subtitle {
+.series-tree-children {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+}
+
+.series-tree-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 4px 0 4px 0.5rem;
+}
+
+.series-tree-row .connector {
   color: var(--muted);
-  font-size: 0.88rem;
-  margin-top: 2px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  flex: 0 0 auto;
+}
+
+.series-tree-row .title {
+  text-decoration: none;
+  color: var(--fg);
+  flex: 0 1 auto;
+}
+
+.series-tree-row .title:hover {
+  background: transparent;
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.series-tree-row .draft-tag {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  flex: 0 0 auto;
 }
 
 /* ─── empty state ─── */
