@@ -3,6 +3,8 @@
 // across cells. To share state between cells, attach to `globalThis`.
 
 import { transform } from 'sucrase'
+import { fmtArg } from '../common/js-format'
+import { detectRichOutput } from '../common/rich-output'
 import type {
   CellResult,
   InitListener,
@@ -10,6 +12,7 @@ import type {
   PackageLoadListener,
 } from '../common/types'
 import { emptyResult } from '../common/types'
+import { $import } from './library-registry'
 
 const STMT_KW_RE =
   /^(if|for|while|switch|case|break|continue|return|let|const|var|function|class|try|catch|finally|throw|import|export|do|else|interface|type|enum)\b/
@@ -34,35 +37,6 @@ function splitLastExpression(code: string): { body: string; trailing: string | n
   const body = lines.slice(0, lastIdx).join('\n')
   const trailing = lines[lastIdx]
   return { body, trailing }
-}
-
-function formatValue(v: unknown): string {
-  if (v === null) return 'null'
-  if (v === undefined) return 'undefined'
-  if (typeof v === 'bigint') return `${v}n`
-  if (typeof v === 'function') return v.toString()
-  if (typeof v === 'symbol') return v.toString()
-  if (typeof v === 'string') return JSON.stringify(v)
-  if (typeof v === 'number' || typeof v === 'boolean') return String(v)
-  try {
-    return JSON.stringify(
-      v,
-      (_key, val) => {
-        if (typeof val === 'bigint') return `${val}n`
-        if (val instanceof Map) return Object.fromEntries(val)
-        if (val instanceof Set) return Array.from(val)
-        return val
-      },
-      2,
-    )
-  } catch {
-    return String(v)
-  }
-}
-
-function fmtArg(a: unknown): string {
-  if (typeof a === 'string') return a
-  return formatValue(a)
 }
 
 class TypeScriptKernel implements Kernel {
@@ -128,12 +102,10 @@ class TypeScriptKernel implements Kernel {
         disableESTransforms: true,
       }).code
 
-      const fn = new Function('console', `return ${transpiled};`)
-      const value = await fn(fakeConsole)
+      const fn = new Function('console', '$import', `return ${transpiled};`)
+      const value = await fn(fakeConsole, $import)
 
-      if (value !== undefined) {
-        result.value_repr = formatValue(value)
-      }
+      Object.assign(result, detectRichOutput(value))
     } catch (err) {
       result.error = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
     }
