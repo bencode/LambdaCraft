@@ -686,7 +686,10 @@ footer.site::before {
      heading down (sits "on top of" the article content). */
   position: sticky;
   top: 16px;
-  z-index: 20;
+  /* z-index 100: must sit ABOVE .toc-drawer (z-index 99) so the
+     button stays clickable when the drawer is open — that's the only
+     close affordance in the two-state toggle. */
+  z-index: 100;
   display: block;
   margin-left: auto;
   margin-right: 0;
@@ -718,7 +721,9 @@ footer.site::before {
   right: 0;
   bottom: 0;
   width: 100%;
-  max-width: var(--toc-drawer-width);
+  /* Cap at 85vw on narrow screens so a sliver of article stays visible
+     on the left — keeps "panel, not modal" feel even on phones. */
+  max-width: min(var(--toc-drawer-width), 85vw);
   z-index: 99;
   background: var(--bg);
   border-left: 1px solid var(--rule-mid);

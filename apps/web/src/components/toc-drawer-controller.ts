@@ -13,5 +13,7 @@ export function initTocDrawer(): void {
     drawer.dataset.state = isOpen ? 'closed' : 'open'
     drawer.setAttribute('aria-hidden', isOpen ? 'true' : 'false')
     toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true')
+    if (isOpen) drawer.setAttribute('inert', '')
+    else drawer.removeAttribute('inert')
   })
 }
