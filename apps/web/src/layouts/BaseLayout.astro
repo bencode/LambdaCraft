@@ -71,10 +71,7 @@ const navItems: Array<{ href: string; label: string }> = [
 
     {hasToc && (
       <aside class="toc-drawer" data-state="closed" aria-hidden="true">
-        <div class="toc-drawer-backdrop"></div>
-        <div class="toc-drawer-panel">
-          <slot name="toc" />
-        </div>
+        <slot name="toc" />
       </aside>
     )}
 
