@@ -23,6 +23,7 @@ if (!entry) throw new Error(`entry not found: ${entryId}`)
 const { Content, headings } = await render(entry)
 const hasToc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3).length >= 3
 const title = entry.data.title ?? entry.id
+const fmt = (d: Date) => d.toISOString().slice(0, 10)
 ---
 
 <BaseLayout title={title} description={entry.data.summary} hasToc={hasToc}>
@@ -31,6 +32,12 @@ const title = entry.data.title ?? entry.id
     <p class="breadcrumb">
       <a href="/ir-rag">ir-rag</a>
     </p>
+    <h1>{title}</h1>
+    {entry.data.date && (
+      <p class="chapter-meta">
+        <time datetime={entry.data.date.toISOString()}>{fmt(entry.data.date)}</time>
+      </p>
+    )}
     <Content />
   </article>
 </BaseLayout>
