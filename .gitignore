@@ -1,4 +1,13 @@
+# dependencies
 node_modules/
+
+# build output
 dist/
 .astro/
+
+# env / secrets — wx app uses .env for WeChat APP_ID/APP_SECRET
 .env
+.env.*
+
+# logs (pnpm / npm error logs)
+*.log

@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
+# Usage:
+#   DEPLOY_SERVER=<ssh-alias-or-user@host> DEPLOY_DIR=/abs/remote/path ./scripts/deploy.sh
+# Recommended: define an SSH alias in ~/.ssh/config so the host/IP/user/key never
+# appear on command lines, in shell history, or in this repo.
+
 set -euo pipefail
 
-SERVER="${DEPLOY_SERVER:-root@REDACTED}"
-REMOTE_DIR="${DEPLOY_DIR:-REDACTED}"
+: "${DEPLOY_SERVER:?DEPLOY_SERVER is required (e.g. user@host or an SSH alias from ~/.ssh/config)}"
+: "${DEPLOY_DIR:?DEPLOY_DIR is required (absolute remote path, e.g. /opt/lambdacraft)}"
+
+SERVER="$DEPLOY_SERVER"
+REMOTE_DIR="$DEPLOY_DIR"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-echo "==> Sync source to $SERVER:$REMOTE_DIR"
+echo "==> Sync source to remote:$REMOTE_DIR"
 ssh "$SERVER" "mkdir -p $REMOTE_DIR"
 rsync -az --delete \
   --exclude='.git' \
@@ -27,6 +35,3 @@ echo "==> Build & restart container on server"
 ssh "$SERVER" "cd $REMOTE_DIR && docker compose up -d --build"
 
 echo "==> Done."
-echo "    https://qijun.io"
-echo "    https://www.qijun.io"
-echo "    (host port: http://REDACTED:8081)"
