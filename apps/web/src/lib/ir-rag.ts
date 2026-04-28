@@ -1,8 +1,10 @@
 // ir-rag collection helpers.
 // URL 约定：源文件路径即 URL 片段，`<dir>/index.mdx` 映射到 `/<dir>`。
-//   'index'                            → /ir-rag             (top hub)
-//   'bm25/index'                       → /ir-rag/bm25        (series hub)
-//   'bm25/from-vsm-to-probability'     → /ir-rag/bm25/from-vsm-to-probability
+// Astro 5 的 glob loader 会把 `<dir>/index.mdx` 的 id 直接归一为 `<dir>`，
+// 把 `index.mdx` 归一为 `index`：
+//   id 'index'                          → /ir-rag             (top hub)
+//   id 'bm25'                           → /ir-rag/bm25        (series hub)
+//   id 'bm25/from-vsm-to-probability'   → /ir-rag/bm25/from-vsm-to-probability
 
 import type { CollectionEntry } from 'astro:content'
 
@@ -12,11 +14,9 @@ const MAX_ORDER = Number.MAX_SAFE_INTEGER
 
 export const isTopHub = (entryId: string): boolean => entryId === 'index'
 
-// Series hub = one-level-deep `<name>/index`.
-export const isSeriesHub = (entryId: string): boolean => {
-  const parts = entryId.split('/')
-  return parts.length === 2 && parts[1] === 'index'
-}
+// Series hub = single-segment id that is not the top hub.
+export const isSeriesHub = (entryId: string): boolean =>
+  !entryId.includes('/') && entryId !== 'index'
 
 export const hrefOf = (entry: IrRagEntry): string => {
   if (isTopHub(entry.id)) return '/ir-rag'

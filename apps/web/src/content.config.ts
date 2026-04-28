@@ -40,6 +40,7 @@ const irRag = defineCollection({
       date: z.coerce.date().optional(),
       summary: z.string().optional(),
       order: z.number().int().nonnegative().optional(),
+      draft: z.boolean().default(false),
     })
     .passthrough(),
 })

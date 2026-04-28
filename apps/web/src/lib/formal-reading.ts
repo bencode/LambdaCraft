@@ -59,6 +59,8 @@ export const extractFormalSeries = (entries: IrRagEntry[]): FormalSeries[] => {
       continue
     }
 
+    if (entry.data.draft) continue
+
     const current = grouped.get(seriesId) ?? []
     current.push(entry)
     grouped.set(seriesId, current)
