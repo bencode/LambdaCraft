@@ -1,0 +1,269 @@
+---
+title: 极简 Scheme
+date: 2026-04-29
+summary: 用 5 个 special form 把 Scheme 最小核心推完，作为后续 SICP 笔记的前置。文字克制，每节一个可跑的 cell。看懂七八成就够。
+tags:
+  - scheme
+  - programming-languages
+---
+
+import CodeRunner from '@components/CodeRunner/CodeRunner.astro'
+import KernelBar from '@components/CodeRunner/KernelBar.astro'
+
+export const cell_number = `42`
+
+export const cell_add = `(+ 1 2)`
+
+export const cell_nested = `(+ 1 (* 2 3))`
+
+export const cell_define_value = `(define pi 3.14)
+pi`
+
+export const cell_lambda = `((lambda (x) (* x x)) 5)`
+
+export const cell_define_func_long = `(define square (lambda (x) (* x x)))
+(square 5)`
+
+export const cell_define_func_sugar = `(define (square x) (* x x))
+(square 5)`
+
+export const cell_quote = `(quote (a b c))`
+
+export const cell_quote_short = `'(a b c)`
+
+export const cell_cons_pair = `(cons 1 2)`
+
+export const cell_cons_chain = `(cons 1 (cons 2 (cons 3 '())))`
+
+export const cell_car_cdr = `(define lst '(a b c))
+(list (car lst) (cdr lst))`
+
+export const cell_list = `(list 1 2 3)`
+
+export const cell_if = `(if (> 3 2) 'yes 'no)`
+
+export const cell_cond = `(define (sign n)
+  (cond ((> n 0) 'positive)
+        ((< n 0) 'negative)
+        (else 'zero)))
+
+(list (sign 5) (sign -3) (sign 0))`
+
+export const cell_length = `(define (my-length lst)
+  (if (null? lst)
+      0
+      (+ 1 (my-length (cdr lst)))))
+
+(my-length '(a b c d e))`
+
+export const cell_closure = `(define (adder n)
+  (lambda (x) (+ x n)))
+
+(define add3 (adder 3))
+(add3 10)`
+
+export const cell_map = `(define (my-map f lst)
+  (if (null? lst)
+      '()
+      (cons (f (car lst))
+            (my-map f (cdr lst)))))
+
+(my-map (lambda (x) (* x x)) '(1 2 3 4))`
+
+export const cell_y = `(define Y
+  (lambda (f)
+    ((lambda (x) (f (lambda (v) ((x x) v))))
+     (lambda (x) (f (lambda (v) ((x x) v)))))))
+
+(define fact
+  (Y (lambda (recur)
+       (lambda (n)
+         (if (= n 0)
+             1
+             (* n (recur (- n 1))))))))
+
+(fact 5)`
+
+export const cell_cond_to_if = `(define n -5)
+
+(define via-cond
+  (cond ((> n 0) 'positive)
+        ((< n 0) 'negative)
+        (else 'zero)))
+
+(define via-if
+  (if (> n 0)
+      'positive
+      (if (< n 0)
+          'negative
+          'zero)))
+
+(list via-cond via-if)`
+
+我接下来会写一组关于《SICP》（Structure and Interpretation of Computer Programs）的笔记。它前两章从零自下而上构造一门语言，要跟下去得先有点 Scheme 基础。这篇就把够用的部分讲完。
+
+读者假设有点编程基础，没碰过 Scheme。本文跳过宏（macro）、续延（call/cc）、数值塔这些，后面 SICP 系列再讲。某些段落推得快，看懂七八成就够。
+
+## 数字与求值
+
+<KernelBar lang="scheme" />
+
+Scheme 里一切都是表达式（expression），程序就是把表达式喂给求值器（evaluator）算出值。最简单的是数字本身，求值结果就是它自己。
+
+<CodeRunner lang="scheme" code={cell_number} hint="数字是自求值的" />
+
+字符串和布尔（`#t` / `#f`）也都自求值。本文主要用数字、符号、列表，其他类型暂时不管。
+
+## 加法是函数
+
+`1 + 2` 在大多数语言里是中缀（infix）写法，`+` 是个特殊运算符。Scheme 不这样：`+` 就是普通函数，前缀调用：
+
+<CodeRunner lang="scheme" code={cell_add} hint="+ 是普通函数，前缀写法" />
+
+括号必须有，它就是函数调用语法。
+
+嵌套也直观：
+
+<CodeRunner lang="scheme" code={cell_nested} hint="1 + (2*3) = 7，括号写死了求值顺序" />
+
+没有运算符优先级，没有左右结合规则，括号已经把求值顺序写明白。
+
+Scheme 程序的形态可以正式写下来：
+
+> **S 表达式（S-expression）** 是一个原子（atom，即数字、字符串或符号），或者一个用括号括起来的 S 表达式列表。
+
+求值规则的第一条：**列表 = 函数调用**。第一个位置是函数，后续位置是参数。先把每个参数求值，再把结果传给函数。
+
+整门语言的语法层面，就这一条。
+
+## 抽象与命名
+
+给值起名字用 `define`：
+
+<CodeRunner lang="scheme" code={cell_define_value} hint="把 pi 绑定到 3.14" />
+
+把一段计算抽象成函数用 `lambda`：
+
+<CodeRunner lang="scheme" code={cell_lambda} hint="立即调用一个匿名函数" />
+
+`lambda` 是 special form：跟普通函数调用不同，它的 `(x)` 不会先被求值，那是参数列表的语法。这种特殊形式整门语言里只有几个，下面会逐个出现。
+
+`lambda` + `define` 配合，就是带名字的函数：
+
+<CodeRunner lang="scheme" code={cell_define_func_long} hint="先做出 lambda，再 define 给它名字" />
+
+这个组合常用到 Scheme 给了一个语法糖：
+
+<CodeRunner lang="scheme" code={cell_define_func_sugar} hint="等价写法，少打几个字" />
+
+两种写法等价，第二种不引入新概念，只是简写。
+
+函数和数字一样是一等值（first-class value）：可以传递、返回、放进数据结构。下面会用到。
+
+## 代码即数据
+
+到这里所有表达式都被求值了。如果想拿到一个**未求值**的列表本身呢？用 `quote`：
+
+<CodeRunner lang="scheme" code={cell_quote} hint="字面的列表 (a b c)" />
+
+`'` 是 `quote` 的简写：
+
+<CodeRunner lang="scheme" code={cell_quote_short} hint="'(a b c) 等价于 (quote (a b c))" />
+
+`(a b c)` 在这里不再被解释成函数调用，而是字面列表。
+
+这件事在 Lisp 系语言里很特别：**程序的源代码和它操作的数据用同一种结构表示**。SICP 后半部要让 Scheme 自己解释自己，那个解释器吃进的就是 quote 出来的 S 表达式。
+
+## 数据：cons / car / cdr
+
+列表是怎么造出来的？两个原语：
+
+- `(cons a d)` 造一个对子（pair），左边叫 car，右边叫 cdr
+- `(car p)` 取对子的左边，`(cdr p)` 取右边
+
+<CodeRunner lang="scheme" code={cell_cons_pair} hint="一个对子，输出 (1 . 2)" />
+
+`(1 . 2)` 是对子的字面表示。当 cdr 也是列表（包括空表）时，这个 cons 链就成了普通 list：
+
+<CodeRunner lang="scheme" code={cell_cons_chain} hint="链式 cons，最后一节的 cdr 是空表 '()" />
+
+返回 `(1 2 3)`。**list 不是基本类型，它是 cons 的链**：每个 pair 的 cdr 指向下一个 pair，最后那个 pair 的 cdr 是空表 `'()`。整个语言的列表都建立在 cons 上。
+
+`car` / `cdr` 拆开：
+
+<CodeRunner lang="scheme" code={cell_car_cdr} hint="car 取头，cdr 取尾" />
+
+`list` 是嵌套 cons 的语法糖：
+
+<CodeRunner lang="scheme" code={cell_list} hint="(list 1 2 3) 等价于嵌套 cons" />
+
+## 条件与第一个递归
+
+二选一用 `if`：
+
+<CodeRunner lang="scheme" code={cell_if} hint="(if 条件 真分支 假分支)" />
+
+多分支用 `cond`：
+
+<CodeRunner lang="scheme" code={cell_cond} hint="cond 按顺序匹配，else 兜底" />
+
+有了条件，可以写第一个 list 上的递归。例子：求长度。
+
+<CodeRunner lang="scheme" code={cell_length} hint="base case 是空表，递归 case 把头去掉" />
+
+模式：base case（空表 → 0）+ 递归 case（去掉头，子问题加一）。绝大多数 list 上的递归都套这个骨架，`reverse` / `sum` / `member?` / `flatten` 都是。
+
+## 闭包与高阶
+
+函数返回函数，自由变量被闭包（closure）捕获：
+
+<CodeRunner lang="scheme" code={cell_closure} hint="add3 把 (adder 3) 时的 n=3 闭包住" />
+
+`(adder 3)` 返回的 lambda 里的 `n` 不是它的参数也不在它局部，它来自外层 `(adder n)` 的参数 `n`，被返回的 lambda 闭包住。
+
+有了高阶函数，可以自己实现 `map`：
+
+<CodeRunner lang="scheme" code={cell_map} hint="沿 list 递归，每个元素 f 后再 cons" />
+
+`filter` / `fold` 也是这个套路。标准库都给了，写一遍能确认底下没有魔法：全部都是 cons / car / cdr / if / 递归这几样。
+
+## Y combinator：递归不靠 define
+
+到这里你可能注意到：递归靠 `define` 给函数起名字，函数体里再调用那个名字。换个问法：如果不许用 `define`，只用 `lambda`，匿名函数能调用自己吗？
+
+能。代价是要绕一段"函数自我应用"的小迷宫。这就是 Y combinator：一个不需要 `define` 就能制造递归的函数。
+
+<CodeRunner lang="scheme" code={cell_y} hint="(fact 5) 应该返回 120" />
+
+不展开推导（推导本身值得一篇）。先读出大意就行：
+
+- `Y` 接受一个函数 `f`，`f` 的写法是"假装我已经能递归调用，我会写成什么样"
+- 比如阶乘的 `f` 写成 `(lambda (recur) (lambda (n) ...))`，`recur` 代表"那个能递归调用的我自己"
+- `Y` 的工作就是把这个假装变成真的，给 `f` 喂回一个真能调用自己的版本
+
+不全懂没关系。重点是：**`lambda` 自己就能造出递归，`define` 只是方便**。SICP 后面构造解释器时会再回到这一点：递归不是语言原生必需的特性，可以从更底层的原语推出来。
+
+## 最小核心
+
+回头数到此用过的 special form：
+
+- `lambda`（创建过程）
+- `define`（绑定名字）
+- `quote`（取字面 S 表达式）
+- `if`（二选一）
+- `cond`（多分支）
+
+`cond` 可以拆成嵌套 `if`：
+
+<CodeRunner lang="scheme" code={cell_cond_to_if} hint="两种写法返回相同结果，cond 是 if 的语法糖" />
+
+所以严格说，**最小核心是 4 个 special form**：`lambda` / `define` / `quote` / `if`。
+
+加上一组 primitive procedure：
+
+- 数据：`cons` / `car` / `cdr` / `null?` / `pair?` / `eq?`
+- 数值：`+` / `-` / `*` / `/` / `=` / `<` / `>`
+
+这就是 Scheme 的最小可计算核心。`let` / `let*` / `letrec` / `and` / `or` / `map` / `filter` / `fold` / `case` / `do` / `when` / `unless`：这些常见 form 都能从上面派生。Y combinator 又往下挖一层：连 `define` 在递归这件事上也不是必需的。
+
+下一步进 SICP，第一件事就是用这套核心写一个能解释 Scheme 自己的求值器。再往后所有"语言特性"都不是天上掉下来的，它们都能从这十几个名字推出来。
