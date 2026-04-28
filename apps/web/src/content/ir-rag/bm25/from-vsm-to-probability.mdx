@@ -393,7 +393,15 @@ $b < 1$ 保留了长文档的部分优势。理由：有些长文档覆盖更多
 
 <CodeRunner lang="python" code={cell_demo} hint="三篇文档对 ['bm25', 'parameters'] 查询的打分。d1 短且双命中；d2 堆 bm25 但没 parameters；d3 长但也双命中" />
 
-打完分会看到 `d1` > `d3` > `d2`：代码里的 `idf` 是 idf 项在无 relevance judgment 假设下的退化式，`num / den` 的分子 `tf * (k1 + 1)` 是饱和形式，分母 `tf + k1 * (1 - b + b * dl / avgdl)` 嵌入了长度归一化。堆了三遍 `bm25` 的 `d2` 没赢，因为它缺 `parameters`、同一个词堆叠有饱和、文档稍长也拿到长度惩罚 —— 三项各自在打分里起了作用。
+打完分会看到 `d1` > `d2` > `d3`：代码里的 `idf` 是 idf 项在无 relevance judgment 假设下的退化式，`num / den` 的分子 `tf * (k1 + 1)` 是饱和形式，分母 `tf + k1 * (1 - b + b * dl / avgdl)` 嵌入了长度归一化。堆了三遍 `bm25` 的 `d2` 没赢 `d1`，因为它缺 `parameters`、同一个词堆叠有饱和、文档稍长也拿到长度惩罚 —— 三项各自在打分里起了作用。
+
+## 本章总结
+
+- idf 是直觉先到、理论事后追认：BIM 在 R=r=0 + 无偏先验下退化为经典 idf
+- (N-n) 项来自 RSJ 的 O2 假设："缺失也算证据"，让 stopword 的负权更极端
+- 饱和形式 tf/(k₁+tf) 是 Harter 2-Poisson 模型的一阶近似
+- 长度归一化嵌在饱和分母里、不独立乘：避免对整个 score 线性缩放
+- k₁=1.2 / b=0.75 是 TREC 上的经验值，专业 collection 通常要自调
 
 ## 参考来源
 
