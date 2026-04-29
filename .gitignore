@@ -12,5 +12,5 @@ dist/
 # logs (pnpm / npm error logs)
 *.log
 
-# review sidecars — local review notes next to content, not for commit
-*.review.md
+# review sidecars — local review notes, not for commit
+apps/web/.reviews/

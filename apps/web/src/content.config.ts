@@ -1,14 +1,9 @@
 import { defineCollection, z } from 'astro:content'
 import { glob } from 'astro/loaders'
 
-// Sidecar review files (`<name>.review.md`) live next to source MDX as
-// local-only review artifacts. The negation pattern below excludes them
-// from collection loading so they don't trigger schema validation.
-const NEGATE_REVIEW_SIDECAR = '!**/*.review.md'
-
 const posts = defineCollection({
   loader: glob({
-    pattern: ['**/*.{md,mdx}', NEGATE_REVIEW_SIDECAR],
+    pattern: '**/*.{md,mdx}',
     base: './src/content/posts',
   }),
   schema: z.object({
@@ -22,7 +17,7 @@ const posts = defineCollection({
 
 const reading = defineCollection({
   loader: glob({
-    pattern: ['**/chapters/*.md', NEGATE_REVIEW_SIDECAR],
+    pattern: '**/chapters/*.md',
     base: './src/content/reading',
   }),
   schema: z
@@ -39,7 +34,7 @@ const reading = defineCollection({
 // 发布后不要 rename 源文件；列表排序用 frontmatter `order`（可选）。
 const irRag = defineCollection({
   loader: glob({
-    pattern: ['**/*.mdx', NEGATE_REVIEW_SIDECAR],
+    pattern: '**/*.mdx',
     base: './src/content/ir-rag',
   }),
   schema: z

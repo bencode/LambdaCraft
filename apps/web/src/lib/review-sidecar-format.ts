@@ -4,6 +4,7 @@
 // Format — see plans/python-scheme-clojure-typescript-structured-widget.md.
 
 import { promises as fs } from 'node:fs'
+import path from 'node:path'
 
 export type ReviewPosition = {
   headingPath: string[]
@@ -78,13 +79,23 @@ export async function appendNoteToSidecar(
     if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err
   }
 
+  await fs.mkdir(path.dirname(sidecarPath), { recursive: true })
   const body = existing.length > 0 ? existing : initialSidecarHeader(slug)
   const next = body.endsWith('\n') ? body : `${body}\n`
   await fs.writeFile(sidecarPath, `${next}${serializeNote(note)}`, 'utf8')
 }
 
-export function sidecarPathFor(mdxAbsPath: string): string {
-  return mdxAbsPath.replace(/\.(mdx|md)$/, '.review.md')
+// Sidecar lives outside the content tree (under `<projectRoot>/.reviews/`)
+// so it can never be picked up by content collection globs. The relative
+// layout under `.reviews/` mirrors the source's path inside `src/content/`.
+export function sidecarPathFor(
+  mdxAbsPath: string,
+  contentRoot: string,
+  reviewsRoot: string,
+): string {
+  const rel = path.relative(contentRoot, mdxAbsPath)
+  const renamed = rel.replace(/\.(mdx|md)$/, '.review.md')
+  return path.join(reviewsRoot, renamed)
 }
 
 export function slugFromPath(mdxAbsPath: string): string {

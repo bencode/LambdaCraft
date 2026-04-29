@@ -49,6 +49,8 @@ export function reviewSidecar(): AstroIntegration {
       'astro:server:setup': ({ server }) => {
         // project root = where astro dev was invoked (apps/web)
         const projectRoot = server.config.root
+        const contentRoot = path.join(projectRoot, 'src/content')
+        const reviewsRoot = path.join(projectRoot, '.reviews')
 
         const resolveAbsFile = (file: string): string | null => {
           if (!file) return null
@@ -67,7 +69,7 @@ export function reviewSidecar(): AstroIntegration {
                 sendJson(res, 400, { error: 'invalid or missing file' })
                 return
               }
-              const notes = await readSidecar(sidecarPathFor(abs))
+              const notes = await readSidecar(sidecarPathFor(abs, contentRoot, reviewsRoot))
               sendJson(res, 200, { notes })
               return
             }
@@ -85,7 +87,7 @@ export function reviewSidecar(): AstroIntegration {
                 return
               }
 
-              const sidecar = sidecarPathFor(abs)
+              const sidecar = sidecarPathFor(abs, contentRoot, reviewsRoot)
               const note: ReviewNote = {
                 id: newNoteId(),
                 createdAt: new Date().toISOString(),
