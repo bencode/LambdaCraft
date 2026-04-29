@@ -84,6 +84,26 @@ const navItems: Array<{ href: string; label: string }> = [
       }
     </script>
 
+    <script>
+      // Lazy-load mermaid only when the page actually contains diagrams.
+      const initMermaid = async () => {
+        const blocks = document.querySelectorAll<HTMLElement>('pre.mermaid')
+        if (blocks.length === 0) return
+        const { default: mermaid } = await import('mermaid')
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: 'neutral',
+          securityLevel: 'strict',
+        })
+        await mermaid.run({ nodes: Array.from(blocks) })
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMermaid)
+      } else {
+        initMermaid()
+      }
+    </script>
+
     {isDev && <ReviewLayer />}
   </body>
 </html>

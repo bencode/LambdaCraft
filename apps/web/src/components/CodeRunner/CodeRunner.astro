@@ -23,15 +23,12 @@ const {
   data-initial-code={code.replace(/^\n+|\n+$/g, '')}
 >
   {hint && <div class="cell-hint">{hint}</div>}
-  <div class="cell-toolbar">
-    <button type="button" class="cell-btn cell-btn--run" data-action="run">
-      <span aria-hidden="true">▶</span> 运行
-    </button>
-    <span class="cell-lang">{lang}</span>
-    <span class="cell-status" data-state="idle"></span>
-    <span class="cell-hint-text">Ctrl + Enter</span>
+  <div class="editor-wrap">
+    <div class="editor-container"></div>
+    <div class="cell-footer">
+      <span class="cell-status" data-state="idle">Ctrl + Enter</span>
+    </div>
   </div>
-  <div class="editor-container"></div>
   <div class="output-container hidden"></div>
 </div>
 
@@ -56,74 +53,44 @@ const {
       -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
+  /* Hint = author-supplied caption, sits above the editor as a clear
+     section title. Visual weight comparable to a small heading. */
   .coderunner-cell .cell-hint {
     padding: 8px 12px;
-    background: #f7f9fc;
-    border-bottom: 1px solid #e0e3e8;
-    font-size: 13px;
-    color: #4a5568;
-  }
-
-  .coderunner-cell .cell-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 8px;
-    background: #fafbfc;
-    border-bottom: 1px solid #e0e3e8;
-  }
-
-  .coderunner-cell .cell-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    font-size: 13px;
-    font-family: inherit;
-    border: 1px solid #cbd5e0;
-    border-radius: 4px;
-    background: #ffffff;
     color: #2d3748;
-    cursor: pointer;
-    transition:
-      background 0.15s,
-      border-color 0.15s;
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 1px solid #f0f3f7;
   }
 
-  .coderunner-cell .cell-btn:hover:not(:disabled) {
-    background: #f7fafc;
-    border-color: #a0aec0;
+  .coderunner-cell .editor-wrap {
+    position: relative;
   }
 
-  .coderunner-cell .cell-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .coderunner-cell .cell-btn--run {
-    color: #2b6cb0;
-    border-color: #bee3f8;
-    background: #ebf8ff;
-  }
-
-  .coderunner-cell .cell-btn--run:hover:not(:disabled) {
-    background: #bee3f8;
-  }
-
-  .coderunner-cell .cell-lang {
+  /* Footer overlays editor's bottom-right corner; absolute so it
+     doesn't add a row of whitespace below the code. */
+  .coderunner-cell .cell-footer {
+    position: absolute;
+    bottom: 2px;
+    right: 6px;
+    padding: 0 4px;
     font-size: 11px;
-    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.85);
     border-radius: 3px;
-    background: #edf2f7;
-    color: #4a5568;
-    font-family:
-      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    pointer-events: none;
+    opacity: 0.35;
+    transition: opacity 0.2s ease;
+  }
+
+  .coderunner-cell:hover .cell-footer,
+  .coderunner-cell:focus-within .cell-footer {
+    opacity: 1;
   }
 
   .coderunner-cell .cell-status {
-    flex: 1;
-    font-size: 12px;
-    color: #718096;
+    color: #a0aec0;
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   .coderunner-cell .cell-status[data-state='running'] {
@@ -132,17 +99,6 @@ const {
 
   .coderunner-cell .cell-status[data-state='error'] {
     color: #e53e3e;
-  }
-
-  .coderunner-cell .cell-hint-text {
-    font-size: 11px;
-    color: #a0aec0;
-    font-family:
-      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  }
-
-  .coderunner-cell .editor-container {
-    border-bottom: 1px solid #f0f3f7;
   }
 
   .coderunner-cell .output-container {

@@ -1,10 +1,9 @@
 ---
-title: 极简 Scheme
+title: 极简 Scheme 教程
 date: 2026-04-29
-summary: 用 5 个 special form 把 Scheme 最小核心推完，作为后续 SICP 笔记的前置。文字克制，每节一个可跑的 cell。看懂七八成就够。
+summary: 给会 JavaScript 的读者看的 Scheme 入门：从值、表达式、名字、函数和 list 递归开始，整理出最小求值模型。
 tags:
   - scheme
-  - programming-languages
 ---
 
 import CodeRunner from '@components/CodeRunner/CodeRunner.astro'
@@ -12,12 +11,63 @@ import KernelBar from '@components/CodeRunner/KernelBar.astro'
 
 export const cell_number = `42`
 
+export const cell_string = `"123"`
+
+export const cell_boolean = `#t`
+
 export const cell_add = `(+ 1 2)`
+
+export const cell_add_many = `(+ 1 2 3 4 5)`
 
 export const cell_nested = `(+ 1 (* 2 3))`
 
+export const cell_atom_symbol = `'a`
+
+export const cell_quoted_number_list = `'(1 2 3)`
+
+export const cell_quote_number_list = `(quote (1 2 3))`
+
+export const cell_unquoted_number_list = `(1 2 3)`
+
+export const cell_sum_list = `(define (sum-list xs)
+  (if (null? xs)
+      0
+      (+ (car xs)
+         (sum-list (cdr xs)))))
+
+(sum-list (list 1 2 3))`
+
+export const cell_sum_list_unquoted = `(sum-list (1 2 3))`
+
+export const cell_sum_list_quoted = `(sum-list '(1 2 3))`
+
+export const cell_quoted_add = `'(+ 1 2)`
+
+export const cell_cons_pair = `(define p (cons 1 2))
+p`
+
+export const cell_pair_car = `(car p)`
+
+export const cell_pair_cdr = `(cdr p)`
+
+export const cell_cons_chain = `(cons 1 (cons 2 (cons 3 '())))`
+
+export const cell_list = `(list 1 2 3)`
+
 export const cell_define_value = `(define pi 3.14)
 pi`
+
+export const cell_define_expr = `(define sum (+ 1 2))
+sum`
+
+export const cell_define_if = `(define label
+  (if (> 3 2)
+      "yes"
+      "no"))
+
+label`
+
+export const cell_lambda_value = `(lambda (x) (* x x))`
 
 export const cell_lambda = `((lambda (x) (* x x)) 5)`
 
@@ -27,243 +77,541 @@ export const cell_define_func_long = `(define square (lambda (x) (* x x)))
 export const cell_define_func_sugar = `(define (square x) (* x x))
 (square 5)`
 
-export const cell_quote = `(quote (a b c))`
+export const cell_define_threshold = `(define (free-shipping-threshold)
+  99)
 
-export const cell_quote_short = `'(a b c)`
+(free-shipping-threshold)`
 
-export const cell_cons_pair = `(cons 1 2)`
+export const cell_define_subtotal = `(define (subtotal price quantity)
+  (* price quantity))
 
-export const cell_cons_chain = `(cons 1 (cons 2 (cons 3 '())))`
+(subtotal 19.9 3)`
 
-export const cell_car_cdr = `(define lst '(a b c))
-(list (car lst) (cdr lst))`
+export const cell_define_passed = `(define (passed? score)
+  (>= score 60))
 
-export const cell_list = `(list 1 2 3)`
+(passed? 72)`
 
-export const cell_if = `(if (> 3 2) 'yes 'no)`
+export const cell_define_grade = `(define (grade score)
+  (cond ((>= score 90) "A")
+        ((>= score 80) "B")
+        ((>= score 60) "C")
+        (else "D")))
 
-export const cell_cond = `(define (sign n)
-  (cond ((> n 0) 'positive)
-        ((< n 0) 'negative)
-        (else 'zero)))
+(grade 86)`
 
-(list (sign 5) (sign -3) (sign 0))`
+export const cell_define_shipping_fee = `(define (shipping-fee amount)
+  (cond ((>= amount 99) 0)
+        ((>= amount 49) 6)
+        (else 12)))
 
-export const cell_length = `(define (my-length lst)
-  (if (null? lst)
+(shipping-fee 80)`
+
+export const cell_define_cart_total = `(define (cart-total price quantity shipping)
+  (+ (* price quantity) shipping))
+
+(cart-total 19.9 3 6)`
+
+export const cell_define_sum_to = `(define (sum-to n)
+  (if (= n 0)
       0
-      (+ 1 (my-length (cdr lst)))))
+      (+ n (sum-to (- n 1)))))
 
-(my-length '(a b c d e))`
+(sum-to 100)`
 
-export const cell_closure = `(define (adder n)
-  (lambda (x) (+ x n)))
+export const cell_loop_sum_list = `(define (sum-list xs)
+  (if (null? xs)
+      0
+      (+ (car xs)
+         (sum-list (cdr xs)))))
 
-(define add3 (adder 3))
-(add3 10)`
+(sum-list '(1 2 3 4))`
 
-export const cell_map = `(define (my-map f lst)
-  (if (null? lst)
-      '()
-      (cons (f (car lst))
-            (my-map f (cdr lst)))))
+export const cell_loop_length_list = `(define (length-list xs)
+  (if (null? xs)
+      0
+      (+ 1 (length-list (cdr xs)))))
 
-(my-map (lambda (x) (* x x)) '(1 2 3 4))`
+(length-list '(a b c))`
 
-export const cell_y = `(define Y
-  (lambda (f)
-    ((lambda (x) (f (lambda (v) ((x x) v))))
-     (lambda (x) (f (lambda (v) ((x x) v)))))))
+export const cell_loop_contains = `(define (contains? x xs)
+  (cond ((null? xs) #f)
+        ((equal? x (car xs)) #t)
+        (else (contains? x (cdr xs)))))
 
-(define fact
-  (Y (lambda (recur)
-       (lambda (n)
-         (if (= n 0)
-             1
-             (* n (recur (- n 1))))))))
+(contains? 'b '(a b c))`
 
-(fact 5)`
+export const cell_loop_positive_numbers = `(define (positive-numbers xs)
+  (cond ((null? xs) '())
+        ((> (car xs) 0)
+         (cons (car xs)
+               (positive-numbers (cdr xs))))
+        (else
+         (positive-numbers (cdr xs)))))
 
-export const cell_cond_to_if = `(define n -5)
+(positive-numbers '(-2 3 0 5 -1))`
 
-(define via-cond
-  (cond ((> n 0) 'positive)
-        ((< n 0) 'negative)
-        (else 'zero)))
+export const cell_if = `(if (> 3 2) "yes" "no")`
 
-(define via-if
-  (if (> n 0)
-      'positive
-      (if (< n 0)
-          'negative
-          'zero)))
+export const cell_cond = `(cond ((= 2 1) "one")
+      ((= 2 2) "two")
+      (else "other"))`
 
-(list via-cond via-if)`
+export const cell_core_self_evaluating = `(list 42 "123" #t)`
 
-我接下来会写一组关于《SICP》（Structure and Interpretation of Computer Programs）的笔记。它前两章从零自下而上构造一门语言，要跟下去得先有点 Scheme 基础。这篇就把够用的部分讲完。
+export const cell_core_quote_data = `(list 'a '(1 2 3) '(+ 1 2))`
 
-读者假设有点编程基础，没碰过 Scheme。本文跳过宏（macro）、续延（call/cc）、数值塔这些，后面 SICP 系列再讲。某些段落推得快，看懂七八成就够。
+export const cell_core_function_call = `(list (+ 1 2)
+      ((lambda (x) (* x x)) 5))`
 
-## 数字与求值
+export const cell_core_if = `(if (> 3 2)
+    "yes"
+    "no")`
+
+export const cell_core_lambda_define = `(define square
+  (lambda (x) (* x x)))
+
+(square 5)`
+
+> “编程语言现在的发展，不过刚刚赶上 1958 年 Lisp 语言的水平。Lisp 在诞生之初，就已经包含了九个全新的思想：条件表达式、函数作为一等值、递归、动态类型、垃圾回收、表达式导向、symbol，以及代码的树形表示。读取期、编译期和运行期之间，并没有真正严格的界线；你可以在读取代码时编译或运行它，在编译代码时读取或运行它，也可以在运行时读取或编译它。”
+>
+> —— Paul Graham，《黑客与画家》
+
+## 字面量（Literal Values）
 
 <KernelBar lang="scheme" />
 
-Scheme 里一切都是表达式（expression），程序就是把表达式喂给求值器（evaluator）算出值。最简单的是数字本身，求值结果就是它自己。
+JavaScript 里，`42` 是一个数字值。Scheme 里也一样：
 
-<CodeRunner lang="scheme" code={cell_number} hint="数字是自求值的" />
+<CodeRunner lang="scheme" code={cell_number} />
 
-字符串和布尔（`#t` / `#f`）也都自求值。本文主要用数字、符号、列表，其他类型暂时不管。
+字符串的写法也一样。JavaScript 写 `"123"`，Scheme 也写 `"123"`。
 
-## 加法是函数
+<CodeRunner lang="scheme" code={cell_string} />
 
-`1 + 2` 在大多数语言里是中缀（infix）写法，`+` 是个特殊运算符。Scheme 不这样：`+` 就是普通函数，前缀调用：
+布尔值写法不同：JavaScript 是 `true` / `false`，Scheme 是 `#t` / `#f`。
 
-<CodeRunner lang="scheme" code={cell_add} hint="+ 是普通函数，前缀写法" />
+<CodeRunner lang="scheme" code={cell_boolean} />
 
-括号必须有，它就是函数调用语法。
+## 表达式（Expressions）
 
-嵌套也直观：
+JavaScript 写 `1 + 2`。`+` 放在两个数字中间，这叫**中缀表达式**。
 
-<CodeRunner lang="scheme" code={cell_nested} hint="1 + (2*3) = 7，括号写死了求值顺序" />
+Scheme 写：
 
-没有运算符优先级，没有左右结合规则，括号已经把求值顺序写明白。
+<CodeRunner lang="scheme" code={cell_add} />
 
-Scheme 程序的形态可以正式写下来：
+Scheme 把操作符放在最前面：`(+ 1 2)`。这叫**前缀表达式**。初看时，你可能会觉得这种写法有点怪，不太习惯。这种不习惯很大程度上只是因为我们从小学开始接触的算式基本都是中缀写法。
 
-> **S 表达式（S-expression）** 是一个原子（atom，即数字、字符串或符号），或者一个用括号括起来的 S 表达式列表。
+如果把 `+` 暂时换成一个普通函数名，这件事就会自然很多。JavaScript 里你会写：
 
-求值规则的第一条：**列表 = 函数调用**。第一个位置是函数，后续位置是参数。先把每个参数求值，再把结果传给函数。
+```js
+add(1, 2)
+```
 
-整门语言的语法层面，就这一条。
+Scheme 里对应的是：
 
-## 抽象与命名
+```scheme
+(add 1 2)
+```
 
-给值起名字用 `define`：
+这其实就是函数调用。Scheme 只是把函数名放在最前面，而且这个函数名可以直接是操作符，比如 `+`、`-`、`*`、`/`。所以 `(+ 1 2)`、`(/ 3 4)` 本质上都只是函数调用。
 
-<CodeRunner lang="scheme" code={cell_define_value} hint="把 pi 绑定到 3.14" />
+这样一来，Scheme 的写法会更一致：普通函数和四则运算在语法上是同一种结构。
 
-把一段计算抽象成函数用 `lambda`：
+这还带来一个额外的好处：操作符天然可以接收多个参数。
 
-<CodeRunner lang="scheme" code={cell_lambda} hint="立即调用一个匿名函数" />
+<CodeRunner lang="scheme" code={cell_add_many} />
 
-`lambda` 是 special form：跟普通函数调用不同，它的 `(x)` 不会先被求值，那是参数列表的语法。这种特殊形式整门语言里只有几个，下面会逐个出现。
+计算可以嵌套。JavaScript 写 `1 + 2 * 3`，Scheme 写：
 
-`lambda` + `define` 配合，就是带名字的函数：
+<CodeRunner lang="scheme" code={cell_nested} />
 
-<CodeRunner lang="scheme" code={cell_define_func_long} hint="先做出 lambda，再 define 给它名字" />
+在 Scheme 里，括号直接写出了先后关系：先做 `(* 2 3)`，再把结果交给 `+`。所以你不需要记 `*` 比 `+` 优先，代码已经把结构写出来了。
 
-这个组合常用到 Scheme 给了一个语法糖：
+先得到一条读法：
 
-<CodeRunner lang="scheme" code={cell_define_func_sugar} hint="等价写法，少打几个字" />
+```scheme
+(f a b c)
+```
 
-两种写法等价，第二种不引入新概念，只是简写。
+大致对应 JavaScript 里的：
 
-函数和数字一样是一等值（first-class value）：可以传递、返回、放进数据结构。下面会用到。
+```js
+f(a, b, c)
+```
 
-## 代码即数据
+括号里的第一个位置是函数，后面的位置是参数。
 
-到这里所有表达式都被求值了。如果想拿到一个**未求值**的列表本身呢？用 `quote`：
+## 条件分支
 
-<CodeRunner lang="scheme" code={cell_quote} hint="字面的列表 (a b c)" />
+JavaScript 用 `if (...) { ... } else { ... }` 做二选一。Scheme 的 `if` 也做二选一：
 
-`'` 是 `quote` 的简写：
+<CodeRunner lang="scheme" code={cell_if} />
 
-<CodeRunner lang="scheme" code={cell_quote_short} hint="'(a b c) 等价于 (quote (a b c))" />
+按位置读：
 
-`(a b c)` 在这里不再被解释成函数调用，而是字面列表。
+- 第一个位置是 `if`。
+- 第二个位置是条件：`(> 3 2)`。
+- 第三个位置是条件成立时的结果：`"yes"`。
+- 第四个位置是条件不成立时的结果：`"no"`。
 
-这件事在 Lisp 系语言里很特别：**程序的源代码和它操作的数据用同一种结构表示**。SICP 后半部要让 Scheme 自己解释自己，那个解释器吃进的就是 quote 出来的 S 表达式。
+JavaScript 里讲多分支，很多人会先想到 `switch / case`：
 
-## 数据：cons / car / cdr
+```js
+switch (n) {
+  case 1:
+    "one"
+    break
+  case 2:
+    "two"
+    break
+  default:
+    "other"
+}
+```
 
-列表是怎么造出来的？两个原语：
+Scheme 常用 `cond`。它看起来和 `switch / case` 有点像，但每一行放的不是一个固定分支标签，而是一个条件表达式：
 
-- `(cons a d)` 造一个对子（pair），左边叫 car，右边叫 cdr
-- `(car p)` 取对子的左边，`(cdr p)` 取右边
+<CodeRunner lang="scheme" code={cell_cond} />
 
-<CodeRunner lang="scheme" code={cell_cons_pair} hint="一个对子，输出 (1 . 2)" />
+同样的逻辑，如果用 JavaScript 的表达式风格来写，大概是：
 
-`(1 . 2)` 是对子的字面表示。当 cdr 也是列表（包括空表）时，这个 cons 链就成了普通 list：
+```js
+const result =
+  2 === 1 ? "one" :
+  2 === 2 ? "two" :
+  "other"
+```
 
-<CodeRunner lang="scheme" code={cell_cons_chain} hint="链式 cons，最后一节的 cdr 是空表 '()" />
+## 命名
 
-返回 `(1 2 3)`。**list 不是基本类型，它是 cons 的链**：每个 pair 的 cdr 指向下一个 pair，最后那个 pair 的 cdr 是空表 `'()`。整个语言的列表都建立在 cons 上。
+JavaScript 里，`const pi = 3.14` 是定义一个变量。Scheme 里对应的是 `define`：
 
-`car` / `cdr` 拆开：
+<CodeRunner lang="scheme" code={cell_define_value} />
 
-<CodeRunner lang="scheme" code={cell_car_cdr} hint="car 取头，cdr 取尾" />
+定义之后，就可以在后面的代码里引用它。
 
-`list` 是嵌套 cons 的语法糖：
+`define` 右边也可以是某个表达式：
 
-<CodeRunner lang="scheme" code={cell_list} hint="(list 1 2 3) 等价于嵌套 cons" />
+<CodeRunner lang="scheme" code={cell_define_expr} />
 
-## 条件与第一个递归
+也就是说，Scheme 会先把 `(+ 1 2)` 算出来，再把结果绑定到 `sum`。
 
-二选一用 `if`：
+前面刚见过的条件分支结果，也一样可以先算出来，再绑定到一个名字上：
 
-<CodeRunner lang="scheme" code={cell_if} hint="(if 条件 真分支 假分支)" />
+<CodeRunner lang="scheme" code={cell_define_if} />
 
-多分支用 `cond`：
+## 函数
 
-<CodeRunner lang="scheme" code={cell_cond} hint="cond 按顺序匹配，else 兜底" />
+前面已经见过函数调用：`(add 1 2)`、`(+ 1 2)`。如果要计算平方，我们希望能这样调用：
 
-有了条件，可以写第一个 list 上的递归。例子：求长度。
+```scheme
+(square 5)
+```
 
-<CodeRunner lang="scheme" code={cell_length} hint="base case 是空表，递归 case 把头去掉" />
+为了让这个调用成立，需要先定义 `square`。Scheme 最常用的函数定义写法是：
 
-模式：base case（空表 → 0）+ 递归 case（去掉头，子问题加一）。绝大多数 list 上的递归都套这个骨架，`reverse` / `sum` / `member?` / `flatten` 都是。
+<CodeRunner lang="scheme" code={cell_define_func_sugar} />
 
-## 闭包与高阶
+这段代码可以按位置读：
 
-函数返回函数，自由变量被闭包（closure）捕获：
+- `square` 是函数名。
+- `x` 是参数。
+- `(* x x)` 是函数体，也就是调用时真正要计算的表达式。
 
-<CodeRunner lang="scheme" code={cell_closure} hint="add3 把 (adder 3) 时的 n=3 闭包住" />
+注意 `square` 和参数 `x` 外面还有一层括号：`(square x)`。这一组写在 `define` 后面，表示要定义的函数名和参数列表。
 
-`(adder 3)` 返回的 lambda 里的 `n` 不是它的参数也不在它局部，它来自外层 `(adder n)` 的参数 `n`，被返回的 lambda 闭包住。
+如果写成 JavaScript 的变量绑定形式，大致对应：
 
-有了高阶函数，可以自己实现 `map`：
+```js
+const square = (x) => x * x
 
-<CodeRunner lang="scheme" code={cell_map} hint="沿 list 递归，每个元素 f 后再 cons" />
+square(5)
+```
 
-`filter` / `fold` 也是这个套路。标准库都给了，写一遍能确认底下没有魔法：全部都是 cons / car / cdr / if / 递归这几样。
+函数不要求一定有几个参数。可以没有参数，也可以有一个、两个，或者更多参数。利用前面已经学过的函数调用、命名和条件分支，我们已经可以写几个接近真实代码的小函数了。
 
-## Y combinator：递归不靠 define
+比如读取一个固定配置：
 
-到这里你可能注意到：递归靠 `define` 给函数起名字，函数体里再调用那个名字。换个问法：如果不许用 `define`，只用 `lambda`，匿名函数能调用自己吗？
+<CodeRunner lang="scheme" code={cell_define_threshold} />
 
-能。代价是要绕一段"函数自我应用"的小迷宫。这就是 Y combinator：一个不需要 `define` 就能制造递归的函数。
+计算订单小计：
 
-<CodeRunner lang="scheme" code={cell_y} hint="(fact 5) 应该返回 120" />
+<CodeRunner lang="scheme" code={cell_define_subtotal} />
 
-不展开推导（推导本身值得一篇）。先读出大意就行：
+判断分数是否及格：
 
-- `Y` 接受一个函数 `f`，`f` 的写法是"假装我已经能递归调用，我会写成什么样"
-- 比如阶乘的 `f` 写成 `(lambda (recur) (lambda (n) ...))`，`recur` 代表"那个能递归调用的我自己"
-- `Y` 的工作就是把这个假装变成真的，给 `f` 喂回一个真能调用自己的版本
+<CodeRunner lang="scheme" code={cell_define_passed} />
 
-不全懂没关系。重点是：**`lambda` 自己就能造出递归，`define` 只是方便**。SICP 后面构造解释器时会再回到这一点：递归不是语言原生必需的特性，可以从更底层的原语推出来。
+给分数分档：
 
-## 最小核心
+<CodeRunner lang="scheme" code={cell_define_grade} />
 
-回头数到此用过的 special form：
+根据订单金额计算运费：
 
-- `lambda`（创建过程）
-- `define`（绑定名字）
-- `quote`（取字面 S 表达式）
-- `if`（二选一）
-- `cond`（多分支）
+<CodeRunner lang="scheme" code={cell_define_shipping_fee} />
 
-`cond` 可以拆成嵌套 `if`：
+把商品金额和运费合起来：
 
-<CodeRunner lang="scheme" code={cell_cond_to_if} hint="两种写法返回相同结果，cond 是 if 的语法糖" />
+<CodeRunner lang="scheme" code={cell_define_cart_total} />
 
-所以严格说，**最小核心是 4 个 special form**：`lambda` / `define` / `quote` / `if`。
+还可以让函数调用自己。下面这个函数计算 `1 + 2 + ... + n`：
 
-加上一组 primitive procedure：
+<CodeRunner lang="scheme" code={cell_define_sum_to} />
 
-- 数据：`cons` / `car` / `cdr` / `null?` / `pair?` / `eq?`
-- 数值：`+` / `-` / `*` / `/` / `=` / `<` / `>`
+注意到这里用了递归：`sum-to` 在函数体里调用了自己。
 
-这就是 Scheme 的最小可计算核心。`let` / `let*` / `letrec` / `and` / `or` / `map` / `filter` / `fold` / `case` / `do` / `when` / `unless`：这些常见 form 都能从上面派生。Y combinator 又往下挖一层：连 `define` 在递归这件事上也不是必需的。
+## lambda 初步
 
-下一步进 SICP，第一件事就是用这套核心写一个能解释 Scheme 自己的求值器。再往后所有"语言特性"都不是天上掉下来的，它们都能从这十几个名字推出来。
+JavaScript 里，可以只写一个没有名字的函数值：
+
+```js
+(x) => x * x
+```
+
+Scheme 里对应的写法是 `lambda`，它的求值结果就是一个函数值：
+
+<CodeRunner lang="scheme" code={cell_lambda_value} />
+
+也可以把这个函数值绑定到变量 `square`：
+
+```js
+const square = (x) => x * x
+
+square(5)
+```
+
+对应到 Scheme，就是先用 `lambda` 做出函数值，再用 `define` 把它绑定到 `square`：
+
+<CodeRunner lang="scheme" code={cell_define_func_long} />
+
+这就是上一节简写形式背后的完整写法：
+
+```scheme
+(define (square x) (* x x))
+```
+
+这个函数值也可以不绑定名字，写完以后立刻调用。JavaScript 可以这样写：
+
+```js
+((x) => x * x)(5)
+```
+
+Scheme 里的 `lambda` 也可以这样直接调用。把整个 `lambda` 表达式放在函数位置，后面的 `5` 就是传给它的参数：
+
+<CodeRunner lang="scheme" code={cell_lambda} />
+
+这里最外层的括号表示一次函数调用。第一个位置不是名字，而是整个 `(lambda (x) (* x x))`；它先产生一个函数。后面的 `5` 是参数。也就是说，这段代码等价于“把 `x => x * x` 这个函数立刻应用到 `5` 上”。
+
+最后把两种写法放在一起看：
+
+```scheme
+(define (square x) (* x x))
+
+(define square
+  (lambda (x) (* x x)))
+```
+
+第一种是常用的函数定义语法。第二种更接近底层含义：先构造一个函数值，再把名字 `square` 绑定到这个函数值上。两者表达的是同一件事；前者可以看作后者的语法糖。
+
+## Atom（原子）
+
+回顾一下前面已经见过的几类值：
+
+```scheme
+42
+"123"
+#t
+#f
+```
+
+这些都可以单独出现，在 S 表达式的结构里不能再拆成更小的表达式，所以叫 Atom（原子）。这里说的“不可分割”是语法结构上的不可分割。
+
+还有一种常见的 Atom 是 symbol。JavaScript 里可以写：
+
+```js
+Symbol('a')
+```
+
+Scheme 里常写成：
+
+<CodeRunner lang="scheme" code={cell_atom_symbol} />
+
+前面的 `'` 是单引号，表示引用。后面会专门解释引用。
+
+## pair
+
+Atom 是最小元素。再往上走一步，最小的组合结构是 **pair**。
+
+`cons` 构造一个 pair。pair 有两个位置，左边叫 `car`，右边叫 `cdr`。这里先把这个 pair 命名为 `p`：
+
+<CodeRunner lang="scheme" code={cell_cons_pair} />
+
+`(1 . 2)` 表示：左边是 `1`，右边是 `2`。
+
+对 `p` 使用 `car`，得到左边的值：
+
+<CodeRunner lang="scheme" code={cell_pair_car} />
+
+使用 `cdr`，得到右边的值：
+
+<CodeRunner lang="scheme" code={cell_pair_cdr} />
+
+```mermaid
+flowchart LR
+  pair["pair"]
+  car["car: 1"]
+  cdr["cdr: 2"]
+
+  pair --> car
+  pair --> cdr
+```
+
+如果 pair 的 `cdr` 继续接另一个 pair，并且最后以空列表 `'()` 结束，就能串成一个普通 list。
+
+<CodeRunner lang="scheme" code={cell_cons_chain} />
+
+这个结构更常用的写法是：
+
+<CodeRunner lang="scheme" code={cell_list} />
+
+```mermaid
+flowchart LR
+  p1["pair"]
+  p2["pair"]
+  p3["pair"]
+  one["car: 1"]
+  two["car: 2"]
+  three["car: 3"]
+  empty["cdr: '()"]
+
+  p1 --> one
+  p1 -->|cdr| p2
+  p2 --> two
+  p2 -->|cdr| p3
+  p3 --> three
+  p3 --> empty
+```
+
+这张图要看的重点是：普通 list 不是一整块数组，而是一串 pair。每个 pair 的 `car` 放当前元素，`cdr` 指向剩下的 list。
+
+围绕 pair 和 list，最常用的是三个操作：
+
+- `cons`：把一个值接到一个 list 前面。
+- `car`：取第一个值。
+- `cdr`：取剩下的 list。
+
+## 列表（List）
+
+上一小节已经看到，普通 list 可以由一串 pair 构造出来。实际写代码时，更常用的是 `list` 函数：
+
+<CodeRunner lang="scheme" code={cell_list} />
+
+有了列表，就可以把它交给函数处理。下面定义一个小函数，把列表里的数字加起来：
+
+<CodeRunner lang="scheme" code={cell_sum_list} />
+
+还记得前面的函数调用吗？
+
+<CodeRunner lang="scheme" code={cell_add} />
+
+它是一对括号包起来的列表形状。第一个位置是 `+`，而 `+` 是函数，所以可以正常求值。
+
+加上引用以后，同样的结构就不再求值，而是一段列表数据：
+
+<CodeRunner lang="scheme" code={cell_quoted_add} />
+
+普通 list 的表面写法也像一组元素放在括号里：
+
+<CodeRunner lang="scheme" code={cell_unquoted_number_list} />
+
+可以先运行一下这段代码。它会报错，因为 Scheme 会把括号里的第一个位置当作函数来调用；这里的第一个位置是 `1`，而 `1` 不是函数。
+
+所以，把列表作为参数传给函数时，不能直接写成这样：
+
+<CodeRunner lang="scheme" code={cell_sum_list_unquoted} />
+
+这里的 `(1 2 3)` 仍然会被当作函数调用。要表达列表数据本身，需要使用引用：
+
+<CodeRunner lang="scheme" code={cell_sum_list_quoted} />
+
+前面的 `'` 是 `quote` 的简写，意思是先把后面的东西当作数据。后面会专门解释引用。
+
+完整写法是：
+
+<CodeRunner lang="scheme" code={cell_quote_number_list} />
+
+## 递归遍历
+
+JavaScript 里常用 `for` 或 `while` 遍历数组。Scheme 里更常见的方式，是让函数沿着 list 的结构递归：空 list 是结束条件，非空 list 就处理 `(car xs)`，再递归处理 `(cdr xs)`。
+
+Scheme 的核心写法不依赖 `for` / `while` 这类循环语句，很多循环都写成递归。这里有一个重要保证：Scheme 规范要求实现支持 proper tail recursion。也就是说，当递归调用处在尾位置时，实现必须像循环一样执行它，不让调用栈随着迭代次数增长。下面先写最直观的递归版本；尾递归写法可以后面再单独看。
+
+### 求和
+
+<CodeRunner lang="scheme" code={cell_loop_sum_list} />
+
+### 计算长度
+
+每遇到一个元素，就把剩下的长度加 `1`：
+
+<CodeRunner lang="scheme" code={cell_loop_length_list} />
+
+### 查找元素
+
+<CodeRunner lang="scheme" code={cell_loop_contains} />
+
+### 筛选正数
+
+还可以在递归返回时重新构造 list。下面这个函数只保留正数：
+
+<CodeRunner lang="scheme" code={cell_loop_positive_numbers} />
+
+这几个例子结构相同：先判断 list 是否为空；如果不是空 list，就用 `car` 处理当前元素，用 `cdr` 进入剩下的 list。
+
+## 最小内核
+
+到这里，Scheme 的最小内核已经出现了。它可以用三组规则概括。
+
+### 1. 语法结构
+
+- Scheme 的代码都可以按 **S 表达式** 看。
+- S 表达式要么是 atom，要么是 pair 结构。
+- atom 是最小单位；pair 是组合单位。
+- list 是最常见的 pair 结构，由 pair 链形成。
+
+### 2. atom 的求值
+
+- 数字、字符串、布尔值会得到自己。
+- symbol 通常作为名字，到环境里查找它绑定的值。
+- `quote` 会把后面的 symbol 或 list 当作数据。
+
+<CodeRunner lang="scheme" code={cell_core_self_evaluating} />
+
+<CodeRunner lang="scheme" code={cell_core_quote_data} />
+
+### 3. list 作为代码时的求值
+
+- 求值一个 list 时，先看第一个位置。
+- 如果第一个位置是 special form，就按它自己的规则求值。
+- 如果不是 special form，就按函数调用处理：求出函数，求出参数，再应用函数。
+
+本文用到的核心特殊形式 / 定义形式：
+
+- `quote`：把后面的东西当作数据。
+- `if`：只求值被选中的分支。
+- `lambda`：构造函数值。
+- `define`：把名字绑定到值。
+
+函数调用：
+
+<CodeRunner lang="scheme" code={cell_core_function_call} />
+
+special form：
+
+<CodeRunner lang="scheme" code={cell_core_if} />
+
+<CodeRunner lang="scheme" code={cell_core_lambda_define} />
+
+前面用到的 `cons`、`car`、`cdr`、`null?`、`+`、`-`、`*`、`/`、`=`、`<`、`>` 都不是新的语法规则，只是环境里已经绑定好的函数。`cond`、`and`、`or`、`let`、`case`、`do` 等常见形式，可以留到后面再看：它们都可以围绕这套更小的规则来理解。

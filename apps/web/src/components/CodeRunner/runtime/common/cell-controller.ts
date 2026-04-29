@@ -9,17 +9,17 @@ type CellState = 'idle' | 'running' | 'error'
 type CellEls = {
   editorContainer: HTMLElement
   outputContainer: HTMLElement
-  runBtn: HTMLButtonElement
   statusEl: HTMLElement
 }
+
+const IDLE_HINT = 'Ctrl + Enter'
 
 function queryCellEls(root: HTMLElement): CellEls | null {
   const editorContainer = root.querySelector<HTMLElement>('.editor-container')
   const outputContainer = root.querySelector<HTMLElement>('.output-container')
-  const runBtn = root.querySelector<HTMLButtonElement>('[data-action="run"]')
   const statusEl = root.querySelector<HTMLElement>('.cell-status')
-  if (!editorContainer || !outputContainer || !runBtn || !statusEl) return null
-  return { editorContainer, outputContainer, runBtn, statusEl }
+  if (!editorContainer || !outputContainer || !statusEl) return null
+  return { editorContainer, outputContainer, statusEl }
 }
 
 function setCellState(
@@ -33,7 +33,7 @@ function setCellState(
   } else if (state === 'error') {
     statusEl.textContent = message ?? '出错'
   } else {
-    statusEl.textContent = ''
+    statusEl.textContent = IDLE_HINT
   }
 }
 
@@ -62,13 +62,12 @@ export function initCell(root: HTMLElement): void {
     },
   )
 
+  setCellState(els.statusEl, 'idle')
+
   async function runCell(): Promise<void> {
     const code = editor.getValue()
     if (!code.trim()) return
 
-    els!.runBtn.disabled = true
-    const previousLabel = els!.runBtn.textContent
-    els!.runBtn.textContent = '运行中...'
     setCellState(els!.statusEl, 'running')
     clearOutput(els!.outputContainer)
 
@@ -79,13 +78,8 @@ export function initCell(root: HTMLElement): void {
     } catch (err) {
       renderStatus(els!.outputContainer, `运行失败: ${String(err)}`, 'error')
       setCellState(els!.statusEl, 'error')
-    } finally {
-      els!.runBtn.disabled = false
-      els!.runBtn.textContent = previousLabel
     }
   }
-
-  els.runBtn.addEventListener('click', () => void runCell())
 }
 
 export function initAllCells(): void {

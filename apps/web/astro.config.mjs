@@ -12,6 +12,29 @@ const remarkStripFirstH1 = () => (tree) => {
   }
 }
 
+// Convert ```mermaid fenced blocks into raw <pre class="mermaid">…</pre>
+// so Shiki skips them and the client-side mermaid script can render
+// them in place. Runs before Shiki since it's a remark (mdast) plugin.
+const remarkMermaid = () => (tree) => {
+  const escape = (s) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const walk = (node) => {
+    if (!node.children) return
+    for (let i = 0; i < node.children.length; i += 1) {
+      const child = node.children[i]
+      if (child.type === 'code' && child.lang === 'mermaid') {
+        node.children[i] = {
+          type: 'html',
+          value: `<pre class="mermaid">${escape(child.value)}</pre>`,
+        }
+      } else {
+        walk(child)
+      }
+    }
+  }
+  walk(tree)
+}
+
 const shikiConfig = {
   theme: 'github-light-default',
   wrap: false,
@@ -27,13 +50,13 @@ export default defineConfig({
   site: 'https://lambdacraft.dev',
   integrations: [
     mdx({
-      remarkPlugins: [remarkStripFirstH1, remarkMath],
+      remarkPlugins: [remarkStripFirstH1, remarkMermaid, remarkMath],
       rehypePlugins: [rehypeKatex, externalLinksConfig],
     }),
     reviewSidecar(),
   ],
   markdown: {
-    remarkPlugins: [remarkStripFirstH1, remarkMath],
+    remarkPlugins: [remarkStripFirstH1, remarkMermaid, remarkMath],
     rehypePlugins: [rehypeKatex, externalLinksConfig],
     shikiConfig,
   },
