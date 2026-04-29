@@ -6,7 +6,7 @@ import { isTopHub } from '../../lib/ir-rag'
 
 // URL 约定：entry.id 即 URL 片段，`<dir>/index` 映射到 `<dir>` (tail stripped)。
 export async function getStaticPaths() {
-  const all = await getCollection('ir-rag')
+  const all = await getCollection('ir-rag', ({ data }) => !data.draft)
   return all
     .filter((entry) => !isTopHub(entry.id))
     .map((entry) => ({
@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 }
 
 const { entryId } = Astro.props
-const all = await getCollection('ir-rag')
+const all = await getCollection('ir-rag', ({ data }) => !data.draft)
 const entry = all.find((item) => item.id === entryId)
 if (!entry) throw new Error(`entry not found: ${entryId}`)
 
