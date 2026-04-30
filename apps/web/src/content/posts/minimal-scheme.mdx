@@ -340,6 +340,8 @@ square(5)
 
 <CodeRunner lang="scheme" code={cell_define_subtotal} />
 
+如果这里看到类似 `59.699999999999996` 的结果，这是当前浏览器运行时继承 JavaScript number 表示后的浮点误差，不是本文要讲的 Scheme 概念。更完整的 Scheme 数值模型会区分 exact number 和 inexact number。
+
 判断分数是否及格：
 
 <CodeRunner lang="scheme" code={cell_define_passed} />
@@ -615,3 +617,19 @@ special form：
 <CodeRunner lang="scheme" code={cell_core_lambda_define} />
 
 前面用到的 `cons`、`car`、`cdr`、`null?`、`+`、`-`、`*`、`/`、`=`、`<`、`>` 都不是新的语法规则，只是环境里已经绑定好的函数。`cond`、`and`、`or`、`let`、`case`、`do` 等常见形式，可以留到后面再看：它们都可以围绕这套更小的规则来理解。
+
+## 延伸阅读
+
+- Paul Graham, ["Revenge of the Nerds"](https://www.paulgraham.com/icad.html)，尤其是 **What Made Lisp Different** 小节。本文开头那段关于 Lisp 九个新思想的引文，准确出处是这篇文章；这一节也解释了为什么条件表达式、函数作为值、递归、symbol 和代码的树形表示在 Lisp 里会连成一组。
+
+- Daniel P. Friedman, Matthias Felleisen, *The Little Schemer*, **Chapter 1: Toys**、**Chapter 2: Do It, Do It Again, and Again, and Again ...**、**Chapter 3: Cons the Magnificent**。这三章对应本文里的 atom / list / S 表达式、`quote`、`car` / `cdr` / `cons`，以及沿着 list 结构写递归。
+
+- *The Little Schemer*, **Chapter 8: Lambda the Ultimate** 和 **Chapter 10: What Is the Value of All of This?**。如果已经读懂本文里的 `lambda`、函数调用和 "list 作为代码时如何求值"，这两章会把函数作为值和极小解释器继续往前推。
+
+- Harold Abelson, Gerald Jay Sussman, Julie Sussman, [*Structure and Interpretation of Computer Programs*, **1.1 The Elements of Programming**](https://sicp.sourceacademy.org/chapters/1.1.html)，尤其是 **1.1.1 Expressions**、**1.1.2 Naming and the Environment**、**1.1.3 Evaluating Combinations**、**1.1.4 Compound Procedures** 和 **1.1.6 Conditional Expressions and Predicates**。这些节对应本文前半部分：表达式、命名、函数调用、函数定义和条件分支。
+
+- SICP [**1.2.1 Linear Recursion and Iteration**](https://sicp.sourceacademy.org/chapters/1.2.1.html)。这一节会更严格地区分 recursive process 和 iterative process，也能补上本文只轻轻提到的 tail recursion 视角。
+
+- SICP [**1.3.2 Constructing Procedures Using Lambda**](https://sicp.sourceacademy.org/chapters/1.3.2.html)。这一节适合接在本文的 `lambda 初步` 后面读，把匿名函数值、函数定义和更高阶的抽象关系看得更清楚。
+
+- SICP [**2.3.1 Quotation**](https://sicp.sourceacademy.org/chapters/2.3.1.html)。这一节对应本文里的 `quote`、symbol，以及 "代码也可以是一段 list 数据" 这条线。
