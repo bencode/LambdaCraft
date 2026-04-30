@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Usage:
-#   DEPLOY_SERVER=<ssh-alias-or-user@host> DEPLOY_DIR=/abs/remote/path ./scripts/deploy.sh
+#   DEPLOY_SERVER=i DEPLOY_DIR=/root/repos/lambdacraft ./scripts/deploy.sh
 # Recommended: define an SSH alias in ~/.ssh/config so the host/IP/user/key never
 # appear on command lines, in shell history, or in this repo.
 
 set -euo pipefail
 
 : "${DEPLOY_SERVER:?DEPLOY_SERVER is required (e.g. user@host or an SSH alias from ~/.ssh/config)}"
-: "${DEPLOY_DIR:?DEPLOY_DIR is required (absolute remote path, e.g. /opt/lambdacraft)}"
+: "${DEPLOY_DIR:?DEPLOY_DIR is required (absolute remote path, e.g. /root/repos/lambdacraft)}"
 
 SERVER="$DEPLOY_SERVER"
 REMOTE_DIR="$DEPLOY_DIR"
