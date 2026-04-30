@@ -4,6 +4,10 @@
 
 ## Deploy
 
+Public site:
+
+- https://qijun.io/
+
 Publish the site to server `i`:
 
 ```bash
