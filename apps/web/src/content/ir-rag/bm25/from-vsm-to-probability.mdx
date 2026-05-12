@@ -345,7 +345,7 @@ score += idf * num / den
 - $k_1$ 大（3.0）→ 慢饱和，高频词继续拉分
 - $k_1 = 1.2$ 是 TREC 数据上 grid search 的经验甜点
 
-这个饱和形式来自 **2-Poisson 模型**（词频服从双 Poisson 混合分布）的一阶近似。为什么是 $\text{tf}/(k_1+\text{tf})$ 而非 $\sqrt{\text{tf}}$ 或 $\log\text{tf}$，推导见 [2-Poisson 近似 · 饱和函数从哪来](/ir-rag/bm25/from-two-poisson-to-saturation)。
+这个饱和形式来自 **2-Poisson 模型**（词频服从双 Poisson 混合分布）的一阶近似。为什么是 $\text{tf}/(k_1+\text{tf})$ 而非 $\sqrt{\text{tf}}$ 或 $\log\text{tf}$，推导见 Robertson–Walker 1994（[ACM](https://dl.acm.org/doi/10.5555/188490.188561)，10 页）。
 
 ## 长度项
 
@@ -409,6 +409,5 @@ $b < 1$ 保留了长文档的部分优势。理由：有些长文档覆盖更多
 
 ## 延伸阅读
 
-- **[2-Poisson 近似 · 饱和函数从哪来](/ir-rag/bm25/from-two-poisson-to-saturation)**（写中）—— 本章饱和项留的坑：为什么饱和形式是 $\text{tf}/(k_1+\text{tf})$
 - **[参数调优与 BM25F](/ir-rag/bm25/tuning-and-bm25f)**（写中）—— $k_1/b$ 在 collection 上怎么调、title/body/anchor 多字段打分
 - 回 [BM25 总览](/ir-rag/bm25)

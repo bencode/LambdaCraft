@@ -84,7 +84,6 @@ $$
 ## 系列导览
 
 - **[BM25 公式拆解](/ir-rag/bm25/from-vsm-to-probability)** —— 先用工程师视角解释为什么”像不像”还不等于”相关不相关”，再把 PRP、BIM、RSJ 与 idf 的关系更严格地补完整；含可运行代码
-- **[2-Poisson 近似与 BM25 定型](/ir-rag/bm25/from-two-poisson-to-saturation)**（写中）—— 饱和项 $\text{tf}/(k_1+\text{tf})$ 的形状从何而来
 - **[参数调优与 BM25F](/ir-rag/bm25/tuning-and-bm25f)**（写中）—— $k_1/b$ 在专业 collection 上怎么调；title / body / anchor 多字段打分
 - **页内 AI 助手**（规划中）—— 对 `k_3` 默认值、BM25F 细节这类一次性问题做即答
 - **配套 Jupyter notebook**（规划中）—— BM25 from scratch、$k_1/b$ sensitivity、BM25 vs tf-idf、BM25F，在 MS MARCO 子集上跑
@@ -116,7 +115,7 @@ BM25F 把"文档 = 一块纯文本"扩展成"文档 = 多个加权字段"（如 
 
 - **Maron & Kuhns 1960** · *On Relevance, Probabilistic Indexing and Information Retrieval* · [DOI](https://doi.org/10.1145/321033.321035) · 概率方法首次亮相，历史意义 > 实用
 - **Robertson & Spärck Jones 1976** · *Relevance Weighting of Search Terms* · [DOI](https://doi.org/10.1002/asi.4630270302) · RSJ weight 诞生，读 Appendix 部分即可
-- **Robertson & Walker 1994** · *Some Simple Effective Approximations to the 2-Poisson Model* · [ACM](https://dl.acm.org/doi/10.5555/188490.188561) · BM25 的起源，极简 10 页，推荐读
+- **Robertson & Walker 1994** · *Some Simple Effective Approximations to the 2-Poisson Model* · [ACM](https://dl.acm.org/doi/10.5555/188490.188561) · BM25 的起源，极简 10 页，推荐读——也是饱和项 $\text{tf}/(k_1+\text{tf})$ 的推导出处
 - **Spärck Jones, Walker & Robertson 2000** · *A Probabilistic Model of Information Retrieval: Development and Comparative Experiments* · [Part 1](https://doi.org/10.1016/S0306-4573\(00\)00015-5) · [Part 2](https://doi.org/10.1016/S0306-4573\(00\)00016-7) · 定型之作，较长但实验数据完整
 - **Robertson & Zaragoza 2009** · *The Probabilistic Relevance Framework: BM25 and Beyond* · [免费下载](https://www.nowpublishers.com/article/Details/INR-019) · 60 页综述，最佳入门 —— 直接读这本也行
 
