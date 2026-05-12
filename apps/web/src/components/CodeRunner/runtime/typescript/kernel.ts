@@ -22,11 +22,18 @@ function isStatementLike(line: string): boolean {
   if (!t) return true
   if (t.endsWith(';') || t.endsWith('{') || t.endsWith('}')) return true
   if (t.startsWith('//') || t.startsWith('/*')) return true
+  // lines that start with closing brackets are the tail of a multi-line
+  // expression — e.g. the `})` closing `({ ... })`. they are not standalone.
+  if (t.startsWith(')') || t.startsWith('}') || t.startsWith(']')) return true
   if (STMT_KW_RE.test(t)) return true
   return false
 }
 
-function splitLastExpression(code: string): { body: string; trailing: string | null } {
+// A leading-dot line (`.foo()` or `?.foo()`) is a chain continuation, not a
+// standalone expression. Walk past these to find where the chain's receiver is.
+const CHAIN_CONT_RE = /^\??\./
+
+export function splitLastExpression(code: string): { body: string; trailing: string | null } {
   const lines = code.split('\n')
   let lastIdx = lines.length - 1
   while (lastIdx >= 0 && lines[lastIdx].trim() === '') lastIdx--
@@ -34,8 +41,15 @@ function splitLastExpression(code: string): { body: string; trailing: string | n
 
   if (isStatementLike(lines[lastIdx])) return { body: code, trailing: null }
 
-  const body = lines.slice(0, lastIdx).join('\n')
-  const trailing = lines[lastIdx]
+  let startIdx = lastIdx
+  while (startIdx > 0 && CHAIN_CONT_RE.test(lines[startIdx].trim())) {
+    startIdx--
+  }
+
+  if (isStatementLike(lines[startIdx])) return { body: code, trailing: null }
+
+  const body = lines.slice(0, startIdx).join('\n')
+  const trailing = lines.slice(startIdx, lastIdx + 1).join('\n')
   return { body, trailing }
 }
 
@@ -92,7 +106,7 @@ class TypeScriptKernel implements Kernel {
       // `return (;...)`. The leading `;` is a no-op statement anyway.
       const trailingExpr = trailing ? trailing.replace(/^[\s;]+/, '') : ''
       const innerTs = trailingExpr
-        ? `${body}\n;return (${trailingExpr});`
+        ? (body.trim() ? `${body}\n;return (${trailingExpr});` : `return (${trailingExpr});`)
         : `${body}`
 
       const wrappedTs = `(async () => {\n${innerTs}\n})()`
