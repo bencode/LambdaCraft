@@ -1,0 +1,577 @@
+---
+title: Transducer：一种可组合的数据处理模式
+date: 2026-05-11
+summary: 用一组短小、可运行的 TypeScript 片段，从 step、reducer、compose 一步步推到 transducer。
+tags:
+  - typescript
+  - functional-programming
+---
+
+import CodeRunner from '@components/CodeRunner/CodeRunner.astro'
+import KernelBar from '@components/CodeRunner/KernelBar.astro'
+
+export const cell_01_pipeline = `const xs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+const result = xs
+  .map(x => x + 1)
+  .filter(x => x % 2 === 1)
+  .slice(0, 3)
+
+result`
+
+export const cell_02_for_loop = `function process(xs) {
+  const result = []
+
+  for (const x of xs) {
+    // map
+    const y = x + 1
+
+    // filter
+    if (y % 2 === 1) {
+      result.push(y)
+    }
+
+    // slice
+    if (result.length === 3) {
+      return result
+    }
+  }
+
+  return result
+}
+
+process([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])`
+
+export const cell_03_manual_map = `function map(f, xs) {
+  const result = []
+
+  // 遍历
+  for (const x of xs) {
+    // 处理
+    const y = f(x)
+
+    // 收集
+    result.push(y)
+  }
+
+  return result
+}
+
+map(x => x + 1, [0, 1, 2, 3])`
+
+export const cell_04_manual_filter = `function filter(f, xs) {
+  const result = []
+
+  // 遍历
+  for (const x of xs) {
+    // 处理
+    if (f(x)) {
+      // 收集
+      result.push(x)
+    }
+  }
+
+  return result
+}
+
+filter(x => x % 2 === 1, [0, 1, 2, 3, 4, 5])`
+
+export const cell_05_step = `function reduce(step, init, xs) {
+  let acc = init
+
+  for (const x of xs) {
+    acc = step(acc, x)
+  }
+
+  return acc
+}
+
+const append = (acc, x) => {
+  acc.push(x)
+  return acc
+}
+
+reduce(append, [], [1, 2, 3])`
+
+export const cell_05_reduce_map_filter = `const append = (acc, x) => {
+  acc.push(x)
+  return acc
+}
+
+// reduce 实现 map
+const map = (f, xs) =>
+  xs.reduce((acc, x) => append(acc, f(x)), [])
+
+// reduce 实现 filter
+const filter = (f, xs) =>
+  xs.reduce((acc, x) => f(x) ? append(acc, x) : acc, [])
+
+const xs = [0, 1, 2, 3, 4, 5]
+
+const result = {
+  map: map(x => x + 1, xs),
+  filter: filter(x => x % 2 === 1, xs),
+}
+
+result`
+
+export const cell_05_reduce_break = `const REDUCED = Symbol('reduced')
+
+const reduced = value => ({
+  [REDUCED]: true,
+  value,
+})
+
+const isReduced = value =>
+  value && value[REDUCED] === true
+
+function reduce(step, init, xs) {
+  let acc = init
+
+  for (const x of xs) {
+    console.log('read', x)
+
+    const next = step(acc, x)
+    if (isReduced(next)) {
+      return next.value
+    }
+
+    acc = next
+  }
+
+  return acc
+}
+
+const append = (acc, x) => {
+  acc.push(x)
+  return acc
+}
+
+const take = n => (acc, x) => {
+  if (acc.length >= n) {
+    return reduced(acc)
+  }
+  return append(acc, x)
+}
+
+reduce(take(3), [], [0, 1, 2, 3, 4, 5, 6, 7])`
+
+export const cell_lib_setup = `const REDUCED = Symbol('reduced')
+
+const reduced = value => ({ [REDUCED]: true, value })
+
+const isReduced = value =>
+  value && value[REDUCED] === true
+
+function reduce(step, init, xs) {
+  let acc = init
+
+  for (const x of xs) {
+    const next = step(acc, x)
+    if (isReduced(next)) {
+      return next.value
+    }
+
+    acc = next
+  }
+
+  return acc
+}
+
+const append = (acc, x) => {
+  acc.push(x)
+  return acc
+}
+
+Object.assign(globalThis, { reduced, isReduced, reduce, append })
+
+'lib ready'`
+
+export const cell_chain_recall = `const xs = [0, 1, 2, 3, 4, 5, 6, 7]
+
+xs
+  .map(x => x + 1)
+  .filter(x => x % 2 === 1)
+  .slice(0, 3)`
+
+export const cell_combined_pain = `const { reduce, reduced, append } = globalThis
+
+// 三步揉在一个 reducer 里
+const combined = (acc, x) => {
+  const y = x + 1
+  if (y % 2 !== 1) return acc
+  if (acc.length >= 3) return reduced(acc)
+  return append(acc, y)
+}
+
+reduce(combined, [], [0, 1, 2, 3, 4, 5, 6, 7])`
+
+export const cell_three_reducers = `const { reduce, reduced, append } = globalThis
+
+const incR = (acc, x) => append(acc, x + 1)
+const oddR = (acc, x) => x % 2 === 1 ? append(acc, x) : acc
+const take3R = (acc, x) => acc.length >= 3 ? reduced(acc) : append(acc, x)
+
+// reduce 一次只接一个 reducer——分三趟跑
+const a = reduce(incR, [], [0, 1, 2, 3, 4, 5, 6, 7])
+const b = reduce(oddR, [], a)
+const c = reduce(take3R, [], b)
+
+c`
+
+export const cell_compose_basic = `const compose = (...fns) => x =>
+  fns.reduceRight((value, fn) => fn(value), x)
+
+globalThis.compose = compose
+
+const addOne = x => x + 1
+const double = x => x * 2
+
+compose(addOne, double)(5)`
+
+export const cell_plus_one = `const { reduce, append } = globalThis
+
+const plusOne = step => (acc, x) => step(acc, x + 1)
+
+reduce(plusOne(append), [], [0, 1, 2, 3])`
+
+export const cell_06_mapping = `const { reduce, append } = globalThis
+
+const mapping = f => step =>
+  (acc, x) => step(acc, f(x))
+
+globalThis.mapping = mapping
+
+const step = mapping(x => x + 1)(append)
+
+reduce(step, [], [0, 1, 2, 3])`
+
+export const cell_07_filtering = `const { reduce, append } = globalThis
+
+const filtering = pred => step =>
+  (acc, x) => pred(x) ? step(acc, x) : acc
+
+globalThis.filtering = filtering
+
+const step = filtering(x => x % 2 === 1)(append)
+
+reduce(step, [], [0, 1, 2, 3, 4, 5])`
+
+export const cell_09_compose = `const { reduce, append, compose, mapping, filtering } = globalThis
+
+const xf = compose(
+  mapping(x => x + 1),
+  filtering(x => x % 2 === 1)
+)
+
+reduce(xf(append), [], [0, 1, 2, 3, 4, 5])`
+
+export const cell_10_transduce = `const { reduce, append, compose, mapping, filtering } = globalThis
+
+const transduce = (xf, step, init, xs) =>
+  reduce(xf(step), init, xs)
+
+globalThis.transduce = transduce
+
+const xf = compose(
+  mapping(x => x + 1),
+  filtering(x => x % 2 === 1)
+)
+
+transduce(xf, append, [], [0, 1, 2, 3, 4, 5])`
+
+export const cell_11_take = `const { append, reduced, compose, mapping, filtering, transduce } = globalThis
+
+const taking = n => step => {
+  let count = 0
+
+  return (acc, x) => {
+    if (count >= n) {
+      return reduced(acc)
+    }
+
+    count += 1
+    return step(acc, x)
+  }
+}
+
+globalThis.taking = taking
+
+const xf = compose(
+  mapping(x => x + 1),
+  filtering(x => x % 2 === 1),
+  taking(3)
+)
+
+transduce(xf, append, [], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])`
+
+export const cell_prime_take = `const { compose, filtering, taking, transduce, append } = globalThis
+
+let reads = 0
+function* range(n) {
+  for (let i = 0; i < n; i++) {
+    reads += 1
+    yield i
+  }
+}
+
+const isPrime = n => {
+  if (n < 2) return false
+  for (let i = 2; i * i <= n; i++) {
+    if (n % i === 0) return false
+  }
+  return true
+}
+
+const xf = compose(
+  filtering(isPrime),
+  filtering(n => String(n).includes('7')),
+  taking(3)
+)
+
+const result = transduce(xf, append, [], range(1000))
+
+({ result, reads })`
+
+export const cell_naturals_primes = `const { compose, filtering, taking, transduce, append } = globalThis
+
+function* naturals() {
+  let i = 0
+  while (true) yield i++
+}
+
+const isPrime = n => {
+  if (n < 2) return false
+  for (let i = 2; i * i <= n; i++) {
+    if (n % i === 0) return false
+  }
+  return true
+}
+
+const xf = compose(
+  filtering(isPrime),
+  taking(5)
+)
+
+transduce(xf, append, [], naturals())`
+
+export const cell_fibs_primes_7 = `const { compose, filtering, taking, transduce, append } = globalThis
+
+function* fibs() {
+  let a = 0
+  let b = 1
+  while (true) {
+    yield a
+    const next = a + b
+    a = b
+    b = next
+  }
+}
+
+const isPrime = n => {
+  if (n < 2) return false
+  for (let i = 2; i * i <= n; i++) {
+    if (n % i === 0) return false
+  }
+  return true
+}
+
+const xf = compose(
+  filtering(isPrime),
+  filtering(n => String(n).includes('7')),
+  taking(3)
+)
+
+transduce(xf, append, [], fibs())`
+
+export const cell_12_change_output = `const { compose, mapping, filtering, taking, transduce } = globalThis
+
+const add = (acc, x) => acc + x
+
+const xf = compose(
+  mapping(x => x + 1),
+  filtering(x => x % 2 === 1),
+  taking(3)
+)
+
+transduce(xf, add, 0, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])`
+
+export const cell_13_async_input = `const { append, isReduced, compose, filtering, taking } = globalThis
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+async function* fibs() {
+  let a = 0
+  let b = 1
+
+  while (true) {
+    await sleep(1)
+    yield a
+
+    const next = a + b
+    a = b
+    b = next
+  }
+}
+
+const isPrime = n => {
+  if (n < 2) return false
+  for (let i = 2; i * i <= n; i++) {
+    if (n % i === 0) return false
+  }
+  return true
+}
+
+async function asyncReduce(step, init, xs) {
+  let acc = init
+
+  for await (const x of xs) {
+    const next = step(acc, x)
+    if (isReduced(next)) {
+      return next.value
+    }
+
+    acc = next
+  }
+
+  return acc
+}
+
+const asyncTransduce = (xf, step, init, xs) =>
+  asyncReduce(xf(step), init, xs)
+
+const xf = compose(
+  filtering(isPrime),
+  filtering(n => String(n).includes('7')),
+  taking(3)
+)
+
+asyncTransduce(xf, append, [], fibs())`
+
+<KernelBar lang="typescript" />
+
+先从一个普通的数组处理开始。
+
+<CodeRunner lang="typescript" code={cell_01_pipeline} />
+
+同样的逻辑，也可以写成一个 `for` 循环。三步操作还在，只是被放进了一次遍历里。
+
+<CodeRunner lang="typescript" code={cell_02_for_loop} />
+
+链式写法的好处是结构清楚：`map`、`filter`、`slice` 各自表达一个独立步骤。
+
+`for` 写法的好处是执行直接：结果够了就可以返回，不需要继续处理后面的元素。
+
+要解决的问题就是：能不能保留 `map/filter/slice` 这种可组合的写法，同时让执行过程像 `for` 一样按需推进。
+
+先把 `map` 写开。它看起来只是一个函数，但里面其实包含了遍历和收集。
+
+<CodeRunner lang="typescript" code={cell_03_manual_map} />
+
+`filter` 也类似，只是“处理”变成了一个判断。
+
+<CodeRunner lang="typescript" code={cell_04_manual_filter} />
+
+两个实现的骨架几乎一样：遍历输入、维护结果、把需要的值放进结果里。不同的只是“遇到一个元素时要做什么”。
+
+下一步把“收集集合中的元素”这件事抽出来。
+
+<CodeRunner lang="typescript" code={cell_05_step} />
+
+这里的 `append` 就是前面代码里的“收集”：给它一个累积结果 `acc` 和当前元素 `x`，它把 `x` 放进 `acc`，再返回 `acc`。
+
+`reduce` 则固定了“遍历”的部分。它不关心每个元素具体怎么处理，只是在每次遍历时调用一次 `step(acc, x)`。
+
+试试用它写 map 和 filter。
+
+<CodeRunner lang="typescript" code={cell_05_reduce_map_filter} />
+
+这说明 `reduce` 不只是“求和”的工具。只要换掉传进去的 reducer，它就能表达 `map`、`filter`，以及更一般的遍历时累积逻辑。
+
+那 `take` 呢？它要在拿够之后停下来，而 `reduce` 现在会把输入吃完。先给 `reduce` 加一个能停的机制——类似 `break`。
+
+<CodeRunner lang="typescript" code={cell_05_reduce_break} />
+
+上面这一套（`reduced` / `isReduced` / `reduce` / `append`）后面要反复用——挂到 `globalThis` 上，后面的 cell 直接解构出来就行。
+
+<CodeRunner lang="typescript" code={cell_lib_setup} />
+
+回到一开始的例子：
+
+<CodeRunner lang="typescript" code={cell_chain_recall} />
+
+用一个 reducer 写：
+
+<CodeRunner lang="typescript" code={cell_combined_pain} />
+
+想让三步彼此独立——拆成三个 reducer：
+
+<CodeRunner lang="typescript" code={cell_three_reducers} />
+
+三步独立了，但合不回去——三个 reducer 塞不进一次 `reduce`。
+
+组合函数的常用办法是 `compose`。但 `compose` 要的是 `a => b`（单参数）；reducer 是 `(acc, x) => acc`（双参数）——对不上。
+
+先看 `compose` 在 `a => b` 上：
+
+<CodeRunner lang="typescript" code={cell_compose_basic} />
+
+reducer 自己不是 `a => b`。但 `reducer => reducer` 是——输入 reducer，输出 reducer：
+
+<CodeRunner lang="typescript" code={cell_plus_one} />
+
+`reducer => reducer` 这种形状，就叫 **transducer**。`plusOne` 是一个 transducer。
+
+写一个 mapping transducer：
+
+<CodeRunner lang="typescript" code={cell_06_mapping} />
+
+再写一个 filtering transducer——参数换成判断：
+
+<CodeRunner lang="typescript" code={cell_07_filtering} />
+
+用 `compose` 把它们串起来：
+
+<CodeRunner lang="typescript" code={cell_09_compose} />
+
+把这套动作起个名字。
+
+<CodeRunner lang="typescript" code={cell_10_transduce} />
+
+还差 `take`——也做成一个 transducer：
+
+<CodeRunner lang="typescript" code={cell_11_take} />
+
+到这里，开头那个目标就完成了：保留 `.map.filter.slice` 那种可组合的写法（`compose` 一串 transducer），同时让执行像 `for` 一样按需推进（`taking` 拿够就停，输入不必扫完）。
+
+接下来再看一个类似的例子——从 `range(1000)` 取前 3 个含 `7` 的素数：
+
+<CodeRunner lang="typescript" code={cell_prime_take} />
+
+`taking` 拿够 3 个就停，所以 `range(1000)` 实际只读了几十个。
+
+源头甚至可以是无限的——换成一个不带上限的 generator 也照跑：
+
+<CodeRunner lang="typescript" code={cell_naturals_primes} />
+
+换一个无限源——Fibonacci，再把"含 7 的素数"叠上去：
+
+<CodeRunner lang="typescript" code={cell_fibs_primes_7} />
+
+输出不一定是数组——换种收法。
+
+<CodeRunner lang="typescript" code={cell_12_change_output} />
+
+换一种迭代方式——把上面 Fibonacci 那个例子换成异步：`fibs` 改成 async generator，`reduce` 改成 asyncReduce。但 `xf` 一字未改：
+
+<CodeRunner lang="typescript" code={cell_13_async_input} />
+
+迭代方式（同步 / 异步）变了，使用方式（`mapping` / `filtering` / `taking` 串）不变——pipeline 跟迭代解耦了。
+
+## 延伸阅读
+
+- Rich Hickey, [*Transducers are Coming*](https://clojure.org/news/2014/08/06/transducers-are-coming)。Clojure 1.7 引入 transducer 时的官方公告，解释 transducer 这个概念为什么必要、它和 reducer / sequence operation 的关系。
+
+- Clojure Reference, [*Transducers*](https://clojure.org/reference/transducers)。Clojure 官方文档，覆盖了核心的 `transduce` / `into` / `eduction` 接口、stateful transducer、early termination 等本文延伸的话题。
+
+- 本文的 TypeScript 例子，更早的笔记原型在 [bencode/code 仓库的 `content/transducers.ipynb`](https://github.com/bencode/code/blob/main/content/transducers.ipynb)。如果想看更接近 Clojure 风格的命名（`fmap` / `collect` / `into`）和 Observable 流上的应用，可以对照看。
